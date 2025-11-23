@@ -5,7 +5,6 @@ import {
   Button,
   Modal,
   Form,
-  Select,
   Checkbox,
   Input,
   message,
@@ -25,7 +24,6 @@ import { breederApi } from '../../features/breeder/api/breederApi';
 import type { BreederVerification } from '../../shared/types/api.types';
 
 const { TextArea } = Input;
-const { Option } = Select;
 
 // 반려 사유 목록 (MVP 명세서 기준)
 const REJECTION_REASONS = [

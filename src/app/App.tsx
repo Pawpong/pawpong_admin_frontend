@@ -4,7 +4,6 @@ import koKR from 'antd/locale/ko_KR';
 import AdminLayout from '../shared/components/layout/AdminLayout';
 import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';
-import DashboardSimple from '../pages/DashboardSimple';
 import BreederVerification from '../pages/breeders/BreederVerification';
 import ApplicationMonitoring from '../pages/breeders/ApplicationMonitoring';
 import BreederReports from '../pages/reports/BreederReports';
