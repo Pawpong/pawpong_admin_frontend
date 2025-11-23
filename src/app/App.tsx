@@ -8,9 +8,13 @@ import DashboardSimple from '../pages/DashboardSimple';
 import BreederVerification from '../pages/breeders/BreederVerification';
 import ApplicationMonitoring from '../pages/breeders/ApplicationMonitoring';
 import BreederReports from '../pages/reports/BreederReports';
+import ReviewReports from '../pages/reports/ReviewReports';
 import Users from '../pages/users/Users';
 import Banners from '../pages/content/Banners';
 import Faqs from '../pages/content/Faqs';
+import StandardQuestions from '../pages/content/StandardQuestions';
+import Breeds from '../pages/settings/Breeds';
+import Districts from '../pages/settings/Districts';
 import { useAuthStore } from '../features/auth/store/authStore';
 
 // Protected Route 컴포넌트
@@ -122,7 +126,7 @@ function App() {
           >
             {/* 대시보드 */}
             <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<DashboardSimple />} />
+            <Route path="dashboard" element={<Dashboard />} />
 
             {/* 사용자 관리 */}
             <Route path="users" element={<Users />} />
@@ -136,17 +140,24 @@ function App() {
             {/* 신고 관리 */}
             <Route path="reports">
               <Route path="breeders" element={<BreederReports />} />
-              <Route path="reviews" element={<div className="p-6"><h2 className="text-2xl font-semibold">후기 신고 관리 (준비 중)</h2></div>} />
+              <Route path="reviews" element={<ReviewReports />} />
             </Route>
 
             {/* 콘텐츠 관리 */}
             <Route path="content">
               <Route path="banners" element={<Banners />} />
               <Route path="faqs" element={<Faqs />} />
+              <Route path="questions" element={<StandardQuestions />} />
             </Route>
 
-            {/* 표준 질문 관리 */}
-            <Route path="questions" element={<div className="p-6"><h2 className="text-2xl font-semibold">표준 질문 관리 (준비 중)</h2></div>} />
+            {/* 시스템 설정 */}
+            <Route path="settings">
+              <Route path="breeds" element={<Breeds />} />
+              <Route path="districts" element={<Districts />} />
+            </Route>
+
+            {/* 표준 질문 관리 (deprecated - 위 content/questions로 이동됨) */}
+            <Route path="questions" element={<Navigate to="/content/questions" replace />} />
 
             {/* 프로필 */}
             <Route path="profile" element={<div className="p-6"><h2 className="text-2xl font-semibold">관리자 프로필 (준비 중)</h2></div>} />

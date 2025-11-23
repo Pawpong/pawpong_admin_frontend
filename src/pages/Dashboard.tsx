@@ -8,8 +8,8 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
 } from '@ant-design/icons';
-import apiClient from '../shared/api/axios';
-import type { ApiResponse, PlatformStats } from '../shared/types/api.types';
+import { platformApi } from '../features/platform/api/platformApi';
+import type { PlatformStats } from '../shared/types/api.types';
 
 export default function Dashboard() {
   const [stats, setStats] = useState<PlatformStats | null>(null);
@@ -22,10 +22,8 @@ export default function Dashboard() {
   const fetchStats = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.get<ApiResponse<PlatformStats>>(
-        '/platform-admin/stats'
-      );
-      setStats(response.data.data);
+      const data = await platformApi.getStats();
+      setStats(data);
     } catch (error: any) {
       console.error('Failed to fetch stats:', error);
       message.error('통계 데이터를 불러올 수 없습니다.');

@@ -325,15 +325,111 @@ export interface UserStatusUpdateResponse {
 }
 
 /**
- * 표준 질문 관련 타입
+ * 표준 질문 관련 타입 (백엔드 API와 일치)
  */
 export interface StandardQuestion {
   id: string;
-  title: string;
-  description: string;
-  type: 'text' | 'textarea' | 'number' | 'radio' | 'checkbox' | 'select' | 'date' | 'file';
-  options: string[];
-  isRequired: boolean;
-  isActive: boolean;
+  type: 'text' | 'textarea' | 'checkbox' | 'radio' | 'select';
+  label: string;
+  required: boolean;
   order: number;
+  isActive: boolean;
+  options?: string[];
+  placeholder?: string;
+  description?: string;
+}
+
+export interface StandardQuestionUpdateRequest {
+  type?: 'text' | 'textarea' | 'checkbox' | 'radio' | 'select';
+  label?: string;
+  required?: boolean;
+  options?: string[];
+  placeholder?: string;
+  description?: string;
+}
+
+export interface StandardQuestionToggleStatusRequest {
+  isActive: boolean;
+}
+
+export interface ReorderItem {
+  id: string;
+  order: number;
+}
+
+export interface StandardQuestionReorderRequest {
+  reorderData: ReorderItem[];
+}
+
+/**
+ * 후기 신고 관련 타입 (백엔드 API와 일치)
+ */
+export interface ReviewReportItem {
+  reviewId: string;
+  breederId: string;
+  breederName: string;
+  reportedBy: string;
+  reporterName: string;
+  reportReason: string;
+  reportDescription: string;
+  reportedAt: string;
+  content: string;
+  writtenAt: string;
+  isVisible: boolean;
+}
+
+export interface ReviewDeleteResponse {
+  reviewId: string;
+  breederId: string;
+  breederName: string;
+  deleteReason: string;
+  deletedAt: string;
+  message: string;
+}
+
+/**
+ * 품종 관리 관련 타입 (백엔드 API와 일치)
+ */
+export interface Breed {
+  id: string;
+  petType: 'dog' | 'cat';
+  category: string;
+  categoryDescription?: string;
+  breeds: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BreedCreateRequest {
+  petType: 'dog' | 'cat';
+  category: string;
+  categoryDescription?: string;
+  breeds: string[];
+}
+
+export interface BreedUpdateRequest {
+  category?: string;
+  categoryDescription?: string;
+  breeds?: string[];
+}
+
+/**
+ * 지역 관리 관련 타입 (백엔드 API와 일치)
+ */
+export interface District {
+  id: string;
+  city: string;
+  districts: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DistrictCreateRequest {
+  city: string;
+  districts: string[];
+}
+
+export interface DistrictUpdateRequest {
+  city?: string;
+  districts?: string[];
 }

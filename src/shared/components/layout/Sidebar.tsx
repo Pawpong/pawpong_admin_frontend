@@ -7,6 +7,7 @@ import {
   WarningOutlined,
   FileTextOutlined,
   QuestionCircleOutlined,
+  SettingOutlined,
 } from '@ant-design/icons';
 
 const { Sider } = Layout;
@@ -77,12 +78,26 @@ export default function Sidebar({ collapsed }: SidebarProps) {
           key: '/content/faqs',
           label: 'FAQ',
         },
+        {
+          key: '/content/questions',
+          label: '표준 질문',
+        },
       ],
     },
     {
-      key: '/questions',
-      icon: <QuestionCircleOutlined />,
-      label: '표준 질문 관리',
+      key: 'settings',
+      icon: <SettingOutlined />,
+      label: '시스템 설정',
+      children: [
+        {
+          key: '/settings/breeds',
+          label: '품종 관리',
+        },
+        {
+          key: '/settings/districts',
+          label: '지역 관리',
+        },
+      ],
     },
   ];
 
@@ -124,7 +139,7 @@ export default function Sidebar({ collapsed }: SidebarProps) {
       <Menu
         mode="inline"
         selectedKeys={[location.pathname]}
-        defaultOpenKeys={['breeders', 'reports', 'content']}
+        defaultOpenKeys={['breeders', 'reports', 'content', 'settings']}
         items={menuItems}
         onClick={handleMenuClick}
         style={{ borderRight: 0 }}
