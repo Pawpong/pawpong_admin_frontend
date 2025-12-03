@@ -1,17 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Table,
-  Card,
-  Button,
-  message,
-  Modal,
-  Form,
-  Input,
-  Select,
-  Space,
-  Tag,
-  Popconfirm,
-} from 'antd';
+import { Table, Card, Button, message, Modal, Form, Input, Select, Space, Tag, Popconfirm } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { breedApi } from '../../features/breed/api/breedApi';
@@ -126,11 +114,7 @@ const Breeds: React.FC = () => {
   };
 
   const getPetTypeTag = (petType: string) => {
-    return petType === 'dog' ? (
-      <Tag color="blue">강아지</Tag>
-    ) : (
-      <Tag color="purple">고양이</Tag>
-    );
+    return petType === 'dog' ? <Tag color="blue">강아지</Tag> : <Tag color="purple">고양이</Tag>;
   };
 
   const columns: ColumnsType<Breed> = [
@@ -185,11 +169,7 @@ const Breeds: React.FC = () => {
       width: 150,
       render: (_, record) => (
         <Space size="small">
-          <Button
-            type="link"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          >
+          <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)}>
             수정
           </Button>
           <Popconfirm
@@ -248,22 +228,14 @@ const Breeds: React.FC = () => {
         cancelText="취소"
       >
         <Form form={form} layout="vertical" style={{ marginTop: '20px' }}>
-          <Form.Item
-            name="petType"
-            label="동물 타입"
-            rules={[{ required: true, message: '동물 타입을 선택해주세요' }]}
-          >
+          <Form.Item name="petType" label="동물 타입" rules={[{ required: true, message: '동물 타입을 선택해주세요' }]}>
             <Select placeholder="동물 타입 선택" disabled={!!editingBreed}>
               <Option value="dog">강아지</Option>
               <Option value="cat">고양이</Option>
             </Select>
           </Form.Item>
 
-          <Form.Item
-            name="category"
-            label="카테고리"
-            rules={[{ required: true, message: '카테고리를 입력해주세요' }]}
-          >
+          <Form.Item name="category" label="카테고리" rules={[{ required: true, message: '카테고리를 입력해주세요' }]}>
             <Input placeholder="예: 소형견" />
           </Form.Item>
 
@@ -276,10 +248,7 @@ const Breeds: React.FC = () => {
             label="품종 목록 (쉼표로 구분)"
             rules={[{ required: true, message: '품종을 입력해주세요' }]}
           >
-            <TextArea
-              rows={4}
-              placeholder="예: 비숑프리제, 닥스훈트, 말티즈"
-            />
+            <TextArea rows={4} placeholder="예: 비숑프리제, 닥스훈트, 말티즈" />
           </Form.Item>
         </Form>
       </Modal>

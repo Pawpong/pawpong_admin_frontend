@@ -1,15 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Table,
-  Card,
-  message,
-  Tag,
-  Space,
-  Button,
-  Modal,
-  Typography,
-  Popconfirm,
-} from 'antd';
+import { Table, Card, message, Tag, Space, Button, Modal, Typography, Popconfirm } from 'antd';
 import { DeleteOutlined, EyeOutlined, WarningOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { reviewReportApi } from '../../features/review/api/reviewReportApi';
@@ -138,12 +128,7 @@ const ReviewReports: React.FC = () => {
       dataIndex: 'isVisible',
       key: 'isVisible',
       width: 100,
-      render: (isVisible: boolean) =>
-        isVisible ? (
-          <Tag color="green">공개</Tag>
-        ) : (
-          <Tag color="default">비공개</Tag>
-        ),
+      render: (isVisible: boolean) => (isVisible ? <Tag color="green">공개</Tag> : <Tag color="default">비공개</Tag>),
     },
     {
       title: '작업',
@@ -151,11 +136,7 @@ const ReviewReports: React.FC = () => {
       width: 150,
       render: (_, record) => (
         <Space size="small">
-          <Button
-            type="link"
-            icon={<EyeOutlined />}
-            onClick={() => handleViewDetail(record)}
-          >
+          <Button type="link" icon={<EyeOutlined />} onClick={() => handleViewDetail(record)}>
             상세
           </Button>
           <Popconfirm
@@ -300,11 +281,7 @@ const ReviewReports: React.FC = () => {
             <div>
               <Text strong>공개 상태</Text>
               <div style={{ marginTop: '8px' }}>
-                {selectedReport.isVisible ? (
-                  <Tag color="green">공개 중</Tag>
-                ) : (
-                  <Tag color="default">비공개</Tag>
-                )}
+                {selectedReport.isVisible ? <Tag color="green">공개 중</Tag> : <Tag color="default">비공개</Tag>}
               </div>
             </div>
           </div>

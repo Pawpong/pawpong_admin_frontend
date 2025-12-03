@@ -2,11 +2,11 @@ import { Layout, Menu } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   DashboardOutlined,
+  BarChartOutlined,
   UserOutlined,
   TeamOutlined,
   WarningOutlined,
   FileTextOutlined,
-  QuestionCircleOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
 
@@ -31,6 +31,11 @@ export default function Sidebar({ collapsed }: SidebarProps) {
       label: '대시보드',
     },
     {
+      key: '/statistics',
+      icon: <BarChartOutlined />,
+      label: 'MVP 통계',
+    },
+    {
       key: '/users',
       icon: <UserOutlined />,
       label: '사용자 관리',
@@ -43,6 +48,10 @@ export default function Sidebar({ collapsed }: SidebarProps) {
         {
           key: '/breeders/verification',
           label: '인증 관리',
+        },
+        {
+          key: '/breeders/management',
+          label: '브리더 관리',
         },
         {
           key: '/breeders/applications',
@@ -120,17 +129,11 @@ export default function Sidebar({ collapsed }: SidebarProps) {
         bottom: 0,
       }}
     >
-      <div
-        className="flex items-center justify-center h-16 border-b"
-        style={{ borderColor: 'var(--color-gray-100)' }}
-      >
+      <div className="flex items-center justify-center h-16 border-b" style={{ borderColor: 'var(--color-gray-100)' }}>
         {collapsed ? (
           <span className="text-2xl">🐾</span>
         ) : (
-          <h1
-            className="text-xl font-bold"
-            style={{ color: 'var(--color-primary-500)' }}
-          >
+          <h1 className="text-xl font-bold" style={{ color: 'var(--color-primary-500)' }}>
             🐾 Pawpong
           </h1>
         )}

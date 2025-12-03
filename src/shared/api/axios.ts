@@ -44,7 +44,7 @@ apiClient.interceptors.response.use(
           throw new Error('No refresh token');
         }
 
-        // 토큰 갱신 API 호출
+        // 토큰 갱신 API 호출 (관리자용)
         const response = await axios.post(`${API_BASE_URL}/auth-admin/refresh`, {
           refreshToken,
         });

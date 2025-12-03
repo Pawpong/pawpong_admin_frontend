@@ -95,20 +95,20 @@ export interface VerificationAction {
 }
 
 /**
- * 신고 관련 타입 (백엔드 API와 일치)
+ * 신고 관련 타입 (백엔드 API와 일치 - 평면 구조)
  */
 export interface BreederReport {
-  breederName: string;
-  breederId: string;
-  report: {
-    reportId: string;
-    reporterId: string;
-    reason: string;
-    description: string;
-    status: 'pending' | 'approved' | 'rejected';
-    reportedAt: string;
-    adminAction?: string;
-  };
+  reportId: string;
+  reporterId: string;
+  reporterName: string;
+  type: string;
+  description: string;
+  status: 'pending' | 'approved' | 'rejected';
+  reportedAt: string;
+  targetType: 'breeder';
+  targetId: string;
+  targetName: string;
+  adminNotes?: string;
 }
 
 export interface ReviewReport {
@@ -256,6 +256,54 @@ export interface PlatformStats {
   regionalStatistics: RegionalStats[];
   breederPerformanceRanking: BreederPerformance[];
   reportStatistics: ReportStats;
+}
+
+/**
+ * MVP 통계 관련 타입 (백엔드 API와 일치)
+ */
+export interface ActiveUserStats {
+  adopters7Days: number;
+  adopters14Days: number;
+  adopters28Days: number;
+  breeders7Days: number;
+  breeders14Days: number;
+  breeders28Days: number;
+}
+
+export interface ConsultationStats {
+  consultations7Days: number;
+  consultations14Days: number;
+  consultations28Days: number;
+  adoptions7Days: number;
+  adoptions14Days: number;
+  adoptions28Days: number;
+}
+
+export interface FilterUsageItem {
+  filterType: string;
+  filterValue: string;
+  usageCount: number;
+}
+
+export interface FilterUsageStats {
+  topLocations: FilterUsageItem[];
+  topBreeds: FilterUsageItem[];
+  emptyResultFilters: FilterUsageItem[];
+}
+
+export interface BreederResubmissionStats {
+  totalRejections: number;
+  resubmissions: number;
+  resubmissionRate: number;
+  resubmissionApprovals: number;
+  resubmissionApprovalRate: number;
+}
+
+export interface MvpStats {
+  activeUserStats: ActiveUserStats;
+  consultationStats: ConsultationStats;
+  filterUsageStats: FilterUsageStats;
+  breederResubmissionStats: BreederResubmissionStats;
 }
 
 /**

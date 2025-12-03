@@ -13,10 +13,7 @@ export const reviewReportApi = {
   /**
    * 신고된 후기 목록 조회
    */
-  getReviewReports: async (
-    page: number = 1,
-    limit: number = 10
-  ): Promise<PaginationResponse<ReviewReportItem>> => {
+  getReviewReports: async (page: number = 1, limit: number = 10): Promise<PaginationResponse<ReviewReportItem>> => {
     const response = await apiClient.get<ApiResponse<PaginationResponse<ReviewReportItem>>>(
       '/adopter-admin/reviews/reports',
       { params: { page, limit } }

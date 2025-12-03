@@ -1,16 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Table,
-  Card,
-  Button,
-  message,
-  Modal,
-  Form,
-  Input,
-  Space,
-  Tag,
-  Popconfirm,
-} from 'antd';
+import { Table, Card, Button, message, Modal, Form, Input, Space, Tag, Popconfirm } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { districtApi } from '../../features/district/api/districtApi';
@@ -151,11 +140,7 @@ const Districts: React.FC = () => {
       width: 150,
       render: (_, record) => (
         <Space size="small">
-          <Button
-            type="link"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          >
+          <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)}>
             수정
           </Button>
           <Popconfirm
@@ -214,11 +199,7 @@ const Districts: React.FC = () => {
         cancelText="취소"
       >
         <Form form={form} layout="vertical" style={{ marginTop: '20px' }}>
-          <Form.Item
-            name="city"
-            label="시/도"
-            rules={[{ required: true, message: '시/도를 입력해주세요' }]}
-          >
+          <Form.Item name="city" label="시/도" rules={[{ required: true, message: '시/도를 입력해주세요' }]}>
             <Input placeholder="예: 서울특별시" />
           </Form.Item>
 
@@ -227,10 +208,7 @@ const Districts: React.FC = () => {
             label="시/군/구 목록 (쉼표로 구분)"
             rules={[{ required: true, message: '시/군/구를 입력해주세요' }]}
           >
-            <TextArea
-              rows={4}
-              placeholder="예: 강남구, 강동구, 강북구"
-            />
+            <TextArea rows={4} placeholder="예: 강남구, 강동구, 강북구" />
           </Form.Item>
         </Form>
       </Modal>

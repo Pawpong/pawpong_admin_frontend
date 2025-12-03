@@ -4,13 +4,16 @@ import koKR from 'antd/locale/ko_KR';
 import AdminLayout from '../shared/components/layout/AdminLayout';
 import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';
+import MvpStatsPage from '../pages/statistics/MvpStats';
 import BreederVerification from '../pages/breeders/BreederVerification';
+import BreederManagement from '../pages/breeders/BreederManagement';
 import ApplicationMonitoring from '../pages/breeders/ApplicationMonitoring';
 import BreederReports from '../pages/reports/BreederReports';
 import ReviewReports from '../pages/reports/ReviewReports';
 import Users from '../pages/users/Users';
 import Banners from '../pages/content/Banners';
 import Faqs from '../pages/content/Faqs';
+import Announcements from '../pages/content/Announcements';
 import StandardQuestions from '../pages/content/StandardQuestions';
 import Breeds from '../pages/settings/Breeds';
 import Districts from '../pages/settings/Districts';
@@ -34,11 +37,11 @@ function App() {
       theme={{
         token: {
           // Pawpong 브랜드 컬러 적용
-          colorPrimary: '#4f3b2e',         // 따뜻한 브라운
-          colorSuccess: '#005df9',          // 블루
-          colorWarning: '#d97706',          // 오렌지
-          colorError: '#dc2626',            // 레드
-          colorInfo: '#a0c8f4',             // 세컨더리 블루
+          colorPrimary: '#4f3b2e', // 따뜻한 브라운
+          colorSuccess: '#005df9', // 블루
+          colorWarning: '#d97706', // 오렌지
+          colorError: '#dc2626', // 레드
+          colorInfo: '#a0c8f4', // 세컨더리 블루
 
           // Border Radius - 부드러운 느낌
           borderRadius: 8,
@@ -127,12 +130,16 @@ function App() {
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
 
+            {/* MVP 통계 */}
+            <Route path="statistics" element={<MvpStatsPage />} />
+
             {/* 사용자 관리 */}
             <Route path="users" element={<Users />} />
 
             {/* 브리더 관리 */}
             <Route path="breeders">
               <Route path="verification" element={<BreederVerification />} />
+              <Route path="management" element={<BreederManagement />} />
               <Route path="applications" element={<ApplicationMonitoring />} />
             </Route>
 
@@ -146,6 +153,7 @@ function App() {
             <Route path="content">
               <Route path="banners" element={<Banners />} />
               <Route path="faqs" element={<Faqs />} />
+              <Route path="announcements" element={<Announcements />} />
               <Route path="questions" element={<StandardQuestions />} />
             </Route>
 
@@ -159,7 +167,14 @@ function App() {
             <Route path="questions" element={<Navigate to="/content/questions" replace />} />
 
             {/* 프로필 */}
-            <Route path="profile" element={<div className="p-6"><h2 className="text-2xl font-semibold">관리자 프로필 (준비 중)</h2></div>} />
+            <Route
+              path="profile"
+              element={
+                <div className="p-6">
+                  <h2 className="text-2xl font-semibold">관리자 프로필 (준비 중)</h2>
+                </div>
+              }
+            />
           </Route>
 
           {/* 404 */}

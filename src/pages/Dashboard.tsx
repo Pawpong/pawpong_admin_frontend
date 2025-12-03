@@ -8,6 +8,7 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
 } from '@ant-design/icons';
+
 import { platformApi } from '../features/platform/api/platformApi';
 import type { PlatformStats } from '../shared/types/api.types';
 

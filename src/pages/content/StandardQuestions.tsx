@@ -14,17 +14,10 @@ import {
   Tag,
   InputNumber,
 } from 'antd';
-import {
-  EditOutlined,
-  ReloadOutlined,
-  SortAscendingOutlined,
-} from '@ant-design/icons';
+import { EditOutlined, ReloadOutlined, SortAscendingOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { standardQuestionApi } from '../../features/content/api/standardQuestionApi';
-import type {
-  StandardQuestion,
-  StandardQuestionUpdateRequest,
-} from '../../shared/types/api.types';
+import type { StandardQuestion, StandardQuestionUpdateRequest } from '../../shared/types/api.types';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -104,9 +97,7 @@ const StandardQuestions: React.FC = () => {
       await standardQuestionApi.toggleQuestionStatus(question.id, {
         isActive: !question.isActive,
       });
-      message.success(
-        `질문이 ${!question.isActive ? '활성화' : '비활성화'}되었습니다.`
-      );
+      message.success(`질문이 ${!question.isActive ? '활성화' : '비활성화'}되었습니다.`);
       fetchQuestions();
     } catch (error: any) {
       console.error('Failed to toggle question status:', error);
@@ -222,9 +213,7 @@ const StandardQuestions: React.FC = () => {
       width: 200,
       render: (id: string) => (
         <div>
-          <div style={{ fontWeight: 500, marginBottom: '4px' }}>
-            {ID_LABEL_MAP[id] || id}
-          </div>
+          <div style={{ fontWeight: 500, marginBottom: '4px' }}>{ID_LABEL_MAP[id] || id}</div>
           <code style={{ fontSize: '11px', color: '#999' }}>{id}</code>
         </div>
       ),
@@ -247,8 +236,7 @@ const StandardQuestions: React.FC = () => {
       dataIndex: 'required',
       key: 'required',
       width: 80,
-      render: (required: boolean) =>
-        required ? <Tag color="red">필수</Tag> : <Tag>선택</Tag>,
+      render: (required: boolean) => (required ? <Tag color="red">필수</Tag> : <Tag>선택</Tag>),
     },
     {
       title: '활성',
@@ -270,11 +258,7 @@ const StandardQuestions: React.FC = () => {
       width: 100,
       render: (_, record) => (
         <Space size="small">
-          <Button
-            type="link"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          >
+          <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)}>
             수정
           </Button>
         </Space>
@@ -293,10 +277,7 @@ const StandardQuestions: React.FC = () => {
         }
         extra={
           <Space>
-            <Button
-              icon={<SortAscendingOutlined />}
-              onClick={handleReorder}
-            >
+            <Button icon={<SortAscendingOutlined />} onClick={handleReorder}>
               순서 변경
             </Button>
             <Popconfirm
@@ -338,11 +319,7 @@ const StandardQuestions: React.FC = () => {
         cancelText="취소"
       >
         <Form form={form} layout="vertical" style={{ marginTop: '20px' }}>
-          <Form.Item
-            name="type"
-            label="질문 타입"
-            rules={[{ required: true, message: '질문 타입을 선택해주세요' }]}
-          >
+          <Form.Item name="type" label="질문 타입" rules={[{ required: true, message: '질문 타입을 선택해주세요' }]}>
             <Select placeholder="질문 타입 선택">
               <Option value="text">단답형 (text)</Option>
               <Option value="textarea">장문형 (textarea)</Option>
@@ -352,11 +329,7 @@ const StandardQuestions: React.FC = () => {
             </Select>
           </Form.Item>
 
-          <Form.Item
-            name="label"
-            label="질문 내용"
-            rules={[{ required: true, message: '질문 내용을 입력해주세요' }]}
-          >
+          <Form.Item name="label" label="질문 내용" rules={[{ required: true, message: '질문 내용을 입력해주세요' }]}>
             <Input placeholder="예: 개인정보 수집 및 이용에 동의하시나요?" />
           </Form.Item>
 
@@ -364,12 +337,7 @@ const StandardQuestions: React.FC = () => {
             <Switch checkedChildren="필수" unCheckedChildren="선택" />
           </Form.Item>
 
-          <Form.Item
-            noStyle
-            shouldUpdate={(prevValues, currentValues) =>
-              prevValues.type !== currentValues.type
-            }
-          >
+          <Form.Item noStyle shouldUpdate={(prevValues, currentValues) => prevValues.type !== currentValues.type}>
             {({ getFieldValue }) => {
               const type = getFieldValue('type');
               return ['select', 'radio', 'checkbox'].includes(type) ? (
@@ -378,10 +346,7 @@ const StandardQuestions: React.FC = () => {
                   label="선택 옵션 (쉼표로 구분)"
                   rules={[{ required: true, message: '옵션을 입력해주세요' }]}
                 >
-                  <Input
-                    placeholder="예: 예, 아니오, 모름"
-                    addonBefore="옵션"
-                  />
+                  <Input placeholder="예: 예, 아니오, 모름" addonBefore="옵션" />
                 </Form.Item>
               ) : null;
             }}
@@ -392,10 +357,7 @@ const StandardQuestions: React.FC = () => {
           </Form.Item>
 
           <Form.Item name="description" label="설명 또는 도움말">
-            <TextArea
-              rows={3}
-              placeholder="예: 개인정보는 입양 심사 목적으로만 사용됩니다"
-            />
+            <TextArea rows={3} placeholder="예: 개인정보는 입양 심사 목적으로만 사용됩니다" />
           </Form.Item>
         </Form>
       </Modal>
@@ -411,9 +373,7 @@ const StandardQuestions: React.FC = () => {
         cancelText="취소"
       >
         <div style={{ marginTop: '20px', marginBottom: '10px' }}>
-          <p style={{ color: '#666' }}>
-            각 질문의 순서를 변경하세요. 숫자가 작을수록 먼저 표시됩니다.
-          </p>
+          <p style={{ color: '#666' }}>각 질문의 순서를 변경하세요. 숫자가 작을수록 먼저 표시됩니다.</p>
         </div>
         <Form form={reorderForm} layout="vertical">
           {dataSource.map((q) => (
@@ -422,9 +382,7 @@ const StandardQuestions: React.FC = () => {
               name={q.id}
               label={
                 <Space>
-                  <span style={{ fontWeight: 600, minWidth: '120px' }}>
-                    {ID_LABEL_MAP[q.id] || q.id}
-                  </span>
+                  <span style={{ fontWeight: 600, minWidth: '120px' }}>{ID_LABEL_MAP[q.id] || q.id}</span>
                   {getQuestionTypeTag(q.type)}
                   <span style={{ color: '#666', fontSize: '13px' }}>
                     {q.label.substring(0, 40)}
@@ -434,12 +392,7 @@ const StandardQuestions: React.FC = () => {
               }
               rules={[{ required: true, type: 'number' }]}
             >
-              <InputNumber
-                min={1}
-                max={100}
-                style={{ width: '100px' }}
-                placeholder="순서"
-              />
+              <InputNumber min={1} max={100} style={{ width: '100px' }} placeholder="순서" />
             </Form.Item>
           ))}
         </Form>

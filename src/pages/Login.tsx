@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, Input, Button, Card, Typography, message, Spin } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
+
 import { authApi } from '../features/auth/api/authApi';
 import { useAuthStore } from '../features/auth/store/authStore';
 import type { LoginRequest } from '../shared/types/api.types';
@@ -42,13 +43,7 @@ export default function Login() {
           <Text type="secondary">관리자 로그인</Text>
         </div>
 
-        <Form
-          name="login"
-          onFinish={onFinish}
-          autoComplete="off"
-          size="large"
-          layout="vertical"
-        >
+        <Form name="login" onFinish={onFinish} autoComplete="off" size="large" layout="vertical">
           <Form.Item
             name="email"
             label="이메일"
@@ -57,33 +52,15 @@ export default function Login() {
               { type: 'email', message: '올바른 이메일 형식이 아닙니다!' },
             ]}
           >
-            <Input
-              prefix={<UserOutlined />}
-              placeholder="admin@pawpong.com"
-            />
+            <Input prefix={<UserOutlined />} placeholder="admin@pawpong.com" />
           </Form.Item>
 
-          <Form.Item
-            name="password"
-            label="비밀번호"
-            rules={[
-              { required: true, message: '비밀번호를 입력해주세요!' },
-            ]}
-          >
-            <Input.Password
-              prefix={<LockOutlined />}
-              placeholder="비밀번호"
-            />
+          <Form.Item name="password" label="비밀번호" rules={[{ required: true, message: '비밀번호를 입력해주세요!' }]}>
+            <Input.Password prefix={<LockOutlined />} placeholder="비밀번호" />
           </Form.Item>
 
           <Form.Item className="!mb-0">
-            <Button
-              type="primary"
-              htmlType="submit"
-              block
-              loading={loading}
-              className="h-12 text-lg font-semibold"
-            >
+            <Button type="primary" htmlType="submit" block loading={loading} className="h-12 text-lg font-semibold">
               {loading ? <Spin /> : '로그인'}
             </Button>
           </Form.Item>

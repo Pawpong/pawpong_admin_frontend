@@ -1,25 +1,8 @@
 import { useEffect, useState } from 'react';
-import {
-  Table,
-  Tag,
-  Button,
-  Modal,
-  Form,
-  Checkbox,
-  Input,
-  message,
-  Space,
-  Descriptions,
-  Image,
-  Card,
-} from 'antd';
-import {
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  EyeOutlined,
-  FileTextOutlined,
-} from '@ant-design/icons';
+import { Table, Tag, Button, Modal, Form, Checkbox, Input, message, Space, Descriptions, Image, Card } from 'antd';
+import { CheckCircleOutlined, CloseCircleOutlined, EyeOutlined, FileTextOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
+
 import { breederApi } from '../../features/breeder/api/breederApi';
 import type { BreederVerification } from '../../shared/types/api.types';
 
@@ -98,12 +81,7 @@ export default function BreederVerification() {
       const customReason = values.customReason || '';
 
       // 체크박스 선택된 항목 조합
-      const rejectionReason = [
-        ...selectedReasons,
-        customReason && `기타: ${customReason}`,
-      ]
-        .filter(Boolean)
-        .join('\n');
+      const rejectionReason = [...selectedReasons, customReason && `기타: ${customReason}`].filter(Boolean).join('\n');
 
       if (!selectedBreeder) return;
 
@@ -140,9 +118,7 @@ export default function BreederVerification() {
       key: 'subscriptionPlan',
       width: 120,
       render: (plan: string) => (
-        <Tag color={plan === 'premium' ? 'gold' : 'blue'}>
-          {plan === 'premium' ? '프리미엄' : '베이직'}
-        </Tag>
+        <Tag color={plan === 'premium' ? 'gold' : 'blue'}>{plan === 'premium' ? '프리미엄' : '베이직'}</Tag>
       ),
     },
     {
@@ -150,16 +126,14 @@ export default function BreederVerification() {
       dataIndex: ['verificationInfo', 'submittedAt'],
       key: 'submittedAt',
       width: 150,
-      render: (date: string) => date ? new Date(date).toLocaleDateString('ko-KR') : '-',
+      render: (date: string) => (date ? new Date(date).toLocaleDateString('ko-KR') : '-'),
     },
     {
       title: '상태',
       dataIndex: ['verificationInfo', 'verificationStatus'],
       key: 'verificationStatus',
       width: 100,
-      render: (status: string) => (
-        <Tag color="orange">{status === 'pending' ? '대기 중' : status}</Tag>
-      ),
+      render: (status: string) => <Tag color="orange">{status === 'pending' ? '대기 중' : status}</Tag>,
     },
     {
       title: '액션',
@@ -167,11 +141,7 @@ export default function BreederVerification() {
       width: 350,
       render: (_, record) => (
         <Space size="small">
-          <Button
-            type="link"
-            icon={<EyeOutlined />}
-            onClick={() => handleViewDetails(record)}
-          >
+          <Button type="link" icon={<EyeOutlined />} onClick={() => handleViewDetails(record)}>
             상세 보기
           </Button>
           <Button
@@ -182,7 +152,7 @@ export default function BreederVerification() {
               backgroundColor: 'var(--color-level-elite-100)',
               color: 'var(--color-level-elite-500)',
               borderColor: 'var(--color-level-elite-500)',
-              fontWeight: 500
+              fontWeight: 500,
             }}
           >
             엘리트 승인
@@ -195,17 +165,12 @@ export default function BreederVerification() {
               backgroundColor: 'var(--color-level-new-100)',
               color: 'var(--color-level-new-500)',
               borderColor: 'var(--color-level-new-500)',
-              fontWeight: 500
+              fontWeight: 500,
             }}
           >
             뉴 승인
           </Button>
-          <Button
-            danger
-            icon={<CloseCircleOutlined />}
-            onClick={() => handleReject(record)}
-            size="small"
-          >
+          <Button danger icon={<CloseCircleOutlined />} onClick={() => handleReject(record)} size="small">
             반려
           </Button>
         </Space>
@@ -228,7 +193,7 @@ export default function BreederVerification() {
         className="mb-6"
         style={{
           borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)'
+          boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
         }}
       >
         <div className="flex items-center gap-3">
@@ -273,9 +238,7 @@ export default function BreederVerification() {
               <Descriptions.Item label="브리더명" span={2}>
                 {selectedBreeder.breederName}
               </Descriptions.Item>
-              <Descriptions.Item label="이메일">
-                {selectedBreeder.emailAddress}
-              </Descriptions.Item>
+              <Descriptions.Item label="이메일">{selectedBreeder.emailAddress}</Descriptions.Item>
               <Descriptions.Item label="요금제">
                 <Tag color={selectedBreeder.verificationInfo.subscriptionPlan === 'premium' ? 'gold' : 'blue'}>
                   {selectedBreeder.verificationInfo.subscriptionPlan === 'premium' ? '프리미엄' : '베이직'}
@@ -306,11 +269,7 @@ export default function BreederVerification() {
                 {selectedBreeder.verificationInfo.documentUrls.map((doc, index) => (
                   <div key={index} className="border p-2 rounded">
                     <p className="text-sm text-gray-600 mb-2">서류 {index + 1}</p>
-                    <Image
-                      src={doc}
-                      alt={`서류 ${index + 1}`}
-                      className="w-full"
-                    />
+                    <Image src={doc} alt={`서류 ${index + 1}`} className="w-full" />
                   </div>
                 ))}
               </div>
@@ -327,7 +286,7 @@ export default function BreederVerification() {
                   backgroundColor: 'var(--color-level-elite-500)',
                   color: '#fff',
                   borderColor: 'var(--color-level-elite-500)',
-                  fontWeight: 500
+                  fontWeight: 500,
                 }}
               >
                 엘리트 승인
@@ -341,7 +300,7 @@ export default function BreederVerification() {
                   backgroundColor: 'var(--color-level-new-500)',
                   color: '#fff',
                   borderColor: 'var(--color-level-new-500)',
-                  fontWeight: 500
+                  fontWeight: 500,
                 }}
               >
                 뉴 승인
@@ -386,12 +345,7 @@ export default function BreederVerification() {
           </Form.Item>
 
           <Form.Item name="customReason" label="기타 사유 (선택)">
-            <TextArea
-              rows={3}
-              placeholder="기타 반려 사유를 입력해주세요"
-              maxLength={500}
-              showCount
-            />
+            <TextArea rows={3} placeholder="기타 반려 사유를 입력해주세요" maxLength={500} showCount />
           </Form.Item>
 
           <div className="bg-yellow-50 p-3 rounded mt-4">

@@ -1,22 +1,6 @@
 import { useEffect, useState } from 'react';
-import {
-  Table,
-  Tag,
-  Button,
-  Modal,
-  Card,
-  message,
-  Space,
-  Descriptions,
-  Select,
-  Input,
-} from 'antd';
-import {
-  WarningOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  EyeOutlined,
-} from '@ant-design/icons';
+import { Table, Tag, Button, Modal, Card, message, Space, Descriptions, Input } from 'antd';
+import { WarningOutlined, CheckCircleOutlined, CloseCircleOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { breederApi } from '../../features/breeder/api/breederApi';
 import type { BreederReport } from '../../shared/types/api.types';
@@ -79,16 +63,13 @@ export default function BreederReports() {
     if (!selectedReport) return;
 
     try {
-      await breederApi.handleReport(
-        selectedReport.breederId,
-        selectedReport.report.reportId,
-        { action: actionType, adminNotes }
-      );
+      await breederApi.handleReport(selectedReport.targetId, selectedReport.reportId, {
+        action: actionType,
+        adminNotes,
+      });
 
       message.success(
-        actionType === 'resolve'
-          ? '신고가 승인되었습니다. 브리더가 제재됩니다.'
-          : '신고가 반려되었습니다.'
+        actionType === 'resolve' ? '신고가 승인되었습니다. 브리더가 제재됩니다.' : '신고가 반려되었습니다.'
       );
 
       setIsActionModalOpen(false);
@@ -102,28 +83,28 @@ export default function BreederReports() {
   const columns: ColumnsType<BreederReport> = [
     {
       title: '신고 대상',
-      dataIndex: 'breederName',
-      key: 'breederName',
+      dataIndex: 'targetName',
+      key: 'targetName',
       width: 150,
       render: (name: string) => <strong>{name}</strong>,
     },
     {
       title: '신고 사유',
-      dataIndex: ['report', 'reason'],
-      key: 'reason',
+      dataIndex: 'type',
+      key: 'type',
       width: 200,
       ellipsis: true,
     },
     {
       title: '신고일',
-      dataIndex: ['report', 'reportedAt'],
+      dataIndex: 'reportedAt',
       key: 'reportedAt',
       width: 150,
       render: (date: string) => new Date(date).toLocaleDateString('ko-KR'),
     },
     {
       title: '상태',
-      dataIndex: ['report', 'status'],
+      dataIndex: 'status',
       key: 'status',
       width: 100,
       render: (status: string) => getStatusTag(status),
@@ -134,14 +115,10 @@ export default function BreederReports() {
       width: 250,
       render: (_, record) => (
         <Space size="small">
-          <Button
-            type="link"
-            icon={<EyeOutlined />}
-            onClick={() => handleViewDetails(record)}
-          >
+          <Button type="link" icon={<EyeOutlined />} onClick={() => handleViewDetails(record)}>
             상세
           </Button>
-          {record.report.status === 'pending' && (
+          {record.status === 'pending' && (
             <>
               <Button
                 danger
@@ -151,11 +128,7 @@ export default function BreederReports() {
               >
                 승인 (제재)
               </Button>
-              <Button
-                icon={<CloseCircleOutlined />}
-                onClick={() => handleAction(record, 'reject')}
-                size="small"
-              >
+              <Button icon={<CloseCircleOutlined />} onClick={() => handleAction(record, 'reject')} size="small">
                 반려
               </Button>
             </>
@@ -188,14 +161,12 @@ export default function BreederReports() {
             className="flex items-center justify-center w-12 h-12 rounded-lg"
             style={{ backgroundColor: 'var(--color-status-error-100)' }}
           >
-            <WarningOutlined
-              style={{ fontSize: '24px', color: 'var(--color-status-error-500)' }}
-            />
+            <WarningOutlined style={{ fontSize: '24px', color: 'var(--color-status-error-500)' }} />
           </div>
           <div>
             <p className="text-sm text-gray-500">처리 대기 중</p>
             <p className="text-2xl font-bold" style={{ color: 'var(--color-status-error-500)' }}>
-              {dataSource.filter((r) => r.report.status === 'pending').length}건
+              {dataSource.filter((r) => r.status === 'pending').length}건
             </p>
           </div>
         </div>
@@ -204,7 +175,7 @@ export default function BreederReports() {
       <Table
         columns={columns}
         dataSource={dataSource}
-        rowKey={(record) => record.report.reportId}
+        rowKey={(record) => record.reportId}
         loading={loading}
         pagination={{
           current: pagination.page,
@@ -212,8 +183,7 @@ export default function BreederReports() {
           total: pagination.total,
           showSizeChanger: true,
           showTotal: (total) => `총 ${total}건`,
-          onChange: (page, pageSize) =>
-            setPagination({ ...pagination, page, limit: pageSize }),
+          onChange: (page, pageSize) => setPagination({ ...pagination, page, limit: pageSize }),
         }}
       />
 
@@ -226,7 +196,7 @@ export default function BreederReports() {
           <Button key="close" onClick={() => setIsModalOpen(false)}>
             닫기
           </Button>,
-          selectedReport?.report.status === 'pending' && (
+          selectedReport?.status === 'pending' && (
             <>
               <Button
                 key="reject"
@@ -255,26 +225,26 @@ export default function BreederReports() {
         {selectedReport && (
           <Descriptions bordered column={2}>
             <Descriptions.Item label="신고 대상 브리더" span={2}>
-              <strong>{selectedReport.breederName}</strong>
+              <strong>{selectedReport.targetName}</strong>
             </Descriptions.Item>
             <Descriptions.Item label="신고 ID" span={2}>
-              {selectedReport.report.reportId}
+              {selectedReport.reportId}
             </Descriptions.Item>
             <Descriptions.Item label="신고일" span={2}>
-              {new Date(selectedReport.report.reportedAt).toLocaleString('ko-KR')}
+              {new Date(selectedReport.reportedAt).toLocaleString('ko-KR')}
             </Descriptions.Item>
             <Descriptions.Item label="신고 사유" span={2}>
-              {selectedReport.report.reason}
+              {selectedReport.type}
             </Descriptions.Item>
             <Descriptions.Item label="상세 설명" span={2}>
-              {selectedReport.report.description || '없음'}
+              {selectedReport.description || '없음'}
             </Descriptions.Item>
             <Descriptions.Item label="상태" span={2}>
-              {getStatusTag(selectedReport.report.status)}
+              {getStatusTag(selectedReport.status)}
             </Descriptions.Item>
-            {selectedReport.report.adminAction && (
+            {selectedReport.adminNotes && (
               <Descriptions.Item label="관리자 조치" span={2}>
-                {selectedReport.report.adminAction}
+                {selectedReport.adminNotes}
               </Descriptions.Item>
             )}
           </Descriptions>
@@ -304,10 +274,7 @@ export default function BreederReports() {
         </div>
 
         {actionType === 'resolve' && (
-          <div
-            className="p-3 rounded mt-4"
-            style={{ backgroundColor: 'var(--color-status-error-100)' }}
-          >
+          <div className="p-3 rounded mt-4" style={{ backgroundColor: 'var(--color-status-error-100)' }}>
             <p className="text-sm" style={{ color: 'var(--color-status-error-500)' }}>
               ⚠️ 신고 승인 시 해당 브리더는 제재됩니다. 신중하게 결정해주세요.
             </p>

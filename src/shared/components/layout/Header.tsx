@@ -1,12 +1,7 @@
 import { Layout, Button, Dropdown, Avatar, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import {
-  MenuUnfoldOutlined,
-  MenuFoldOutlined,
-  UserOutlined,
-  LogoutOutlined,
-  SettingOutlined,
-} from '@ant-design/icons';
+import { MenuUnfoldOutlined, MenuFoldOutlined, UserOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons';
+
 import { useAuthStore } from '../../../features/auth/store/authStore';
 import { authApi } from '../../../features/auth/api/authApi';
 
@@ -88,10 +83,7 @@ export default function Header({ collapsed, onToggle }: HeaderProps) {
 
       <Dropdown menu={{ items: menuItems }} placement="bottomRight">
         <Space className="cursor-pointer">
-          <Avatar
-            icon={<UserOutlined />}
-            style={{ backgroundColor: 'var(--color-primary-500)' }}
-          />
+          <Avatar icon={<UserOutlined />} style={{ backgroundColor: 'var(--color-primary-500)' }} />
           <span className="text-sm font-medium">{user?.name || '관리자'}</span>
         </Space>
       </Dropdown>

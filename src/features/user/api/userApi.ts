@@ -15,10 +15,7 @@ export const userApi = {
    * 사용자 목록 조회
    */
   getUsers: async (filters?: UserSearchRequest): Promise<UserManagement[]> => {
-    const response = await apiClient.get<ApiResponse<any>>(
-      '/user-admin/users',
-      { params: filters }
-    );
+    const response = await apiClient.get<ApiResponse<any>>('/user-admin/users', { params: filters });
     // 백엔드가 페이지네이션 구조로 반환: {users: [], total: 41, page: 1, ...}
     const data = response.data.data;
     if (data && Array.isArray(data.users)) {

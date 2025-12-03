@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Card, Tag, Space, Button, message, Row, Col, Statistic, DatePicker, Input } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs, { Dayjs } from 'dayjs';
+
 import { breederApi } from '../../features/breeder/api/breederApi';
 import type { ApplicationData, ApplicationMonitoringRequest } from '../../shared/types/api.types';
 
@@ -144,55 +145,33 @@ const ApplicationMonitoring: React.FC = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      <h1 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '24px' }}>
-        입양 신청 모니터링
-      </h1>
+      <h1 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '24px' }}>입양 신청 모니터링</h1>
 
       {/* 통계 카드 */}
       <Row gutter={16} style={{ marginBottom: '24px' }}>
         <Col span={4}>
           <Card>
-            <Statistic
-              title="전체 신청"
-              value={stats.totalCount}
-              valueStyle={{ color: '#4f3b2e' }}
-            />
+            <Statistic title="전체 신청" value={stats.totalCount} valueStyle={{ color: '#4f3b2e' }} />
           </Card>
         </Col>
         <Col span={5}>
           <Card>
-            <Statistic
-              title="대기 중"
-              value={stats.pendingCount}
-              valueStyle={{ color: '#8c8c8c' }}
-            />
+            <Statistic title="대기 중" value={stats.pendingCount} valueStyle={{ color: '#8c8c8c' }} />
           </Card>
         </Col>
         <Col span={5}>
           <Card>
-            <Statistic
-              title="승인됨"
-              value={stats.approvedCount}
-              valueStyle={{ color: '#52c41a' }}
-            />
+            <Statistic title="승인됨" value={stats.approvedCount} valueStyle={{ color: '#52c41a' }} />
           </Card>
         </Col>
         <Col span={5}>
           <Card>
-            <Statistic
-              title="거절됨"
-              value={stats.rejectedCount}
-              valueStyle={{ color: '#ff4d4f' }}
-            />
+            <Statistic title="거절됨" value={stats.rejectedCount} valueStyle={{ color: '#ff4d4f' }} />
           </Card>
         </Col>
         <Col span={5}>
           <Card>
-            <Statistic
-              title="완료됨"
-              value={stats.completedCount}
-              valueStyle={{ color: '#1890ff' }}
-            />
+            <Statistic title="완료됨" value={stats.completedCount} valueStyle={{ color: '#1890ff' }} />
           </Card>
         </Col>
       </Row>
@@ -200,17 +179,8 @@ const ApplicationMonitoring: React.FC = () => {
       {/* 필터 */}
       <Card style={{ marginBottom: '24px' }}>
         <Space size="middle">
-          <RangePicker
-            onChange={handleDateRangeChange}
-            placeholder={['시작일', '종료일']}
-            style={{ width: 280 }}
-          />
-          <Search
-            placeholder="브리더 ID로 검색"
-            onSearch={handleBreederSearch}
-            allowClear
-            style={{ width: 280 }}
-          />
+          <RangePicker onChange={handleDateRangeChange} placeholder={['시작일', '종료일']} style={{ width: 280 }} />
+          <Search placeholder="브리더 ID로 검색" onSearch={handleBreederSearch} allowClear style={{ width: 280 }} />
           <Button onClick={fetchApplications}>새로고침</Button>
         </Space>
       </Card>

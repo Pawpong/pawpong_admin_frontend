@@ -191,9 +191,7 @@ const Faqs: React.FC = () => {
       dataIndex: 'isActive',
       key: 'isActive',
       width: 80,
-      render: (isActive: boolean) => (
-        <Switch checked={isActive !== false} disabled />
-      ),
+      render: (isActive: boolean) => <Switch checked={isActive !== false} disabled />,
     },
     {
       title: '작업',
@@ -201,12 +199,7 @@ const Faqs: React.FC = () => {
       width: 150,
       render: (_, record) => (
         <Space>
-          <Button
-            type="link"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-            style={{ padding: 0 }}
-          >
+          <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)} style={{ padding: 0 }}>
             수정
           </Button>
           <Popconfirm
@@ -253,27 +246,15 @@ const Faqs: React.FC = () => {
         width={700}
       >
         <Form form={form} layout="vertical">
-          <Form.Item
-            name="question"
-            label="질문"
-            rules={[{ required: true, message: '질문을 입력해주세요' }]}
-          >
+          <Form.Item name="question" label="질문" rules={[{ required: true, message: '질문을 입력해주세요' }]}>
             <Input placeholder="자주 묻는 질문을 입력하세요" />
           </Form.Item>
 
-          <Form.Item
-            name="answer"
-            label="답변"
-            rules={[{ required: true, message: '답변을 입력해주세요' }]}
-          >
+          <Form.Item name="answer" label="답변" rules={[{ required: true, message: '답변을 입력해주세요' }]}>
             <Input.TextArea rows={4} placeholder="답변 내용을 입력하세요" />
           </Form.Item>
 
-          <Form.Item
-            name="category"
-            label="카테고리"
-            rules={[{ required: true, message: '카테고리를 선택해주세요' }]}
-          >
+          <Form.Item name="category" label="카테고리" rules={[{ required: true, message: '카테고리를 선택해주세요' }]}>
             <Select>
               <Option value="service">서비스</Option>
               <Option value="adoption">입양</Option>

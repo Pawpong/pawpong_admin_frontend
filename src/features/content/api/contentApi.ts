@@ -35,10 +35,7 @@ export const contentApi = {
    * 배너 수정
    */
   updateBanner: async (bannerId: string, data: BannerUpdateRequest): Promise<Banner> => {
-    const response = await apiClient.put<ApiResponse<Banner>>(
-      `/home-admin/banner/${bannerId}`,
-      data
-    );
+    const response = await apiClient.put<ApiResponse<Banner>>(`/home-admin/banner/${bannerId}`, data);
     return response.data.data;
   },
 

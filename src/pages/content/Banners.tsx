@@ -1,57 +1,40 @@
-import React, { useEffect, useState } from 'react';
-import {
-  Table,
-  Card,
-  Button,
-  message,
-  Modal,
-  Form,
-  Input,
-  Select,
-  InputNumber,
-  Switch,
-  Space,
-  Image,
-  Popconfirm,
-} from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { useState, useEffect } from 'react';
+import { Table, Button, Modal, Form, Input, Select, Switch, Upload, message, Image, Card, Space } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { contentApi } from '../../features/content/api/contentApi';
-import type { Banner, BannerCreateRequest, BannerUpdateRequest } from '../../shared/types/api.types';
 
-const { Option } = Select;
+import {
+  homeApi,
+  type Banner,
+  type BannerCreateRequest,
+  type BannerUpdateRequest,
+} from '../../features/home/api/homeApi';
+import { uploadApi } from '../../features/upload/api/uploadApi';
 
-/**
- * 배너 관리 페이지
- * 홈 화면 배너를 관리합니다.
- */
-const Banners: React.FC = () => {
-  const [dataSource, setDataSource] = useState<Banner[]>([]);
+const Banners = () => {
+  const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
   const [form] = Form.useForm();
+  const [uploading, setUploading] = useState(false);
+  const [imageFileName, setImageFileName] = useState<string>('');
+  const [previewImage, setPreviewImage] = useState<string>('');
 
   useEffect(() => {
     fetchBanners();
   }, []);
 
   const fetchBanners = async () => {
-    setLoading(true);
     try {
-      const data = await contentApi.getBanners();
-      // 데이터가 배열인지 확인
-      if (Array.isArray(data)) {
-        setDataSource(data.sort((a, b) => a.order - b.order));
-      } else {
-        console.error('Received non-array data:', data);
-        setDataSource([]);
-        message.warning('배너 데이터 형식이 올바르지 않습니다.');
-      }
-    } catch (error: any) {
-      console.error('Failed to fetch banners:', error);
-      setDataSource([]);
-      message.error('배너 목록을 불러올 수 없습니다.');
+      setLoading(true);
+      const data = await homeApi.getBanners();
+      // 순서대로 정렬
+      const sortedData = data.sort((a, b) => a.order - b.order);
+      setBanners(sortedData);
+    } catch (error) {
+      message.error('배너 목록 조회 실패');
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -59,13 +42,22 @@ const Banners: React.FC = () => {
 
   const handleCreate = () => {
     setEditingBanner(null);
+    setImageFileName('');
+    setPreviewImage('');
     form.resetFields();
-    form.setFieldsValue({ isActive: true, order: 0 });
+    form.setFieldsValue({
+      linkType: 'internal',
+      isActive: true,
+      order: banners.length,
+    });
     setModalVisible(true);
   };
 
   const handleEdit = (banner: Banner) => {
     setEditingBanner(banner);
+    // 백엔드에서 받은 imageFileName 사용
+    setImageFileName(banner.imageFileName);
+    setPreviewImage(banner.imageUrl || '');
     form.setFieldsValue({
       title: banner.title,
       description: banner.description,
@@ -73,63 +65,82 @@ const Banners: React.FC = () => {
       linkUrl: banner.linkUrl,
       order: banner.order,
       isActive: banner.isActive !== false,
-      imageFileName: '',
     });
     setModalVisible(true);
   };
 
   const handleDelete = async (bannerId: string) => {
+    Modal.confirm({
+      title: '배너 삭제',
+      content: '정말 이 배너를 삭제하시겠습니까?',
+      okText: '삭제',
+      cancelText: '취소',
+      okType: 'danger',
+      onOk: async () => {
+        try {
+          await homeApi.deleteBanner(bannerId);
+          message.success('배너가 삭제되었습니다');
+          fetchBanners();
+        } catch (error) {
+          message.error('배너 삭제 실패');
+          console.error(error);
+        }
+      },
+    });
+  };
+
+  const handleUpload = async (file: File) => {
     try {
-      await contentApi.deleteBanner(bannerId);
-      message.success('배너가 삭제되었습니다.');
-      fetchBanners();
-    } catch (error: any) {
-      console.error('Failed to delete banner:', error);
-      message.error('배너 삭제에 실패했습니다.');
+      setUploading(true);
+      const result = await uploadApi.uploadSingle(file, 'banners');
+      setImageFileName(result.fileName);
+      setPreviewImage(result.cdnUrl);
+      message.success('이미지가 업로드되었습니다');
+      return false; // Prevent default upload behavior
+    } catch (error) {
+      message.error('이미지 업로드 실패');
+      console.error(error);
+      return false;
+    } finally {
+      setUploading(false);
     }
   };
 
-  const handleModalOk = async () => {
+  const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
 
+      if (!imageFileName) {
+        message.error('배너 이미지를 업로드해주세요');
+        return;
+      }
+
       if (editingBanner) {
+        // 수정
         const updateData: BannerUpdateRequest = {
-          linkType: values.linkType,
-          linkUrl: values.linkUrl,
-          order: values.order,
-          isActive: values.isActive,
-          title: values.title,
-          description: values.description,
+          ...values,
+          imageFileName: imageFileName,
         };
-        if (values.imageFileName) {
-          updateData.imageFileName = values.imageFileName;
-        }
-        await contentApi.updateBanner(editingBanner.bannerId, updateData);
-        message.success('배너가 수정되었습니다.');
+        await homeApi.updateBanner(editingBanner.bannerId, updateData);
+        message.success('배너가 수정되었습니다');
       } else {
+        // 생성
         const createData: BannerCreateRequest = {
-          imageFileName: values.imageFileName,
-          linkType: values.linkType,
-          linkUrl: values.linkUrl,
-          order: values.order,
-          isActive: values.isActive,
-          title: values.title,
-          description: values.description,
+          ...values,
+          imageFileName: imageFileName,
         };
-        await contentApi.createBanner(createData);
-        message.success('배너가 생성되었습니다.');
+        await homeApi.createBanner(createData);
+        message.success('배너가 생성되었습니다');
       }
 
       setModalVisible(false);
+      form.resetFields();
+      setImageFileName('');
+      setPreviewImage('');
       fetchBanners();
-    } catch (error: any) {
-      if (error.errorFields) {
-        message.error('모든 필드를 올바르게 입력해주세요.');
-      } else {
-        console.error('Failed to save banner:', error);
-        message.error('배너 저장에 실패했습니다.');
-      }
+    } catch (error) {
+      message.error('배너 저장 실패');
+      console.error(error);
     }
   };
 
@@ -145,12 +156,15 @@ const Banners: React.FC = () => {
       title: '미리보기',
       dataIndex: 'imageUrl',
       key: 'imageUrl',
-      width: 150,
-      render: (url: string) => (
+      width: 200,
+      render: (imageUrl: string) => (
         <Image
-          src={url}
-          alt="banner"
-          style={{ width: '120px', height: '60px', objectFit: 'cover', borderRadius: '8px' }}
+          src={imageUrl}
+          alt="배너"
+          width={150}
+          height={75}
+          style={{ objectFit: 'cover', borderRadius: '8px' }}
+          preview
           fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
         />
       ),
@@ -159,57 +173,54 @@ const Banners: React.FC = () => {
       title: '제목',
       dataIndex: 'title',
       key: 'title',
-      width: 180,
-      ellipsis: true,
-      render: (title) => title || '-',
+      render: (text: string) => text || '-',
     },
     {
       title: '링크 타입',
       dataIndex: 'linkType',
       key: 'linkType',
       width: 100,
-      render: (type: string) => (type === 'internal' ? '내부' : '외부'),
+      render: (type: string) => (
+        <span
+          style={{
+            color: type === 'internal' ? 'var(--color-primary-500)' : 'var(--color-secondary-500)',
+            fontWeight: 500,
+          }}
+        >
+          {type === 'internal' ? '내부' : '외부'}
+        </span>
+      ),
     },
     {
       title: '링크 URL',
       dataIndex: 'linkUrl',
       key: 'linkUrl',
-      width: 200,
       ellipsis: true,
     },
     {
       title: '활성화',
       dataIndex: 'isActive',
       key: 'isActive',
-      width: 80,
-      render: (isActive: boolean) => (
-        <Switch checked={isActive !== false} disabled />
-      ),
+      width: 100,
+      render: (isActive: boolean) => <Switch checked={isActive !== false} disabled />,
     },
     {
       title: '작업',
-      key: 'actions',
-      width: 150,
-      render: (_, record) => (
+      key: 'action',
+      width: 120,
+      render: (_: any, record: Banner) => (
         <Space>
           <Button
             type="link"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
-            style={{ padding: 0 }}
+            style={{ color: 'var(--color-primary-500)' }}
           >
             수정
           </Button>
-          <Popconfirm
-            title="배너를 삭제하시겠습니까?"
-            onConfirm={() => handleDelete(record.bannerId)}
-            okText="삭제"
-            cancelText="취소"
-          >
-            <Button type="link" danger icon={<DeleteOutlined />} style={{ padding: 0 }}>
-              삭제
-            </Button>
-          </Popconfirm>
+          <Button type="link" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.bannerId)}>
+            삭제
+          </Button>
         </Space>
       ),
     },
@@ -217,19 +228,36 @@ const Banners: React.FC = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 600, margin: 0 }}>메인 배너 관리</h1>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h1
+          style={{
+            fontSize: '24px',
+            fontWeight: 600,
+            color: 'var(--color-primary-500)',
+            margin: 0,
+          }}
+        >
+          메인 배너 관리
+        </h1>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={handleCreate}
+          style={{
+            backgroundColor: 'var(--color-primary-500)',
+            borderColor: 'var(--color-primary-500)',
+          }}
+        >
           배너 추가
         </Button>
       </div>
 
       <Card>
         <Table
-          dataSource={dataSource}
           columns={columns}
-          loading={loading}
+          dataSource={banners}
           rowKey="bannerId"
+          loading={loading}
           pagination={{ showSizeChanger: true, showTotal: (total) => `총 ${total}개` }}
         />
       </Card>
@@ -237,28 +265,56 @@ const Banners: React.FC = () => {
       <Modal
         title={editingBanner ? '배너 수정' : '배너 추가'}
         open={modalVisible}
-        onOk={handleModalOk}
-        onCancel={() => setModalVisible(false)}
+        onOk={handleSubmit}
+        onCancel={() => {
+          setModalVisible(false);
+          form.resetFields();
+          setImageFileName('');
+          setPreviewImage('');
+        }}
+        width={700}
         okText={editingBanner ? '수정' : '생성'}
         cancelText="취소"
-        width={600}
       >
         <Form form={form} layout="vertical">
-          <Form.Item
-            name="imageFileName"
-            label="이미지 파일명"
-            rules={editingBanner ? [] : [{ required: true, message: '이미지 파일명을 입력해주세요' }]}
-            help={editingBanner ? '수정 시 입력하지 않으면 기존 이미지 유지' : 'banners/filename.jpg 형식으로 입력'}
-          >
-            <Input placeholder="banners/main-banner.jpg" />
+          <Form.Item label="배너 이미지">
+            <Upload beforeUpload={handleUpload} showUploadList={false} accept="image/*">
+              <Button icon={<UploadOutlined />} loading={uploading}>
+                이미지 업로드
+              </Button>
+            </Upload>
+            {previewImage && (
+              <div style={{ marginTop: '12px' }}>
+                <Image
+                  src={previewImage}
+                  alt="미리보기"
+                  width="100%"
+                  style={{ maxHeight: '200px', objectFit: 'contain', borderRadius: '8px' }}
+                />
+              </div>
+            )}
+            {!previewImage && (
+              <div
+                style={{
+                  marginTop: '12px',
+                  padding: '40px',
+                  background: 'var(--color-grayscale-gray1)',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  color: 'var(--color-grayscale-gray5)',
+                }}
+              >
+                이미지를 업로드해주세요
+              </div>
+            )}
           </Form.Item>
 
-          <Form.Item name="title" label="제목">
+          <Form.Item name="title" label="제목 (선택)">
             <Input placeholder="배너 제목 (관리용)" />
           </Form.Item>
 
-          <Form.Item name="description" label="설명">
-            <Input.TextArea rows={2} placeholder="배너 설명 (관리용)" />
+          <Form.Item name="description" label="설명 (선택)">
+            <Input.TextArea placeholder="배너 설명 (관리용)" rows={2} />
           </Form.Item>
 
           <Form.Item
@@ -267,24 +323,20 @@ const Banners: React.FC = () => {
             rules={[{ required: true, message: '링크 타입을 선택해주세요' }]}
           >
             <Select>
-              <Option value="internal">내부 링크</Option>
-              <Option value="external">외부 링크</Option>
+              <Select.Option value="internal">내부 링크</Select.Option>
+              <Select.Option value="external">외부 링크</Select.Option>
             </Select>
           </Form.Item>
 
-          <Form.Item
-            name="linkUrl"
-            label="링크 URL"
-            rules={[{ required: true, message: '링크 URL을 입력해주세요' }]}
-          >
-            <Input placeholder="/explore?animal=dog 또는 https://..." />
+          <Form.Item name="linkUrl" label="링크 URL" rules={[{ required: true, message: '링크 URL을 입력해주세요' }]}>
+            <Input placeholder="/explore?animal=dog 또는 https://example.com" />
           </Form.Item>
 
-          <Form.Item name="order" label="정렬 순서" rules={[{ required: true }]}>
-            <InputNumber min={0} style={{ width: '100%' }} />
+          <Form.Item name="order" label="정렬 순서" rules={[{ required: true, message: '정렬 순서를 입력해주세요' }]}>
+            <Input type="number" placeholder="0부터 시작 (낮을수록 먼저 표시)" />
           </Form.Item>
 
-          <Form.Item name="isActive" label="활성화" valuePropName="checked">
+          <Form.Item name="isActive" label="활성화 여부" valuePropName="checked">
             <Switch />
           </Form.Item>
         </Form>
