@@ -83,7 +83,7 @@ export interface BreederVerification {
     }>;
     isSubmittedByEmail?: boolean;
   };
-  profileInfo?: any;
+  profileInfo?: Record<string, unknown>;
   createdAt: string;
   updatedAt?: string;
 }
@@ -351,7 +351,7 @@ export interface UserManagement {
   accountStatus: 'active' | 'suspended' | 'deactivated';
   lastLoginAt: string;
   createdAt: string;
-  statisticsInfo?: any;
+  statisticsInfo?: Record<string, unknown>;
 }
 
 export interface UserSearchRequest {

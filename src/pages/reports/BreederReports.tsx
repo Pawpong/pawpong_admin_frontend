@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Table, Tag, Button, Modal, Card, message, Space, Descriptions, Input } from 'antd';
 import { WarningOutlined, CheckCircleOutlined, CloseCircleOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -42,23 +42,23 @@ export default function BreederReports() {
   const [adminNotes, setAdminNotes] = useState('');
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0 });
 
-  useEffect(() => {
-    fetchReports();
-  }, [pagination.page, pagination.limit]);
-
-  const fetchReports = async () => {
+  const fetchReports = useCallback(async () => {
     setLoading(true);
     try {
       const response = await breederApi.getReports(pagination.page, pagination.limit);
       setDataSource(response.items);
       setPagination((prev) => ({ ...prev, total: response.pagination.totalItems }));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch reports:', error);
       message.error('신고 목록을 불러올 수 없습니다.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, pagination.limit]);
+
+  useEffect(() => {
+    fetchReports();
+  }, [fetchReports]);
 
   const handleViewDetails = (record: BreederReport) => {
     setSelectedReport(record);
@@ -87,7 +87,7 @@ export default function BreederReports() {
 
       setIsActionModalOpen(false);
       fetchReports();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Action failed:', error);
       message.error('처리에 실패했습니다.');
     }

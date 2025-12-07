@@ -34,7 +34,7 @@ const Districts: React.FC = () => {
         setDataSource([]);
         message.warning('지역 데이터 형식이 올바르지 않습니다.');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch districts:', error);
       setDataSource([]);
       message.error('지역 목록을 불러올 수 없습니다.');
@@ -63,7 +63,7 @@ const Districts: React.FC = () => {
       await districtApi.deleteDistrict(id);
       message.success('지역이 삭제되었습니다.');
       fetchDistricts();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to delete district:', error);
       message.error('지역 삭제에 실패했습니다.');
     }
@@ -96,8 +96,8 @@ const Districts: React.FC = () => {
 
       setModalVisible(false);
       fetchDistricts();
-    } catch (error: any) {
-      if (error.errorFields) {
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'errorFields' in error) {
         message.error('모든 필드를 올바르게 입력해주세요.');
       } else {
         console.error('Failed to save district:', error);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Table, Card, Tag, Button, message, Modal, Select, Input, Form } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -21,23 +21,23 @@ const Users: React.FC = () => {
   const [form] = Form.useForm();
   const [filters, setFilters] = useState<UserSearchRequest>({});
 
-  useEffect(() => {
-    fetchUsers();
-  }, [filters]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const data = await userApi.getUsers(filters);
       setDataSource(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch users:', error);
       setDataSource([]);
       message.error('사용자 목록을 불러올 수 없습니다.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const getUserRoleTag = (role: string) => {
     return role === 'adopter' ? <Tag color="blue">입양자</Tag> : <Tag color="green">브리더</Tag>;
@@ -74,9 +74,9 @@ const Users: React.FC = () => {
       message.success('사용자 상태가 변경되었습니다.');
       setModalVisible(false);
       fetchUsers();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to update user status:', error);
-      if (error.errorFields) {
+      if (error && typeof error === 'object' && 'errorFields' in error) {
         message.error('모든 필드를 올바르게 입력해주세요.');
       } else {
         message.error('상태 변경에 실패했습니다.');
@@ -94,7 +94,7 @@ const Users: React.FC = () => {
   const handleStatusFilterChange = (value: string) => {
     setFilters((prev) => ({
       ...prev,
-      accountStatus: value as any,
+      accountStatus: value as 'active' | 'suspended' | 'deactivated' | undefined,
     }));
   };
 

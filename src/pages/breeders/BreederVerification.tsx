@@ -43,7 +43,7 @@ export default function BreederVerification() {
     try {
       const data = await breederApi.getPendingVerifications();
       setDataSource(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch pending verifications:', error);
       message.error('인증 대기 목록을 불러올 수 없습니다.');
     } finally {
@@ -66,7 +66,7 @@ export default function BreederVerification() {
         updatedAt: detailData.updatedAt,
       });
       setIsModalOpen(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch breeder details:', error);
       message.error('브리더 상세 정보를 불러올 수 없습니다.');
     } finally {
@@ -87,7 +87,7 @@ export default function BreederVerification() {
       message.success('리뷰 완료로 표시되었습니다.');
       setIsModalOpen(false);
       fetchPendingVerifications();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ [handleMarkAsReviewing] API 호출 실패:', error);
       message.error('상태 변경에 실패했습니다.');
     }
@@ -106,7 +106,7 @@ export default function BreederVerification() {
       message.success('브리더 인증이 승인되었습니다.');
       setIsModalOpen(false);
       fetchPendingVerifications();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ [handleApprove] API 호출 실패:', error);
       message.error('승인에 실패했습니다.');
     }
@@ -138,7 +138,7 @@ export default function BreederVerification() {
       message.success('브리더 인증이 반려되었습니다. 반려 사유가 이메일로 발송됩니다.');
       setIsRejectModalOpen(false);
       fetchPendingVerifications();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Rejection failed:', error);
       message.error('반려 처리에 실패했습니다.');
     }
@@ -398,21 +398,21 @@ export default function BreederVerification() {
                     : selectedBreeder.verificationInfo.verificationStatus}
                 </Tag>
               </Descriptions.Item>
-              {selectedBreeder.profileInfo?.location && (
-                <Descriptions.Item label="지역">{selectedBreeder.profileInfo.location}</Descriptions.Item>
-              )}
-              {selectedBreeder.profileInfo?.detailedLocation && (
-                <Descriptions.Item label="세부 지역">{selectedBreeder.profileInfo.detailedLocation}</Descriptions.Item>
-              )}
-              {selectedBreeder.profileInfo?.specialization && selectedBreeder.profileInfo.specialization.length > 0 && (
+              {selectedBreeder.profileInfo?.location ? (
+                <Descriptions.Item label="지역">{String(selectedBreeder.profileInfo.location)}</Descriptions.Item>
+              ) : null}
+              {selectedBreeder.profileInfo?.detailedLocation ? (
+                <Descriptions.Item label="세부 지역">{String(selectedBreeder.profileInfo.detailedLocation)}</Descriptions.Item>
+              ) : null}
+              {selectedBreeder.profileInfo?.specialization && Array.isArray(selectedBreeder.profileInfo.specialization) && selectedBreeder.profileInfo.specialization.length > 0 ? (
                 <Descriptions.Item label="전문 분야" span={2}>
-                  {selectedBreeder.profileInfo.specialization.map((spec: string) => (
-                    <Tag key={spec} color="blue">
+                  {selectedBreeder.profileInfo.specialization.map((spec: unknown) => (
+                    <Tag key={String(spec)} color="blue">
                       {spec === 'dog' ? '강아지' : '고양이'}
                     </Tag>
                   ))}
                 </Descriptions.Item>
-              )}
+              ) : null}
               {selectedBreeder.verificationInfo.isSubmittedByEmail && (
                 <Descriptions.Item label="제출 방식" span={2}>
                   <Tag color="blue">이메일 제출</Tag>

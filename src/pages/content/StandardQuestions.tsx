@@ -70,7 +70,7 @@ const StandardQuestions: React.FC = () => {
         setDataSource([]);
         message.warning('질문 데이터 형식이 올바르지 않습니다.');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch questions:', error);
       setDataSource([]);
       message.error('표준 질문 목록을 불러올 수 없습니다.');
@@ -99,7 +99,7 @@ const StandardQuestions: React.FC = () => {
       });
       message.success(`질문이 ${!question.isActive ? '활성화' : '비활성화'}되었습니다.`);
       fetchQuestions();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to toggle question status:', error);
       message.error('질문 상태 변경에 실패했습니다.');
     }
@@ -137,8 +137,8 @@ const StandardQuestions: React.FC = () => {
 
       setModalVisible(false);
       fetchQuestions();
-    } catch (error: any) {
-      if (error.errorFields) {
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'errorFields' in error) {
         message.error('모든 필드를 올바르게 입력해주세요.');
       } else {
         console.error('Failed to update question:', error);
@@ -168,7 +168,7 @@ const StandardQuestions: React.FC = () => {
       message.success('질문 순서가 변경되었습니다.');
       setReorderModalVisible(false);
       fetchQuestions();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to reorder questions:', error);
       message.error('질문 순서 변경에 실패했습니다.');
     }
@@ -179,7 +179,7 @@ const StandardQuestions: React.FC = () => {
       await standardQuestionApi.reseedQuestions();
       message.success('표준 질문이 초기화되었습니다.');
       fetchQuestions();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to reseed questions:', error);
       message.error('표준 질문 초기화에 실패했습니다.');
     }

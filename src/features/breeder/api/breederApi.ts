@@ -65,8 +65,8 @@ export const breederApi = {
    * 브리더 상세 정보 조회
    * 엔드포인트: GET /api/breeder-verification-admin/verification/:breederId
    */
-  getBreederDetail: async (breederId: string): Promise<any> => {
-    const response = await apiClient.get<ApiResponse<any>>(`/breeder-verification-admin/verification/${breederId}`);
+  getBreederDetail: async (breederId: string): Promise<BreederVerification> => {
+    const response = await apiClient.get<ApiResponse<BreederVerification>>(`/breeder-verification-admin/verification/${breederId}`);
     return response.data.data;
   },
 

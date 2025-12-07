@@ -1,4 +1,5 @@
 import { Layout, Menu, Drawer } from 'antd';
+import type { MenuProps } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   DashboardOutlined,
@@ -15,6 +16,36 @@ const { Sider } = Layout;
 interface SidebarProps {
   mobileMenuOpen: boolean;
   onMobileMenuClose: () => void;
+}
+
+interface SidebarContentProps {
+  pathname: string;
+  menuItems: MenuProps['items'];
+  onMenuClick: ({ key }: { key: string }) => void;
+}
+
+/**
+ * 사이드바 콘텐츠 컴포넌트 (데스크탑/모바일 공통)
+ */
+function SidebarContent({ pathname, menuItems, onMenuClick }: SidebarContentProps) {
+  return (
+    <>
+      <div className="flex items-center justify-center h-16 border-b" style={{ borderColor: 'var(--color-gray-100)' }}>
+        <h1 className="text-xl font-bold" style={{ color: 'var(--color-primary-500)' }}>
+          🐾 Pawpong
+        </h1>
+      </div>
+
+      <Menu
+        mode="inline"
+        selectedKeys={[pathname]}
+        defaultOpenKeys={['breeders', 'reports', 'content', 'settings']}
+        items={menuItems}
+        onClick={onMenuClick}
+        style={{ borderRight: 0 }}
+      />
+    </>
+  );
 }
 
 /**
@@ -118,26 +149,6 @@ export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarPr
     onMobileMenuClose();
   };
 
-  // 공통 메뉴 렌더링 컴포넌트
-  const SidebarContent = () => (
-    <>
-      <div className="flex items-center justify-center h-16 border-b" style={{ borderColor: 'var(--color-gray-100)' }}>
-        <h1 className="text-xl font-bold" style={{ color: 'var(--color-primary-500)' }}>
-          🐾 Pawpong
-        </h1>
-      </div>
-
-      <Menu
-        mode="inline"
-        selectedKeys={[location.pathname]}
-        defaultOpenKeys={['breeders', 'reports', 'content', 'settings']}
-        items={menuItems}
-        onClick={handleMenuClick}
-        style={{ borderRight: 0 }}
-      />
-    </>
-  );
-
   return (
     <>
       {/* 데스크탑 사이드바 - md 이상에서만 표시, 항상 펼쳐진 상태 */}
@@ -153,7 +164,7 @@ export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarPr
           bottom: 0,
         }}
       >
-        <SidebarContent />
+        <SidebarContent pathname={location.pathname} menuItems={menuItems} onMenuClick={handleMenuClick} />
       </Sider>
 
       {/* 모바일 Drawer - md 미만에서만 표시 */}
@@ -169,7 +180,7 @@ export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarPr
         }}
         className="md:hidden"
       >
-        <SidebarContent />
+        <SidebarContent pathname={location.pathname} menuItems={menuItems} onMenuClick={handleMenuClick} />
       </Drawer>
     </>
   );

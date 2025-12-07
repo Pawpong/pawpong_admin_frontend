@@ -25,9 +25,12 @@ export default function Login() {
 
       // 대시보드로 이동
       navigate('/dashboard');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login error:', error);
-      message.error(error.response?.data?.error || '로그인에 실패했습니다.');
+      const errorMessage = error && typeof error === 'object' && 'response' in error
+        ? ((error as { response?: { data?: { error?: string } } }).response?.data?.error || '로그인에 실패했습니다.')
+        : '로그인에 실패했습니다.';
+      message.error(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -48,7 +48,7 @@ const Faqs: React.FC = () => {
         setDataSource([]);
         message.warning('FAQ 데이터 형식이 올바르지 않습니다.');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch FAQs:', error);
       setDataSource([]);
       message.error('FAQ 목록을 불러올 수 없습니다.');
@@ -82,7 +82,7 @@ const Faqs: React.FC = () => {
       await contentApi.deleteFaq(faqId);
       message.success('FAQ가 삭제되었습니다.');
       fetchFaqs();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to delete FAQ:', error);
       message.error('FAQ 삭제에 실패했습니다.');
     }
@@ -118,8 +118,8 @@ const Faqs: React.FC = () => {
 
       setModalVisible(false);
       fetchFaqs();
-    } catch (error: any) {
-      if (error.errorFields) {
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'errorFields' in error) {
         message.error('모든 필드를 올바르게 입력해주세요.');
       } else {
         console.error('Failed to save FAQ:', error);

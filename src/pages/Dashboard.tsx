@@ -25,7 +25,7 @@ export default function Dashboard() {
     try {
       const data = await platformApi.getStats();
       setStats(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch stats:', error);
       message.error('통계 데이터를 불러올 수 없습니다.');
     } finally {

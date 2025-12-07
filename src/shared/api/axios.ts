@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { type InternalAxiosRequestConfig } from 'axios';
 
 // API 베이스 URL
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8082/api';
@@ -32,7 +32,7 @@ apiClient.interceptors.response.use(
     return response;
   },
   async (error) => {
-    const originalRequest = error.config as any & { _retry?: boolean };
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
     // 401 에러이고 재시도하지 않았다면 토큰 갱신 시도
     if (error.response?.status === 401 && !originalRequest._retry) {

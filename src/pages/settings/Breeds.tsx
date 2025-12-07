@@ -35,7 +35,7 @@ const Breeds: React.FC = () => {
         setDataSource([]);
         message.warning('품종 데이터 형식이 올바르지 않습니다.');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch breeds:', error);
       setDataSource([]);
       message.error('품종 목록을 불러올 수 없습니다.');
@@ -67,7 +67,7 @@ const Breeds: React.FC = () => {
       await breedApi.deleteBreed(id);
       message.success('품종이 삭제되었습니다.');
       fetchBreeds();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to delete breed:', error);
       message.error('품종 삭제에 실패했습니다.');
     }
@@ -103,8 +103,8 @@ const Breeds: React.FC = () => {
 
       setModalVisible(false);
       fetchBreeds();
-    } catch (error: any) {
-      if (error.errorFields) {
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'errorFields' in error) {
         message.error('모든 필드를 올바르게 입력해주세요.');
       } else {
         console.error('Failed to save breed:', error);

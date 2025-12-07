@@ -62,7 +62,7 @@ export default function BreederManagement() {
       // 승인된 브리더 목록 조회 (status='approved')
       const response = await breederApi.getBreeders('approved');
       setDataSource(response.items);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch breeders:', error);
       message.error('브리더 목록을 불러올 수 없습니다.');
     } finally {
@@ -86,12 +86,12 @@ export default function BreederManagement() {
 
     try {
       const values = await levelChangeForm.validateFields();
-      await breederApi.changeLevel(selectedBreeder.breederId, values.level, values.reason);
+      await breederApi.changeLevel(selectedBreeder.breederId, values.level);
 
       message.success('브리더 레벨이 변경되었습니다.');
       setIsLevelChangeModalOpen(false);
       fetchApprovedBreeders();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Level change failed:', error);
       message.error('레벨 변경에 실패했습니다.');
     }
@@ -113,7 +113,7 @@ export default function BreederManagement() {
       message.success('브리더 계정이 정지되었습니다.');
       setIsSuspendModalOpen(false);
       fetchApprovedBreeders();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Suspend failed:', error);
       message.error('계정 정지에 실패했습니다.');
     }
@@ -136,7 +136,7 @@ export default function BreederManagement() {
       message.success(`${selectedBreeders.length}명의 브리더에게 리마인드가 발송되었습니다.`);
       setIsRemindModalOpen(false);
       setSelectedBreeders([]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Remind failed:', error);
       message.error('리마인드 발송에 실패했습니다.');
     }

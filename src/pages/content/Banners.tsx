@@ -219,7 +219,7 @@ const Banners = () => {
       key: 'action',
       width: 180,
       fixed: 'right' as const,
-      render: (_: any, record: Banner) => (
+      render: (_: unknown, record: Banner) => (
         <Space size="middle" onClick={(e) => e.stopPropagation()}>
           <Button
             type="link"

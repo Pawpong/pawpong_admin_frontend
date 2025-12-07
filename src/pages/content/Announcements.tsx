@@ -140,7 +140,7 @@ const Announcements = () => {
       title: '작업',
       key: 'action',
       width: 120,
-      render: (_: any, record: Announcement) => (
+      render: (_: unknown, record: Announcement) => (
         <Space onClick={(e) => e.stopPropagation()}>
           <Button
             type="link"

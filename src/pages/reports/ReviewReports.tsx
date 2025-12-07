@@ -25,7 +25,8 @@ const ReviewReports: React.FC = () => {
 
   useEffect(() => {
     fetchReviewReports(pagination.current, pagination.pageSize);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.current, pagination.pageSize]);
 
   const fetchReviewReports = async (page: number, limit: number) => {
     setLoading(true);
@@ -43,7 +44,7 @@ const ReviewReports: React.FC = () => {
         setDataSource([]);
         message.warning('후기 신고 데이터 형식이 올바르지 않습니다.');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch review reports:', error);
       setDataSource([]);
       message.error('후기 신고 목록을 불러올 수 없습니다.');
@@ -62,7 +63,7 @@ const ReviewReports: React.FC = () => {
       await reviewReportApi.deleteReview(breederId, reviewId);
       message.success('부적절한 후기가 삭제되었습니다.');
       fetchReviewReports(pagination.current, pagination.pageSize);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to delete review:', error);
       message.error('후기 삭제에 실패했습니다.');
     }

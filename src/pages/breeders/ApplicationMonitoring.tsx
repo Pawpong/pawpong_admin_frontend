@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Table, Card, Tag, Button, message, DatePicker, Input } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs, { Dayjs } from 'dayjs';
@@ -28,11 +28,7 @@ const ApplicationMonitoring: React.FC = () => {
     itemsPerPage: 10,
   });
 
-  useEffect(() => {
-    fetchApplications();
-  }, [filters]);
-
-  const fetchApplications = async () => {
+  const fetchApplications = useCallback(async () => {
     setLoading(true);
     try {
       const data = await breederApi.getApplications(filters);
@@ -51,14 +47,18 @@ const ApplicationMonitoring: React.FC = () => {
         setDataSource([]);
         message.warning('데이터 형식이 올바르지 않습니다.');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch applications:', error);
       setDataSource([]);
       message.error('입양 신청 목록을 불러올 수 없습니다.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  useEffect(() => {
+    fetchApplications();
+  }, [fetchApplications]);
 
   const getStatusTag = (status: string) => {
     const statusConfig: Record<string, { color: string; text: string }> = {
@@ -81,6 +81,7 @@ const ApplicationMonitoring: React.FC = () => {
       }));
     } else {
       setFilters((prev) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { startDate, endDate, ...rest } = prev;
         return rest;
       });

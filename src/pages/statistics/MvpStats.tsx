@@ -27,7 +27,7 @@ export default function MvpStatsPage() {
     try {
       const data = await platformApi.getMvpStats();
       setStats(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch MVP stats:', error);
       message.error('MVP 통계 데이터를 불러올 수 없습니다.');
     } finally {
@@ -54,7 +54,7 @@ export default function MvpStatsPage() {
       dataIndex: 'rank',
       key: 'rank',
       width: 80,
-      render: (_: any, __: any, index: number) => index + 1,
+      render: (_: unknown, __: unknown, index: number) => index + 1,
     },
     {
       title: '필터 값',
