@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, Switch, Upload, message, Image, Card, Space } from 'antd';
+import { Table, Button, Modal, Form, Input, Select, Switch, Upload, message, Image, Card, Space, Popconfirm } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -70,23 +70,31 @@ const Banners = () => {
   };
 
   const handleDelete = async (bannerId: string) => {
-    Modal.confirm({
-      title: '배너 삭제',
-      content: '정말 이 배너를 삭제하시겠습니까?',
-      okText: '삭제',
-      cancelText: '취소',
-      okType: 'danger',
-      onOk: async () => {
-        try {
-          await homeApi.deleteBanner(bannerId);
-          message.success('배너가 삭제되었습니다');
-          fetchBanners();
-        } catch (error) {
-          message.error('배너 삭제 실패');
-          console.error(error);
-        }
-      },
-    });
+    try {
+      await homeApi.deleteBanner(bannerId);
+      message.success('배너가 삭제되었습니다');
+      fetchBanners();
+    } catch (error) {
+      message.error('배너 삭제 실패');
+      console.error(error);
+    }
+  };
+
+  const handleToggleActive = async (bannerId: string, currentStatus: boolean) => {
+    try {
+      const banner = banners.find((b) => b.bannerId === bannerId);
+      if (!banner) return;
+
+      await homeApi.updateBanner(bannerId, {
+        ...banner,
+        isActive: !currentStatus,
+      });
+      message.success(`배너가 ${!currentStatus ? '활성화' : '비활성화'}되었습니다`);
+      fetchBanners();
+    } catch (error) {
+      message.error('배너 상태 변경 실패');
+      console.error(error);
+    }
   };
 
   const handleUpload = async (file: File) => {
@@ -202,47 +210,64 @@ const Banners = () => {
       dataIndex: 'isActive',
       key: 'isActive',
       width: 100,
-      render: (isActive: boolean) => <Switch checked={isActive !== false} disabled />,
+      render: (isActive: boolean, record: Banner) => (
+        <Switch checked={isActive !== false} onChange={() => handleToggleActive(record.bannerId, isActive !== false)} />
+      ),
     },
     {
       title: '작업',
       key: 'action',
-      width: 120,
+      width: 180,
+      fixed: 'right' as const,
       render: (_: any, record: Banner) => (
-        <Space>
+        <Space size="middle" onClick={(e) => e.stopPropagation()}>
           <Button
             type="link"
             icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-            style={{ color: 'var(--color-primary-500)' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(record);
+            }}
           >
             수정
           </Button>
-          <Button type="link" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.bannerId)}>
-            삭제
-          </Button>
+          <Popconfirm
+            title="배너 삭제"
+            description="정말 이 배너를 삭제하시겠습니까?"
+            onConfirm={() => handleDelete(record.bannerId)}
+            okText="삭제"
+            cancelText="취소"
+            okButtonProps={{ danger: true }}
+          >
+            <Button
+              type="link"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={(e) => e.stopPropagation()}
+            >
+              삭제
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
-      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1
-          style={{
-            fontSize: '24px',
-            fontWeight: 600,
-            color: 'var(--color-primary-500)',
-            margin: 0,
-          }}
-        >
-          메인 배너 관리
-        </h1>
+    <div className="p-3 sm:p-4 md:p-6">
+      {/* 페이지 헤더 */}
+      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--color-primary-500)' }}>
+            메인 배너 관리
+          </h1>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">메인 화면에 표시될 배너를 관리합니다</p>
+        </div>
         <Button
           type="primary"
           icon={<PlusOutlined />}
           onClick={handleCreate}
+          className="w-full sm:w-auto"
           style={{
             backgroundColor: 'var(--color-primary-500)',
             borderColor: 'var(--color-primary-500)',
@@ -252,15 +277,23 @@ const Banners = () => {
         </Button>
       </div>
 
-      <Card>
-        <Table
-          columns={columns}
-          dataSource={banners}
-          rowKey="bannerId"
-          loading={loading}
-          pagination={{ showSizeChanger: true, showTotal: (total) => `총 ${total}개` }}
-        />
-      </Card>
+      {/* 테이블 스크롤 래퍼 - 모바일에서 가로 스크롤 가능 */}
+      <div className="overflow-x-auto -mx-3 sm:mx-0 mb-6">
+        <Card style={{ borderRadius: '12px', boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)' }}>
+          <Table
+            columns={columns}
+            dataSource={banners}
+            rowKey="bannerId"
+            loading={loading}
+            scroll={{ x: 1000 }}
+            pagination={{
+              showSizeChanger: true,
+              showTotal: (total) => `총 ${total}개`,
+              responsive: true,
+            }}
+          />
+        </Card>
+      </div>
 
       <Modal
         title={editingBanner ? '배너 수정' : '배너 추가'}
@@ -272,7 +305,14 @@ const Banners = () => {
           setImageFileName('');
           setPreviewImage('');
         }}
-        width={700}
+        width="100%"
+        style={{ maxWidth: '700px', top: 20 }}
+        styles={{
+          body: {
+            maxHeight: 'calc(100vh - 200px)',
+            overflowY: 'auto',
+          },
+        }}
         okText={editingBanner ? '수정' : '생성'}
         cancelText="취소"
       >

@@ -17,6 +17,15 @@ const REJECTION_REASONS = [
   '기타 사유',
 ];
 
+// 서류 타입 한국어 매핑
+const DOCUMENT_TYPE_LABELS: Record<string, string> = {
+  id_card: '신분증 사본',
+  animal_production_license: '동물생산업 등록증',
+  adoption_contract_sample: '표준 입양계약서 샘플',
+  recent_pedigree_document: '최근 발급된 혈통서 사본',
+  breeder_certification: '고양이 브리더 인증 서류',
+};
+
 export default function BreederVerification() {
   const [loading, setLoading] = useState(false);
   const [dataSource, setDataSource] = useState<BreederVerification[]>([]);
@@ -42,33 +51,69 @@ export default function BreederVerification() {
     }
   };
 
-  const handleViewDetails = (record: BreederVerification) => {
-    setSelectedBreeder(record);
-    setIsModalOpen(true);
+  const handleViewDetails = async (record: BreederVerification) => {
+    try {
+      setLoading(true);
+      const detailData = await breederApi.getBreederDetail(record.breederId);
+      setSelectedBreeder({
+        ...record,
+        verificationInfo: {
+          ...record.verificationInfo,
+          ...detailData.verificationInfo,
+        },
+        profileInfo: detailData.profileInfo || record.profileInfo,
+        createdAt: detailData.createdAt,
+        updatedAt: detailData.updatedAt,
+      });
+      setIsModalOpen(true);
+    } catch (error: any) {
+      console.error('Failed to fetch breeder details:', error);
+      message.error('브리더 상세 정보를 불러올 수 없습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMarkAsReviewing = async (breederId: string) => {
+    console.log('🔵 [handleMarkAsReviewing] 호출됨 - breederId:', breederId);
+
+    // 임시: Modal.confirm 건너뛰고 바로 실행해서 테스트
+    console.log('🟢 [handleMarkAsReviewing] API 호출 시작 (Modal 건너뜀)');
+    try {
+      await breederApi.updateVerification(breederId, {
+        verificationStatus: 'reviewing',
+      });
+      console.log('✅ [handleMarkAsReviewing] API 호출 성공');
+      message.success('리뷰 완료로 표시되었습니다.');
+      setIsModalOpen(false);
+      fetchPendingVerifications();
+    } catch (error: any) {
+      console.error('❌ [handleMarkAsReviewing] API 호출 실패:', error);
+      message.error('상태 변경에 실패했습니다.');
+    }
   };
 
   const handleApprove = async (breederId: string, level: 'new' | 'elite') => {
-    Modal.confirm({
-      title: `${level === 'elite' ? '엘리트' : '뉴'} 레벨로 승인하시겠습니까?`,
-      content: '승인 후에는 브리더가 서비스를 이용할 수 있습니다.',
-      okText: '승인',
-      cancelText: '취소',
-      onOk: async () => {
-        try {
-          await breederApi.updateVerification(breederId, {
-            action: 'approve',
-          });
-          message.success('브리더 인증이 승인되었습니다.');
-          fetchPendingVerifications();
-        } catch (error: any) {
-          console.error('Approval failed:', error);
-          message.error('승인에 실패했습니다.');
-        }
-      },
-    });
+    console.log('🔵 [handleApprove] 호출됨 - breederId:', breederId, 'level:', level);
+
+    // 임시: Modal.confirm 건너뛰고 바로 실행해서 테스트
+    console.log('🟢 [handleApprove] API 호출 시작 (Modal 건너뜀)');
+    try {
+      await breederApi.updateVerification(breederId, {
+        verificationStatus: 'approved',
+      });
+      console.log('✅ [handleApprove] API 호출 성공');
+      message.success('브리더 인증이 승인되었습니다.');
+      setIsModalOpen(false);
+      fetchPendingVerifications();
+    } catch (error: any) {
+      console.error('❌ [handleApprove] API 호출 실패:', error);
+      message.error('승인에 실패했습니다.');
+    }
   };
 
   const handleReject = (record: BreederVerification) => {
+    console.log('🔵 [handleReject] 호출됨 - breederId:', record.breederId);
     setSelectedBreeder(record);
     setIsRejectModalOpen(true);
     form.resetFields();
@@ -86,7 +131,7 @@ export default function BreederVerification() {
       if (!selectedBreeder) return;
 
       await breederApi.updateVerification(selectedBreeder.breederId, {
-        action: 'reject',
+        verificationStatus: 'rejected',
         rejectionReason,
       });
 
@@ -122,6 +167,25 @@ export default function BreederVerification() {
       ),
     },
     {
+      title: '신청 레벨',
+      dataIndex: ['verificationInfo', 'level'],
+      key: 'level',
+      width: 100,
+      render: (level: string) => (
+        <Tag
+          color={level === 'elite' ? 'purple' : 'green'}
+          style={{
+            backgroundColor: level === 'elite' ? 'var(--color-level-elite-100)' : 'var(--color-level-new-100)',
+            color: level === 'elite' ? 'var(--color-level-elite-500)' : 'var(--color-level-new-500)',
+            borderColor: level === 'elite' ? 'var(--color-level-elite-500)' : 'var(--color-level-new-500)',
+            fontWeight: 500,
+          }}
+        >
+          {level === 'elite' ? '엘리트' : '뉴'}
+        </Tag>
+      ),
+    },
+    {
       title: '신청일',
       dataIndex: ['verificationInfo', 'submittedAt'],
       key: 'submittedAt',
@@ -138,59 +202,106 @@ export default function BreederVerification() {
     {
       title: '액션',
       key: 'action',
-      width: 350,
-      render: (_, record) => (
-        <Space size="small">
-          <Button type="link" icon={<EyeOutlined />} onClick={() => handleViewDetails(record)}>
-            상세 보기
-          </Button>
-          <Button
-            icon={<CheckCircleOutlined />}
-            onClick={() => handleApprove(record.breederId, 'elite')}
-            size="small"
-            style={{
-              backgroundColor: 'var(--color-level-elite-100)',
-              color: 'var(--color-level-elite-500)',
-              borderColor: 'var(--color-level-elite-500)',
-              fontWeight: 500,
-            }}
-          >
-            엘리트 승인
-          </Button>
-          <Button
-            icon={<CheckCircleOutlined />}
-            onClick={() => handleApprove(record.breederId, 'new')}
-            size="small"
-            style={{
-              backgroundColor: 'var(--color-level-new-100)',
-              color: 'var(--color-level-new-500)',
-              borderColor: 'var(--color-level-new-500)',
-              fontWeight: 500,
-            }}
-          >
-            뉴 승인
-          </Button>
-          <Button danger icon={<CloseCircleOutlined />} onClick={() => handleReject(record)} size="small">
-            반려
-          </Button>
-        </Space>
-      ),
+      width: 400,
+      render: (_, record) => {
+        const appliedLevel = record.verificationInfo?.level || 'new';
+        return (
+          <Space size="small" onClick={(e) => e.stopPropagation()}>
+            <Button
+              type="link"
+              icon={<EyeOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleViewDetails(record);
+              }}
+            >
+              상세 보기
+            </Button>
+            <Button
+              onClick={(e) => {
+                console.log('🟡 [테이블 버튼] 리뷰 완료 버튼 클릭됨', record.breederId);
+                e.stopPropagation();
+                handleMarkAsReviewing(record.breederId);
+              }}
+              size="small"
+              style={{
+                backgroundColor: '#fef3c7',
+                color: '#92400e',
+                borderColor: '#f59e0b',
+                fontWeight: 500,
+              }}
+            >
+              리뷰 완료
+            </Button>
+            {appliedLevel === 'elite' && (
+              <Button
+                icon={<CheckCircleOutlined />}
+                onClick={(e) => {
+                  console.log('🟡 [테이블 버튼] 엘리트 승인 버튼 클릭됨', record.breederId);
+                  e.stopPropagation();
+                  handleApprove(record.breederId, 'elite');
+                }}
+                size="small"
+                style={{
+                  backgroundColor: 'var(--color-level-elite-100)',
+                  color: 'var(--color-level-elite-500)',
+                  borderColor: 'var(--color-level-elite-500)',
+                  fontWeight: 500,
+                }}
+              >
+                엘리트 승인
+              </Button>
+            )}
+            {appliedLevel === 'new' && (
+              <Button
+                icon={<CheckCircleOutlined />}
+                onClick={(e) => {
+                  console.log('🟡 [테이블 버튼] 뉴 승인 버튼 클릭됨', record.breederId);
+                  e.stopPropagation();
+                  handleApprove(record.breederId, 'new');
+                }}
+                size="small"
+                style={{
+                  backgroundColor: 'var(--color-level-new-100)',
+                  color: 'var(--color-level-new-500)',
+                  borderColor: 'var(--color-level-new-500)',
+                  fontWeight: 500,
+                }}
+              >
+                뉴 승인
+              </Button>
+            )}
+            <Button
+              danger
+              icon={<CloseCircleOutlined />}
+              onClick={(e) => {
+                console.log('🟡 [테이블 버튼] 반려 버튼 클릭됨', record.breederId);
+                e.stopPropagation();
+                handleReject(record);
+              }}
+              size="small"
+            >
+              반려
+            </Button>
+          </Space>
+        );
+      },
     },
   ];
 
   return (
-    <div className="p-6">
+    <div className="p-3 sm:p-4 md:p-6">
       {/* 페이지 헤더 */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--color-primary-500)' }}>
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: 'var(--color-primary-500)' }}>
           브리더 인증 관리
         </h1>
-        <p className="text-gray-500">브리더 인증 신청을 검토하고 승인/반려 처리합니다</p>
+        <p className="text-sm sm:text-base text-gray-500">브리더 인증 신청을 검토하고 승인/반려 처리합니다</p>
       </div>
 
       {/* 통계 카드 */}
       <Card
-        className="mb-6"
+        className="mb-4 sm:mb-6"
         style={{
           borderRadius: '12px',
           boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
@@ -198,31 +309,36 @@ export default function BreederVerification() {
       >
         <div className="flex items-center gap-3">
           <div
-            className="flex items-center justify-center w-12 h-12 rounded-lg"
+            className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-lg"
             style={{ backgroundColor: 'var(--color-tertiary-500)' }}
           >
-            <FileTextOutlined style={{ fontSize: '24px', color: 'var(--color-primary-500)' }} />
+            <FileTextOutlined style={{ fontSize: '20px', color: 'var(--color-primary-500)' }} className="sm:text-2xl" />
           </div>
           <div>
-            <p className="text-sm text-gray-500">승인 대기 중</p>
-            <p className="text-2xl font-bold" style={{ color: 'var(--color-primary-500)' }}>
+            <p className="text-xs sm:text-sm text-gray-500">승인 대기 중</p>
+            <p className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--color-primary-500)' }}>
               {dataSource.length}명
             </p>
           </div>
         </div>
       </Card>
 
-      <Table
-        columns={columns}
-        dataSource={dataSource}
-        rowKey="breederId"
-        loading={loading}
-        pagination={{
-          pageSize: 10,
-          showSizeChanger: true,
-          showTotal: (total) => `총 ${total}건`,
-        }}
-      />
+      {/* 테이블 스크롤 래퍼 - 모바일에서 가로 스크롤 가능 */}
+      <div className="overflow-x-auto -mx-3 sm:mx-0">
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          rowKey="breederId"
+          loading={loading}
+          scroll={{ x: 800 }}
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            showTotal: (total) => `총 ${total}건`,
+            responsive: true,
+          }}
+        />
+      </div>
 
       {/* 상세 보기 모달 */}
       <Modal
@@ -230,11 +346,13 @@ export default function BreederVerification() {
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={null}
-        width={800}
+        width="100%"
+        style={{ maxWidth: '800px', top: 20 }}
+        styles={{ body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' } }}
       >
         {selectedBreeder && (
           <div>
-            <Descriptions bordered column={2}>
+            <Descriptions bordered column={{ xs: 1, sm: 2 }}>
               <Descriptions.Item label="브리더명" span={2}>
                 {selectedBreeder.breederName}
               </Descriptions.Item>
@@ -244,10 +362,34 @@ export default function BreederVerification() {
                   {selectedBreeder.verificationInfo.subscriptionPlan === 'premium' ? '프리미엄' : '베이직'}
                 </Tag>
               </Descriptions.Item>
+              <Descriptions.Item label="신청 레벨" span={2}>
+                <Tag
+                  style={{
+                    backgroundColor:
+                      selectedBreeder.verificationInfo.level === 'elite'
+                        ? 'var(--color-level-elite-100)'
+                        : 'var(--color-level-new-100)',
+                    color:
+                      selectedBreeder.verificationInfo.level === 'elite'
+                        ? 'var(--color-level-elite-500)'
+                        : 'var(--color-level-new-500)',
+                    borderColor:
+                      selectedBreeder.verificationInfo.level === 'elite'
+                        ? 'var(--color-level-elite-500)'
+                        : 'var(--color-level-new-500)',
+                    fontWeight: 500,
+                  }}
+                >
+                  {selectedBreeder.verificationInfo.level === 'elite' ? '엘리트' : '뉴'}
+                </Tag>
+              </Descriptions.Item>
               <Descriptions.Item label="신청일" span={2}>
                 {selectedBreeder.verificationInfo.submittedAt
                   ? new Date(selectedBreeder.verificationInfo.submittedAt).toLocaleString('ko-KR')
                   : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="계정 생성일" span={2}>
+                {selectedBreeder.createdAt ? new Date(selectedBreeder.createdAt).toLocaleString('ko-KR') : '-'}
               </Descriptions.Item>
               <Descriptions.Item label="상태" span={2}>
                 <Tag color="orange">
@@ -256,6 +398,21 @@ export default function BreederVerification() {
                     : selectedBreeder.verificationInfo.verificationStatus}
                 </Tag>
               </Descriptions.Item>
+              {selectedBreeder.profileInfo?.location && (
+                <Descriptions.Item label="지역">{selectedBreeder.profileInfo.location}</Descriptions.Item>
+              )}
+              {selectedBreeder.profileInfo?.detailedLocation && (
+                <Descriptions.Item label="세부 지역">{selectedBreeder.profileInfo.detailedLocation}</Descriptions.Item>
+              )}
+              {selectedBreeder.profileInfo?.specialization && selectedBreeder.profileInfo.specialization.length > 0 && (
+                <Descriptions.Item label="전문 분야" span={2}>
+                  {selectedBreeder.profileInfo.specialization.map((spec: string) => (
+                    <Tag key={spec} color="blue">
+                      {spec === 'dog' ? '강아지' : '고양이'}
+                    </Tag>
+                  ))}
+                </Descriptions.Item>
+              )}
               {selectedBreeder.verificationInfo.isSubmittedByEmail && (
                 <Descriptions.Item label="제출 방식" span={2}>
                   <Tag color="blue">이메일 제출</Tag>
@@ -263,51 +420,113 @@ export default function BreederVerification() {
               )}
             </Descriptions>
 
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold mb-3">제출된 서류</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {selectedBreeder.verificationInfo.documentUrls.map((doc, index) => (
-                  <div key={index} className="border p-2 rounded">
-                    <p className="text-sm text-gray-600 mb-2">서류 {index + 1}</p>
-                    <Image src={doc} alt={`서류 ${index + 1}`} className="w-full" />
-                  </div>
-                ))}
+            <div className="mt-4 sm:mt-6">
+              <h3 className="text-base sm:text-lg font-semibold mb-3">제출된 서류</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                {selectedBreeder.verificationInfo.documents && selectedBreeder.verificationInfo.documents.length > 0 ? (
+                  selectedBreeder.verificationInfo.documents.map((doc, index) => {
+                    const isPdf = doc.fileName?.toLowerCase().endsWith('.pdf');
+                    return (
+                      <div key={index} className="border p-2 rounded">
+                        <p className="text-sm font-semibold text-gray-700 mb-2">
+                          {DOCUMENT_TYPE_LABELS[doc.type] || doc.type}
+                        </p>
+                        <p className="text-xs text-gray-500 mb-2">
+                          업로드: {doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString('ko-KR') : '-'}
+                        </p>
+                        {isPdf ? (
+                          <div className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded">
+                            <FileTextOutlined style={{ fontSize: '48px', color: '#d32f2f' }} />
+                            <p className="text-sm text-gray-600 mt-2 mb-3">PDF 파일</p>
+                            <Button
+                              type="primary"
+                              size="small"
+                              icon={<EyeOutlined />}
+                              onClick={() => window.open(doc.fileUrl || doc.url, '_blank')}
+                            >
+                              PDF 보기
+                            </Button>
+                          </div>
+                        ) : (
+                          <Image
+                            src={doc.fileUrl || doc.url || '/placeholder.png'}
+                            alt={DOCUMENT_TYPE_LABELS[doc.type] || doc.type}
+                            className="w-full"
+                            fallback="/placeholder.png"
+                          />
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="col-span-2 text-center text-gray-500 py-4">제출된 서류가 없습니다</div>
+                )}
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end gap-2">
-              <Button onClick={() => setIsModalOpen(false)}>닫기</Button>
+            <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row justify-end gap-2">
+              <Button onClick={() => setIsModalOpen(false)} block className="sm:w-auto">
+                닫기
+              </Button>
               <Button
+                type="default"
+                block
+                className="sm:w-auto"
                 onClick={() => {
-                  setIsModalOpen(false);
-                  handleApprove(selectedBreeder.breederId, 'elite');
+                  console.log('🟡 [모달 버튼] 리뷰 완료 버튼 클릭됨', selectedBreeder.breederId);
+                  handleMarkAsReviewing(selectedBreeder.breederId);
                 }}
                 style={{
-                  backgroundColor: 'var(--color-level-elite-500)',
-                  color: '#fff',
-                  borderColor: 'var(--color-level-elite-500)',
+                  backgroundColor: '#fef3c7',
+                  color: '#92400e',
+                  borderColor: '#f59e0b',
                   fontWeight: 500,
                 }}
               >
-                엘리트 승인
+                리뷰 완료
               </Button>
-              <Button
-                onClick={() => {
-                  setIsModalOpen(false);
-                  handleApprove(selectedBreeder.breederId, 'new');
-                }}
-                style={{
-                  backgroundColor: 'var(--color-level-new-500)',
-                  color: '#fff',
-                  borderColor: 'var(--color-level-new-500)',
-                  fontWeight: 500,
-                }}
-              >
-                뉴 승인
-              </Button>
+              {selectedBreeder.verificationInfo.level === 'elite' && (
+                <Button
+                  block
+                  className="sm:w-auto"
+                  onClick={() => {
+                    console.log('🟡 [모달 버튼] 엘리트 승인 버튼 클릭됨', selectedBreeder.breederId);
+                    handleApprove(selectedBreeder.breederId, 'elite');
+                  }}
+                  style={{
+                    backgroundColor: 'var(--color-level-elite-500)',
+                    color: '#fff',
+                    borderColor: 'var(--color-level-elite-500)',
+                    fontWeight: 500,
+                  }}
+                >
+                  엘리트 승인
+                </Button>
+              )}
+              {selectedBreeder.verificationInfo.level === 'new' && (
+                <Button
+                  block
+                  className="sm:w-auto"
+                  onClick={() => {
+                    console.log('🟡 [모달 버튼] 뉴 승인 버튼 클릭됨', selectedBreeder.breederId);
+                    handleApprove(selectedBreeder.breederId, 'new');
+                  }}
+                  style={{
+                    backgroundColor: 'var(--color-level-new-500)',
+                    color: '#fff',
+                    borderColor: 'var(--color-level-new-500)',
+                    fontWeight: 500,
+                  }}
+                >
+                  뉴 승인
+                </Button>
+              )}
               <Button
                 danger
+                block
+                className="sm:w-auto"
                 onClick={() => {
+                  console.log('🟡 [모달 버튼] 반려 버튼 클릭됨', selectedBreeder.breederId);
                   setIsModalOpen(false);
                   handleReject(selectedBreeder);
                 }}

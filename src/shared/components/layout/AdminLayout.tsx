@@ -7,17 +7,16 @@ import Header from './Header';
 const { Content } = Layout;
 
 export default function AdminLayout() {
-  const [collapsed, setCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <Layout className="min-h-screen">
-      <Sidebar collapsed={collapsed} />
-      <Layout style={{ marginLeft: collapsed ? 80 : 240, transition: 'margin-left 0.2s' }}>
-        <Header collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
+      <Sidebar mobileMenuOpen={mobileMenuOpen} onMobileMenuClose={() => setMobileMenuOpen(false)} />
+      <Layout className="ml-0 md:ml-60 transition-[margin-left] duration-200">
+        <Header onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
         <Content
+          className="m-3 sm:m-4 md:m-6 p-0"
           style={{
-            margin: '24px',
-            padding: '24px',
             background: '#fff',
             borderRadius: '8px',
             minHeight: 'calc(100vh - 112px)',

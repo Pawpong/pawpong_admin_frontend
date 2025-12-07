@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import koKR from 'antd/locale/ko_KR';
+
 import AdminLayout from '../shared/components/layout/AdminLayout';
 import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';

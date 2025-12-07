@@ -59,9 +59,9 @@ export default function BreederManagement() {
   const fetchApprovedBreeders = async () => {
     setLoading(true);
     try {
-      const data = await breederApi.getPendingVerifications();
-      // 실제로는 승인된 브리더만 가져오는 API가 필요하지만, 지금은 전체 데이터를 사용
-      setDataSource(data.filter((b) => b.verificationInfo.verificationStatus === 'approved'));
+      // 승인된 브리더 목록 조회 (status='approved')
+      const response = await breederApi.getBreeders('approved');
+      setDataSource(response.items);
     } catch (error: any) {
       console.error('Failed to fetch breeders:', error);
       message.error('브리더 목록을 불러올 수 없습니다.');
@@ -205,13 +205,13 @@ export default function BreederManagement() {
   ];
 
   return (
-    <div className="p-6">
+    <div className="p-3 sm:p-4 md:p-6">
       {/* 페이지 헤더 */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--color-primary-500)' }}>
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: 'var(--color-primary-500)' }}>
           브리더 관리
         </h1>
-        <p className="text-gray-500">승인된 브리더의 레벨을 변경하거나 계정을 관리합니다</p>
+        <p className="text-sm sm:text-base text-gray-500">승인된 브리더의 레벨을 변경하거나 계정을 관리합니다</p>
       </div>
 
       {/* 통계 카드 */}
@@ -230,8 +230,8 @@ export default function BreederManagement() {
               <UserOutlined style={{ fontSize: '24px', color: 'var(--color-primary-500)' }} />
             </div>
             <div>
-              <p className="text-sm text-gray-500">전체 브리더</p>
-              <p className="text-2xl font-bold" style={{ color: 'var(--color-primary-500)' }}>
+              <p className="text-xs sm:text-sm text-gray-500">전체 브리더</p>
+              <p className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--color-primary-500)' }}>
                 {dataSource.length}명
               </p>
             </div>
@@ -252,8 +252,8 @@ export default function BreederManagement() {
               <UserOutlined style={{ fontSize: '24px', color: 'var(--color-level-elite-500)' }} />
             </div>
             <div>
-              <p className="text-sm text-gray-500">엘리트 브리더</p>
-              <p className="text-2xl font-bold" style={{ color: 'var(--color-level-elite-500)' }}>
+              <p className="text-xs sm:text-sm text-gray-500">엘리트 브리더</p>
+              <p className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--color-level-elite-500)' }}>
                 {dataSource.filter((b) => b.verificationInfo.subscriptionPlan === 'premium').length}명
               </p>
             </div>
@@ -274,8 +274,8 @@ export default function BreederManagement() {
               <UserOutlined style={{ fontSize: '24px', color: 'var(--color-level-new-500)' }} />
             </div>
             <div>
-              <p className="text-sm text-gray-500">뉴 브리더</p>
-              <p className="text-2xl font-bold" style={{ color: 'var(--color-level-new-500)' }}>
+              <p className="text-xs sm:text-sm text-gray-500">뉴 브리더</p>
+              <p className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--color-level-new-500)' }}>
                 {dataSource.filter((b) => b.verificationInfo.subscriptionPlan !== 'premium').length}명
               </p>
             </div>
@@ -284,8 +284,10 @@ export default function BreederManagement() {
       </div>
 
       {/* 액션 버튼 */}
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex flex-col sm:flex-row justify-end gap-2">
         <Button
+          block
+          className="sm:w-auto"
           icon={<BellOutlined />}
           onClick={handleRemindClick}
           disabled={selectedBreeders.length === 0}
@@ -299,21 +301,26 @@ export default function BreederManagement() {
         </Button>
       </div>
 
-      <Table
-        columns={columns}
-        dataSource={dataSource}
-        rowKey="breederId"
-        loading={loading}
-        rowSelection={{
-          selectedRowKeys: selectedBreeders,
-          onChange: (selectedRowKeys) => setSelectedBreeders(selectedRowKeys as string[]),
-        }}
-        pagination={{
-          pageSize: 10,
-          showSizeChanger: true,
-          showTotal: (total) => `총 ${total}건`,
-        }}
-      />
+      {/* 테이블 스크롤 래퍼 - 모바일에서 가로 스크롤 가능 */}
+      <div className="overflow-x-auto -mx-3 sm:mx-0">
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          rowKey="breederId"
+          loading={loading}
+          scroll={{ x: 800 }}
+          rowSelection={{
+            selectedRowKeys: selectedBreeders,
+            onChange: (selectedRowKeys) => setSelectedBreeders(selectedRowKeys as string[]),
+          }}
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            showTotal: (total) => `총 ${total}건`,
+            responsive: true,
+          }}
+        />
+      </div>
 
       {/* 상세 보기 모달 */}
       <Modal
@@ -321,14 +328,16 @@ export default function BreederManagement() {
         open={isDetailModalOpen}
         onCancel={() => setIsDetailModalOpen(false)}
         footer={[
-          <Button key="close" onClick={() => setIsDetailModalOpen(false)}>
+          <Button key="close" block className="sm:w-auto" onClick={() => setIsDetailModalOpen(false)}>
             닫기
           </Button>,
         ]}
-        width={700}
+        width="100%"
+        style={{ maxWidth: '700px', top: 20 }}
+        styles={{ body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' } }}
       >
         {selectedBreeder && (
-          <Descriptions bordered column={2}>
+          <Descriptions bordered column={{ xs: 1, sm: 2 }}>
             <Descriptions.Item label="브리더명" span={2}>
               <strong>{selectedBreeder.breederName}</strong>
             </Descriptions.Item>
@@ -353,6 +362,9 @@ export default function BreederManagement() {
         onCancel={() => setIsLevelChangeModalOpen(false)}
         okText="변경"
         cancelText="취소"
+        width="100%"
+        style={{ maxWidth: '500px', top: 20 }}
+        styles={{ body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' } }}
       >
         <Form form={levelChangeForm} layout="vertical">
           <Form.Item name="level" label="변경할 레벨" rules={[{ required: true, message: '레벨을 선택해주세요' }]}>
@@ -383,6 +395,9 @@ export default function BreederManagement() {
         okText="정지"
         okButtonProps={{ danger: true }}
         cancelText="취소"
+        width="100%"
+        style={{ maxWidth: '500px', top: 20 }}
+        styles={{ body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' } }}
       >
         <Form form={suspendForm} layout="vertical">
           <Form.Item name="reason" label="정지 사유" rules={[{ required: true, message: '정지 사유를 입력해주세요' }]}>
@@ -410,6 +425,9 @@ export default function BreederManagement() {
         onCancel={() => setIsRemindModalOpen(false)}
         okText="발송"
         cancelText="취소"
+        width="100%"
+        style={{ maxWidth: '500px', top: 20 }}
+        styles={{ body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' } }}
       >
         <Form form={remindForm} layout="vertical">
           <p className="mb-4 text-sm text-gray-600">

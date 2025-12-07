@@ -157,20 +157,47 @@ const ReviewReports: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="p-3 sm:p-4 md:p-6">
+      {/* 페이지 헤더 */}
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: 'var(--color-primary-500)' }}>
+          후기 신고 관리
+        </h1>
+        <p className="text-sm sm:text-base text-gray-500">신고된 후기를 검토하고 관리합니다</p>
+      </div>
+
+      {/* 통계 카드 */}
       <Card
-        title={
-          <Space>
-            <span style={{ fontSize: '18px', fontWeight: 600 }}>후기 신고 관리</span>
-            <Tag color="red">{dataSource.length}건</Tag>
-          </Space>
-        }
+        className="mb-6"
+        style={{
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+        }}
       >
+        <div className="flex items-center gap-3">
+          <div
+            className="flex items-center justify-center w-12 h-12 rounded-lg"
+            style={{ backgroundColor: 'var(--color-status-error-100)' }}
+          >
+            <WarningOutlined style={{ fontSize: '24px', color: 'var(--color-status-error-500)' }} />
+          </div>
+          <div>
+            <p className="text-xs sm:text-sm text-gray-500">신고된 후기</p>
+            <p className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--color-status-error-500)' }}>
+              {dataSource.length}건
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      {/* 테이블 스크롤 래퍼 - 모바일에서 가로 스크롤 가능 */}
+      <div className="overflow-x-auto -mx-3 sm:mx-0 mb-6">
         <Table
           columns={columns}
           dataSource={dataSource}
           rowKey="reviewId"
           loading={loading}
+          scroll={{ x: 800 }}
           pagination={{
             ...pagination,
             showTotal: (total) => `총 ${total}건`,
@@ -178,9 +205,10 @@ const ReviewReports: React.FC = () => {
             onChange: (page, pageSize) => {
               fetchReviewReports(page, pageSize);
             },
+            responsive: true,
           }}
         />
-      </Card>
+      </div>
 
       {/* 상세 정보 모달 */}
       <Modal
@@ -210,7 +238,14 @@ const ReviewReports: React.FC = () => {
             </Button>
           </Popconfirm>,
         ]}
-        width={700}
+        width="100%"
+        style={{ maxWidth: '700px', top: 20 }}
+        styles={{
+          body: {
+            maxHeight: 'calc(100vh - 200px)',
+            overflowY: 'auto',
+          },
+        }}
       >
         {selectedReport && (
           <div style={{ marginTop: '20px' }}>

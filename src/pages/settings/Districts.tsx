@@ -139,8 +139,15 @@ const Districts: React.FC = () => {
       key: 'action',
       width: 150,
       render: (_, record) => (
-        <Space size="small">
-          <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)}>
+        <Space size="small" onClick={(e) => e.stopPropagation()}>
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(record);
+            }}
+          >
             수정
           </Button>
           <Popconfirm
@@ -151,7 +158,7 @@ const Districts: React.FC = () => {
             cancelText="취소"
             okButtonProps={{ danger: true }}
           >
-            <Button type="link" danger icon={<DeleteOutlined />}>
+            <Button type="link" danger icon={<DeleteOutlined />} onClick={(e) => e.stopPropagation()}>
               삭제
             </Button>
           </Popconfirm>

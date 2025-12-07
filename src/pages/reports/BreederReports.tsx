@@ -7,6 +7,19 @@ import type { BreederReport } from '../../shared/types/api.types';
 
 const { TextArea } = Input;
 
+// 신고 유형 한글 매핑
+const getReportTypeText = (type: string): string => {
+  const typeMap: Record<string, string> = {
+    no_contract: '계약 불이행',
+    false_info: '허위 정보',
+    inappropriate_content: '부적절한 콘텐츠',
+    fraudulent_listing: '사기성 매물',
+    other: '기타',
+  };
+
+  return typeMap[type] || type;
+};
+
 // 신고 상태 표시
 const getStatusTag = (status: string) => {
   const statusMap: Record<string, { color: string; text: string }> = {
@@ -63,7 +76,7 @@ export default function BreederReports() {
     if (!selectedReport) return;
 
     try {
-      await breederApi.handleReport(selectedReport.targetId, selectedReport.reportId, {
+      await breederApi.handleReport(selectedReport.reportId, {
         action: actionType,
         adminNotes,
       });
@@ -94,6 +107,7 @@ export default function BreederReports() {
       key: 'type',
       width: 200,
       ellipsis: true,
+      render: (type: string) => getReportTypeText(type),
     },
     {
       title: '신고일',
@@ -139,13 +153,13 @@ export default function BreederReports() {
   ];
 
   return (
-    <div className="p-6">
+    <div className="p-3 sm:p-4 md:p-6">
       {/* 페이지 헤더 */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--color-primary-500)' }}>
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: 'var(--color-primary-500)' }}>
           브리더 신고 관리
         </h1>
-        <p className="text-gray-500">브리더에 대한 신고를 검토하고 처리합니다</p>
+        <p className="text-sm sm:text-base text-gray-500">브리더에 대한 신고를 검토하고 처리합니다</p>
       </div>
 
       {/* 통계 카드 */}
@@ -164,28 +178,33 @@ export default function BreederReports() {
             <WarningOutlined style={{ fontSize: '24px', color: 'var(--color-status-error-500)' }} />
           </div>
           <div>
-            <p className="text-sm text-gray-500">처리 대기 중</p>
-            <p className="text-2xl font-bold" style={{ color: 'var(--color-status-error-500)' }}>
+            <p className="text-xs sm:text-sm text-gray-500">처리 대기 중</p>
+            <p className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--color-status-error-500)' }}>
               {dataSource.filter((r) => r.status === 'pending').length}건
             </p>
           </div>
         </div>
       </Card>
 
-      <Table
-        columns={columns}
-        dataSource={dataSource}
-        rowKey={(record) => record.reportId}
-        loading={loading}
-        pagination={{
-          current: pagination.page,
-          pageSize: pagination.limit,
-          total: pagination.total,
-          showSizeChanger: true,
-          showTotal: (total) => `총 ${total}건`,
-          onChange: (page, pageSize) => setPagination({ ...pagination, page, limit: pageSize }),
-        }}
-      />
+      {/* 테이블 스크롤 래퍼 - 모바일에서 가로 스크롤 가능 */}
+      <div className="overflow-x-auto -mx-3 sm:mx-0 mb-6">
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          rowKey={(record) => record.reportId}
+          loading={loading}
+          scroll={{ x: 800 }}
+          pagination={{
+            current: pagination.page,
+            pageSize: pagination.limit,
+            total: pagination.total,
+            showSizeChanger: true,
+            showTotal: (total) => `총 ${total}건`,
+            onChange: (page, pageSize) => setPagination({ ...pagination, page, limit: pageSize }),
+            responsive: true,
+          }}
+        />
+      </div>
 
       {/* 상세 보기 모달 */}
       <Modal
@@ -220,10 +239,17 @@ export default function BreederReports() {
             </>
           ),
         ]}
-        width={700}
+        width="100%"
+        style={{ maxWidth: '700px', top: 20 }}
+        styles={{
+          body: {
+            maxHeight: 'calc(100vh - 200px)',
+            overflowY: 'auto',
+          },
+        }}
       >
         {selectedReport && (
-          <Descriptions bordered column={2}>
+          <Descriptions bordered column={{ xs: 1, sm: 2 }}>
             <Descriptions.Item label="신고 대상 브리더" span={2}>
               <strong>{selectedReport.targetName}</strong>
             </Descriptions.Item>
@@ -234,7 +260,7 @@ export default function BreederReports() {
               {new Date(selectedReport.reportedAt).toLocaleString('ko-KR')}
             </Descriptions.Item>
             <Descriptions.Item label="신고 사유" span={2}>
-              {selectedReport.type}
+              {getReportTypeText(selectedReport.type)}
             </Descriptions.Item>
             <Descriptions.Item label="상세 설명" span={2}>
               {selectedReport.description || '없음'}
@@ -260,6 +286,14 @@ export default function BreederReports() {
         okText={actionType === 'resolve' ? '승인' : '반려'}
         okButtonProps={{ danger: actionType === 'resolve' }}
         cancelText="취소"
+        width="100%"
+        style={{ maxWidth: '500px', top: 20 }}
+        styles={{
+          body: {
+            maxHeight: 'calc(100vh - 200px)',
+            overflowY: 'auto',
+          },
+        }}
       >
         <div className="mb-4">
           <p className="mb-2">관리자 메모 (선택)</p>

@@ -72,25 +72,26 @@ export interface BreederVerification {
   verificationInfo: {
     verificationStatus: 'pending' | 'approved' | 'rejected';
     subscriptionPlan: 'basic' | 'premium';
+    level: 'new' | 'elite';
     submittedAt?: string;
-    documentUrls: string[];
+    documents: Array<{
+      type: string;
+      fileName: string;
+      fileUrl?: string;
+      url?: string; // 호환성을 위해 유지
+      uploadedAt: Date;
+    }>;
     isSubmittedByEmail?: boolean;
   };
   profileInfo?: any;
   createdAt: string;
+  updatedAt?: string;
 }
 
-export interface BreederVerificationPaginationResponse {
-  breeders: BreederVerification[];
-  total: number;
-  page: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
-}
+export type BreederVerificationPaginationResponse = PaginationResponse<BreederVerification>;
 
 export interface VerificationAction {
-  action: 'approve' | 'reject';
+  verificationStatus: 'reviewing' | 'approved' | 'rejected';
   rejectionReason?: string;
 }
 

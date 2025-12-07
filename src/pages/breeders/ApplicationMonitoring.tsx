@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Card, Tag, Space, Button, message, Row, Col, Statistic, DatePicker, Input } from 'antd';
+import { Table, Card, Tag, Button, message, DatePicker, Input } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs, { Dayjs } from 'dayjs';
 
@@ -144,70 +144,143 @@ const ApplicationMonitoring: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
-      <h1 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '24px' }}>입양 신청 모니터링</h1>
+    <div className="p-3 sm:p-4 md:p-6">
+      {/* 페이지 헤더 */}
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: 'var(--color-primary-500)' }}>
+          입양 신청 모니터링
+        </h1>
+        <p className="text-sm sm:text-base text-gray-500">전체 입양 신청 현황을 모니터링합니다</p>
+      </div>
 
-      {/* 통계 카드 */}
-      <Row gutter={16} style={{ marginBottom: '24px' }}>
-        <Col span={4}>
-          <Card>
-            <Statistic title="전체 신청" value={stats.totalCount} valueStyle={{ color: '#4f3b2e' }} />
-          </Card>
-        </Col>
-        <Col span={5}>
-          <Card>
-            <Statistic title="대기 중" value={stats.pendingCount} valueStyle={{ color: '#8c8c8c' }} />
-          </Card>
-        </Col>
-        <Col span={5}>
-          <Card>
-            <Statistic title="승인됨" value={stats.approvedCount} valueStyle={{ color: '#52c41a' }} />
-          </Card>
-        </Col>
-        <Col span={5}>
-          <Card>
-            <Statistic title="거절됨" value={stats.rejectedCount} valueStyle={{ color: '#ff4d4f' }} />
-          </Card>
-        </Col>
-        <Col span={5}>
-          <Card>
-            <Statistic title="완료됨" value={stats.completedCount} valueStyle={{ color: '#1890ff' }} />
-          </Card>
-        </Col>
-      </Row>
-
-      {/* 필터 */}
-      <Card style={{ marginBottom: '24px' }}>
-        <Space size="middle">
-          <RangePicker onChange={handleDateRangeChange} placeholder={['시작일', '종료일']} style={{ width: 280 }} />
-          <Search placeholder="브리더 ID로 검색" onSearch={handleBreederSearch} allowClear style={{ width: 280 }} />
-          <Button onClick={fetchApplications}>새로고침</Button>
-        </Space>
-      </Card>
-
-      {/* 신청 목록 테이블 */}
-      <Card>
-        <Table
-          dataSource={dataSource}
-          columns={columns}
-          loading={loading}
-          rowKey="applicationId"
-          pagination={{
-            current: filters.pageNumber,
-            pageSize: filters.itemsPerPage,
-            showSizeChanger: true,
-            showTotal: (total) => `총 ${total}개`,
-            onChange: (page, pageSize) => {
-              setFilters((prev) => ({
-                ...prev,
-                pageNumber: page,
-                itemsPerPage: pageSize,
-              }));
-            },
+      {/* 통계 카드 - 모바일 1열, 중간 2열, 데스크탑 5열 */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 mb-4 sm:mb-6">
+        <Card
+          style={{
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
           }}
-          scroll={{ x: 1000 }}
-        />
+        >
+          <div>
+            <p className="text-xs sm:text-sm text-gray-500">전체 신청</p>
+            <p className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--color-primary-500)' }}>
+              {stats.totalCount}
+            </p>
+          </div>
+        </Card>
+
+        <Card
+          style={{
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+          }}
+        >
+          <div>
+            <p className="text-xs sm:text-sm text-gray-500">대기 중</p>
+            <p className="text-xl sm:text-2xl font-bold text-gray-600">{stats.pendingCount}</p>
+          </div>
+        </Card>
+
+        <Card
+          style={{
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+          }}
+        >
+          <div>
+            <p className="text-xs sm:text-sm text-gray-500">승인됨</p>
+            <p className="text-xl sm:text-2xl font-bold" style={{ color: '#52c41a' }}>
+              {stats.approvedCount}
+            </p>
+          </div>
+        </Card>
+
+        <Card
+          style={{
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+          }}
+        >
+          <div>
+            <p className="text-xs sm:text-sm text-gray-500">거절됨</p>
+            <p className="text-xl sm:text-2xl font-bold" style={{ color: '#ff4d4f' }}>
+              {stats.rejectedCount}
+            </p>
+          </div>
+        </Card>
+
+        <Card
+          style={{
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+          }}
+        >
+          <div>
+            <p className="text-xs sm:text-sm text-gray-500">완료됨</p>
+            <p className="text-xl sm:text-2xl font-bold" style={{ color: '#1890ff' }}>
+              {stats.completedCount}
+            </p>
+          </div>
+        </Card>
+      </div>
+
+      {/* 필터 영역 - 모바일에서는 세로 정렬 */}
+      <Card
+        className="mb-4 sm:mb-6"
+        style={{
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+        }}
+      >
+        <div className="flex flex-col sm:flex-row gap-3">
+          <RangePicker
+            onChange={handleDateRangeChange}
+            placeholder={['시작일', '종료일']}
+            className="w-full sm:w-auto"
+          />
+          <Search
+            placeholder="브리더 ID로 검색"
+            onSearch={handleBreederSearch}
+            allowClear
+            className="w-full sm:w-auto"
+          />
+          <Button onClick={fetchApplications} className="w-full sm:w-auto">
+            새로고침
+          </Button>
+        </div>
       </Card>
+
+      {/* 신청 목록 테이블 - 모바일에서 가로 스크롤 */}
+      <div className="overflow-x-auto -mx-3 sm:mx-0">
+        <Card
+          style={{
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+          }}
+        >
+          <Table
+            dataSource={dataSource}
+            columns={columns}
+            loading={loading}
+            rowKey="applicationId"
+            scroll={{ x: 800 }}
+            pagination={{
+              current: filters.pageNumber,
+              pageSize: filters.itemsPerPage,
+              showSizeChanger: true,
+              showTotal: (total) => `총 ${total}개`,
+              onChange: (page, pageSize) => {
+                setFilters((prev) => ({
+                  ...prev,
+                  pageNumber: page,
+                  itemsPerPage: pageSize,
+                }));
+              },
+              responsive: true,
+            }}
+          />
+        </Card>
+      </div>
     </div>
   );
 };

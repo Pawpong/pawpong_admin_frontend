@@ -198,8 +198,16 @@ const Faqs: React.FC = () => {
       key: 'actions',
       width: 150,
       render: (_, record) => (
-        <Space>
-          <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)} style={{ padding: 0 }}>
+        <Space onClick={(e) => e.stopPropagation()}>
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(record);
+            }}
+            style={{ padding: 0 }}
+          >
             수정
           </Button>
           <Popconfirm
@@ -208,7 +216,13 @@ const Faqs: React.FC = () => {
             okText="삭제"
             cancelText="취소"
           >
-            <Button type="link" danger icon={<DeleteOutlined />} style={{ padding: 0 }}>
+            <Button
+              type="link"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={(e) => e.stopPropagation()}
+              style={{ padding: 0 }}
+            >
               삭제
             </Button>
           </Popconfirm>

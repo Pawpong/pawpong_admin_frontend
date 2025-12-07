@@ -257,8 +257,15 @@ const StandardQuestions: React.FC = () => {
       key: 'action',
       width: 100,
       render: (_, record) => (
-        <Space size="small">
-          <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)}>
+        <Space size="small" onClick={(e) => e.stopPropagation()}>
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(record);
+            }}
+          >
             수정
           </Button>
         </Space>

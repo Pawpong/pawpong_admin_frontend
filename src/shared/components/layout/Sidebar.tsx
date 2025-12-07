@@ -1,4 +1,4 @@
-import { Layout, Menu } from 'antd';
+import { Layout, Menu, Drawer } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   DashboardOutlined,
@@ -13,14 +13,16 @@ import {
 const { Sider } = Layout;
 
 interface SidebarProps {
-  collapsed: boolean;
+  mobileMenuOpen: boolean;
+  onMobileMenuClose: () => void;
 }
 
 /**
  * 어드민 사이드바 컴포넌트
  * 메뉴 네비게이션을 제공합니다
+ * 모바일: Drawer로 표시, 데스크탑: 항상 펼쳐진 고정 사이드바
  */
-export default function Sidebar({ collapsed }: SidebarProps) {
+export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -112,31 +114,17 @@ export default function Sidebar({ collapsed }: SidebarProps) {
 
   const handleMenuClick = ({ key }: { key: string }) => {
     navigate(key);
+    // 모바일에서 메뉴 클릭 시 Drawer 닫기
+    onMobileMenuClose();
   };
 
-  return (
-    <Sider
-      collapsible
-      collapsed={collapsed}
-      trigger={null}
-      width={240}
-      style={{
-        overflow: 'auto',
-        height: '100vh',
-        position: 'fixed',
-        left: 0,
-        top: 0,
-        bottom: 0,
-      }}
-    >
+  // 공통 메뉴 렌더링 컴포넌트
+  const SidebarContent = () => (
+    <>
       <div className="flex items-center justify-center h-16 border-b" style={{ borderColor: 'var(--color-gray-100)' }}>
-        {collapsed ? (
-          <span className="text-2xl">🐾</span>
-        ) : (
-          <h1 className="text-xl font-bold" style={{ color: 'var(--color-primary-500)' }}>
-            🐾 Pawpong
-          </h1>
-        )}
+        <h1 className="text-xl font-bold" style={{ color: 'var(--color-primary-500)' }}>
+          🐾 Pawpong
+        </h1>
       </div>
 
       <Menu
@@ -147,6 +135,42 @@ export default function Sidebar({ collapsed }: SidebarProps) {
         onClick={handleMenuClick}
         style={{ borderRight: 0 }}
       />
-    </Sider>
+    </>
+  );
+
+  return (
+    <>
+      {/* 데스크탑 사이드바 - md 이상에서만 표시, 항상 펼쳐진 상태 */}
+      <Sider
+        width={240}
+        className="hidden md:block"
+        style={{
+          overflow: 'auto',
+          height: '100vh',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+        }}
+      >
+        <SidebarContent />
+      </Sider>
+
+      {/* 모바일 Drawer - md 미만에서만 표시 */}
+      <Drawer
+        placement="left"
+        onClose={onMobileMenuClose}
+        open={mobileMenuOpen}
+        closable={false}
+        width={240}
+        styles={{
+          body: { padding: 0 },
+          header: { display: 'none' },
+        }}
+        className="md:hidden"
+      >
+        <SidebarContent />
+      </Drawer>
+    </>
   );
 }

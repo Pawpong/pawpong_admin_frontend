@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Card, Tag, Space, Button, message, Modal, Select, Input, Form } from 'antd';
+import { Table, Card, Tag, Button, message, Modal, Select, Input, Form } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
@@ -118,12 +118,14 @@ const Users: React.FC = () => {
       dataIndex: 'userName',
       key: 'userName',
       width: 120,
+      render: (name: string) => name || '-',
     },
     {
       title: '이메일',
       dataIndex: 'emailAddress',
       key: 'emailAddress',
       width: 200,
+      render: (email: string) => email || '-',
     },
     {
       title: '역할',
@@ -137,7 +139,7 @@ const Users: React.FC = () => {
       dataIndex: 'accountStatus',
       key: 'accountStatus',
       width: 100,
-      render: (status: string) => getStatusTag(status),
+      render: (status: string) => (status ? getStatusTag(status) : <Tag color="default">-</Tag>),
     },
     {
       title: '최근 로그인',
@@ -151,14 +153,21 @@ const Users: React.FC = () => {
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 150,
-      render: (date: string) => dayjs(date).format('YYYY-MM-DD'),
+      render: (date: string) => (date ? dayjs(date).format('YYYY-MM-DD') : '-'),
     },
     {
       title: '작업',
       key: 'actions',
       width: 120,
       render: (_, record) => (
-        <Button type="link" onClick={() => handleStatusChange(record)} style={{ padding: 0 }}>
+        <Button
+          type="link"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleStatusChange(record);
+          }}
+          style={{ padding: 0 }}
+        >
           상태 변경
         </Button>
       ),
@@ -166,24 +175,41 @@ const Users: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
-      <h1 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '24px' }}>사용자 관리</h1>
+    <div className="p-3 sm:p-4 md:p-6">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">사용자 관리</h1>
 
       {/* 필터 */}
-      <Card style={{ marginBottom: '24px' }}>
-        <Space size="middle">
-          <Select placeholder="역할 선택" onChange={handleRoleFilterChange} allowClear style={{ width: 150 }}>
+      <Card className="mb-4 sm:mb-6" style={{ borderRadius: '12px', boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <Select
+            placeholder="역할 선택"
+            onChange={handleRoleFilterChange}
+            allowClear
+            className="w-full"
+          >
             <Option value="adopter">입양자</Option>
             <Option value="breeder">브리더</Option>
           </Select>
-          <Select placeholder="상태 선택" onChange={handleStatusFilterChange} allowClear style={{ width: 150 }}>
+          <Select
+            placeholder="상태 선택"
+            onChange={handleStatusFilterChange}
+            allowClear
+            className="w-full"
+          >
             <Option value="active">활성</Option>
             <Option value="suspended">정지</Option>
             <Option value="deactivated">비활성</Option>
           </Select>
-          <Search placeholder="이름 또는 이메일 검색" onSearch={handleSearch} allowClear style={{ width: 280 }} />
-          <Button onClick={fetchUsers}>새로고침</Button>
-        </Space>
+          <Search
+            placeholder="이름 또는 이메일 검색"
+            onSearch={handleSearch}
+            allowClear
+            className="w-full lg:col-span-1"
+          />
+          <Button onClick={fetchUsers} className="w-full">
+            새로고침
+          </Button>
+        </div>
       </Card>
 
       {/* 사용자 목록 테이블 */}

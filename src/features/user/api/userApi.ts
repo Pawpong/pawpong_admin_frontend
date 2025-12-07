@@ -16,10 +16,10 @@ export const userApi = {
    */
   getUsers: async (filters?: UserSearchRequest): Promise<UserManagement[]> => {
     const response = await apiClient.get<ApiResponse<any>>('/user-admin/users', { params: filters });
-    // 백엔드가 페이지네이션 구조로 반환: {users: [], total: 41, page: 1, ...}
+    // 백엔드가 페이지네이션 구조로 반환: {items: [], pagination: {...}}
     const data = response.data.data;
-    if (data && Array.isArray(data.users)) {
-      return data.users;
+    if (data && Array.isArray(data.items)) {
+      return data.items;
     }
     // 만약 직접 배열로 오면 그대로 반환
     if (Array.isArray(data)) {

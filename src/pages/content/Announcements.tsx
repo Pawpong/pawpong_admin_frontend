@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Switch, message, Card, Space, Tag } from 'antd';
+import { Table, Button, Modal, Form, Input, Switch, message, Card, Space, Tag, Popconfirm } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -58,23 +58,14 @@ const Announcements = () => {
   };
 
   const handleDelete = async (announcementId: string) => {
-    Modal.confirm({
-      title: '공지사항 삭제',
-      content: '정말 이 공지사항을 삭제하시겠습니까?',
-      okText: '삭제',
-      cancelText: '취소',
-      okType: 'danger',
-      onOk: async () => {
-        try {
-          await announcementApi.deleteAnnouncement(announcementId);
-          message.success('공지사항이 삭제되었습니다');
-          fetchAnnouncements();
-        } catch (error) {
-          message.error('공지사항 삭제 실패');
-          console.error(error);
-        }
-      },
-    });
+    try {
+      await announcementApi.deleteAnnouncement(announcementId);
+      message.success('공지사항이 삭제되었습니다');
+      fetchAnnouncements();
+    } catch (error) {
+      message.error('공지사항 삭제 실패');
+      console.error(error);
+    }
   };
 
   const handleSubmit = async () => {
@@ -150,18 +141,30 @@ const Announcements = () => {
       key: 'action',
       width: 120,
       render: (_: any, record: Announcement) => (
-        <Space>
+        <Space onClick={(e) => e.stopPropagation()}>
           <Button
             type="link"
             icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(record);
+            }}
             style={{ color: 'var(--color-primary-500)' }}
           >
             수정
           </Button>
-          <Button type="link" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.announcementId)}>
-            삭제
-          </Button>
+          <Popconfirm
+            title="공지사항 삭제"
+            description="정말 이 공지사항을 삭제하시겠습니까?"
+            onConfirm={() => handleDelete(record.announcementId)}
+            okText="삭제"
+            cancelText="취소"
+            okButtonProps={{ danger: true }}
+          >
+            <Button type="link" danger icon={<DeleteOutlined />} onClick={(e) => e.stopPropagation()}>
+              삭제
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },
