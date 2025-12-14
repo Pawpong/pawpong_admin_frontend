@@ -300,6 +300,15 @@ export interface BreederResubmissionStats {
   resubmissionApprovalRate: number;
 }
 
+/**
+ * 브리더 통계 타입
+ */
+export interface BreederStats {
+  totalApproved: number;
+  eliteCount: number;
+  newCount: number;
+}
+
 export interface MvpStats {
   activeUserStats: ActiveUserStats;
   consultationStats: ConsultationStats;

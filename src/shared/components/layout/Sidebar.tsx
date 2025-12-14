@@ -117,6 +117,14 @@ export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarPr
           label: '메인 배너',
         },
         {
+          key: '/content/profile',
+          label: '프로필 배너',
+        },
+        {
+          key: '/content/counsel',
+          label: '상담 배너',
+        },
+        {
           key: '/content/faqs',
           label: 'FAQ',
         },

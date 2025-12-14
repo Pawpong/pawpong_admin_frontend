@@ -5,6 +5,7 @@ import koKR from 'antd/locale/ko_KR';
 import AdminLayout from '../shared/components/layout/AdminLayout';
 import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';
+import Profile from '../pages/Profile';
 import MvpStatsPage from '../pages/statistics/MvpStats';
 import BreederVerification from '../pages/breeders/BreederVerification';
 import BreederManagement from '../pages/breeders/BreederManagement';
@@ -13,6 +14,8 @@ import BreederReports from '../pages/reports/BreederReports';
 import ReviewReports from '../pages/reports/ReviewReports';
 import Users from '../pages/users/Users';
 import Banners from '../pages/content/Banners';
+import ProfileBanners from '../pages/content/ProfileBanners';
+import CounselBanners from '../pages/content/CounselBanners';
 import Faqs from '../pages/content/Faqs';
 import Announcements from '../pages/content/Announcements';
 import StandardQuestions from '../pages/content/StandardQuestions';
@@ -153,6 +156,8 @@ function App() {
             {/* 콘텐츠 관리 */}
             <Route path="content">
               <Route path="banners" element={<Banners />} />
+              <Route path="profile" element={<ProfileBanners />} />
+              <Route path="counsel" element={<CounselBanners />} />
               <Route path="faqs" element={<Faqs />} />
               <Route path="announcements" element={<Announcements />} />
               <Route path="questions" element={<StandardQuestions />} />
@@ -168,14 +173,7 @@ function App() {
             <Route path="questions" element={<Navigate to="/content/questions" replace />} />
 
             {/* 프로필 */}
-            <Route
-              path="profile"
-              element={
-                <div className="p-6">
-                  <h2 className="text-2xl font-semibold">관리자 프로필 (준비 중)</h2>
-                </div>
-              }
-            />
+            <Route path="profile" element={<Profile />} />
           </Route>
 
           {/* 404 */}

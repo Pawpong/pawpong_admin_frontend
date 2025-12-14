@@ -42,6 +42,9 @@ const getLevelTag = (level: string) => {
 export default function BreederManagement() {
   const [loading, setLoading] = useState(false);
   const [dataSource, setDataSource] = useState<BreederVerification[]>([]);
+  const [total, setTotal] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [selectedBreeder, setSelectedBreeder] = useState<BreederVerification | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isLevelChangeModalOpen, setIsLevelChangeModalOpen] = useState(false);
@@ -52,21 +55,39 @@ export default function BreederManagement() {
   const [suspendForm] = Form.useForm();
   const [remindForm] = Form.useForm();
 
+  // 통계 상태
+  const [stats, setStats] = useState({
+    totalApproved: 0,
+    eliteCount: 0,
+    newCount: 0,
+  });
+
   useEffect(() => {
     fetchApprovedBreeders();
-  }, []);
+    fetchStats();
+  }, [currentPage, pageSize]);
 
   const fetchApprovedBreeders = async () => {
     setLoading(true);
     try {
       // 승인된 브리더 목록 조회 (status='approved')
-      const response = await breederApi.getBreeders('approved');
+      const response = await breederApi.getBreeders('approved', currentPage, pageSize);
       setDataSource(response.items);
+      setTotal(response.pagination.totalItems);
     } catch (error: unknown) {
       console.error('Failed to fetch breeders:', error);
       message.error('브리더 목록을 불러올 수 없습니다.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const result = await breederApi.getBreederStats();
+      setStats(result);
+    } catch (error: unknown) {
+      console.error('Failed to fetch stats:', error);
     }
   };
 
@@ -91,6 +112,7 @@ export default function BreederManagement() {
       message.success('브리더 레벨이 변경되었습니다.');
       setIsLevelChangeModalOpen(false);
       fetchApprovedBreeders();
+      fetchStats(); // 통계 다시 불러오기
     } catch (error: unknown) {
       console.error('Level change failed:', error);
       message.error('레벨 변경에 실패했습니다.');
@@ -113,6 +135,7 @@ export default function BreederManagement() {
       message.success('브리더 계정이 정지되었습니다.');
       setIsSuspendModalOpen(false);
       fetchApprovedBreeders();
+      fetchStats(); // 통계 다시 불러오기
     } catch (error: unknown) {
       console.error('Suspend failed:', error);
       message.error('계정 정지에 실패했습니다.');
@@ -230,9 +253,9 @@ export default function BreederManagement() {
               <UserOutlined style={{ fontSize: '24px', color: 'var(--color-primary-500)' }} />
             </div>
             <div>
-              <p className="text-xs sm:text-sm text-gray-500">전체 브리더</p>
+              <p className="text-xs sm:text-sm text-gray-500">전체 승인된 브리더</p>
               <p className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--color-primary-500)' }}>
-                {dataSource.length}명
+                {stats.totalApproved}명
               </p>
             </div>
           </div>
@@ -254,7 +277,7 @@ export default function BreederManagement() {
             <div>
               <p className="text-xs sm:text-sm text-gray-500">엘리트 브리더</p>
               <p className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--color-level-elite-500)' }}>
-                {dataSource.filter((b) => b.verificationInfo.subscriptionPlan === 'premium').length}명
+                {stats.eliteCount}명
               </p>
             </div>
           </div>
@@ -276,7 +299,7 @@ export default function BreederManagement() {
             <div>
               <p className="text-xs sm:text-sm text-gray-500">뉴 브리더</p>
               <p className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--color-level-new-500)' }}>
-                {dataSource.filter((b) => b.verificationInfo.subscriptionPlan !== 'premium').length}명
+                {stats.newCount}명
               </p>
             </div>
           </div>
@@ -314,7 +337,16 @@ export default function BreederManagement() {
             onChange: (selectedRowKeys) => setSelectedBreeders(selectedRowKeys as string[]),
           }}
           pagination={{
-            pageSize: 10,
+            current: currentPage,
+            pageSize: pageSize,
+            total: total,
+            onChange: (page, size) => {
+              setCurrentPage(page);
+              if (size !== pageSize) {
+                setPageSize(size);
+                setCurrentPage(1); // Reset to page 1 when page size changes
+              }
+            },
             showSizeChanger: true,
             showTotal: (total) => `총 ${total}건`,
             responsive: true,

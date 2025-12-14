@@ -9,6 +9,7 @@ import type {
   ReportAction,
   ApplicationMonitoringResponse,
   ApplicationMonitoringRequest,
+  BreederStats,
 } from '../../../shared/types/api.types';
 
 /**
@@ -140,6 +141,16 @@ export const breederApi = {
     const response = await apiClient.get<ApiResponse<ApplicationMonitoringResponse>>('/breeder-admin/applications', {
       params: filters,
     });
+    return response.data.data;
+  },
+
+  /**
+   * 승인된 브리더 통계 조회
+   * 엔드포인트: GET /api/breeder-verification-admin/stats
+   * 모듈: BreederVerificationAdminModule
+   */
+  getBreederStats: async (): Promise<BreederStats> => {
+    const response = await apiClient.get<ApiResponse<BreederStats>>('/breeder-verification-admin/stats');
     return response.data.data;
   },
 };
