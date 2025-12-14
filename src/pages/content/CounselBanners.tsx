@@ -47,7 +47,7 @@ const CounselBanners = () => {
     setModalVisible(true);
   };
 
-  const handleEdit = (banner: ProfileBanner) => {
+  const handleEdit = (banner: CounselBanner) => {
     setEditingBanner(banner);
     // 백엔드에서 받은 imageFileName 사용
     setImageFileName(banner.imageFileName);
@@ -151,7 +151,7 @@ const CounselBanners = () => {
     }
   };
 
-  const columns: ColumnsType<ProfileBanner> = [
+  const columns: ColumnsType<CounselBanner> = [
     {
       title: '순서',
       dataIndex: 'order',
@@ -209,7 +209,7 @@ const CounselBanners = () => {
       dataIndex: 'isActive',
       key: 'isActive',
       width: 100,
-      render: (isActive: boolean, record: ProfileBanner) => (
+      render: (isActive: boolean, record: CounselBanner) => (
         <Switch checked={isActive !== false} onChange={() => handleToggleActive(record.bannerId, isActive !== false)} />
       ),
     },
@@ -218,7 +218,7 @@ const CounselBanners = () => {
       key: 'action',
       width: 180,
       fixed: 'right' as const,
-      render: (_: unknown, record: ProfileBanner) => (
+      render: (_: unknown, record: CounselBanner) => (
         <Space size="middle" onClick={(e) => e.stopPropagation()}>
           <Button
             type="link"
