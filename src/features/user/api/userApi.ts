@@ -168,7 +168,7 @@ export const profileBannerApi = {
    * 활성화된 프로필 배너 목록 조회 (프로필 페이지 표시용)
    */
   getActiveBanners: async (): Promise<ProfileBanner[]> => {
-    const response = await apiClient.get<ApiResponse<ProfileBanner[]>>('/breeder-management-admin/profile-banners/active');
+    const response = await apiClient.get<ApiResponse<ProfileBanner[]>>('/auth/login-page-banners');
     return response.data.data;
   },
 
