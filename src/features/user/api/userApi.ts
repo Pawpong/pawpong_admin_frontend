@@ -38,6 +38,7 @@ export interface ProfileBanner {
   bannerId: string;
   imageUrl: string;
   imageFileName: string;
+  bannerType: 'login' | 'signup';
   linkType?: 'internal' | 'external';
   linkUrl?: string;
   title?: string;
@@ -51,6 +52,7 @@ export interface ProfileBanner {
  */
 export interface ProfileBannerRequest {
   imageFileName: string;
+  bannerType: 'login' | 'signup';
   linkType?: 'internal' | 'external';
   linkUrl?: string;
   order: number;
@@ -95,7 +97,9 @@ export const userApi = {
    * 사용자 목록 조회
    */
   getUsers: async (filters?: UserSearchRequest): Promise<UserManagement[]> => {
-    const response = await apiClient.get<ApiResponse<PaginationResponse<UserManagement>>>('/user-admin/users', { params: filters });
+    const response = await apiClient.get<ApiResponse<PaginationResponse<UserManagement>>>('/user-admin/users', {
+      params: filters,
+    });
     // 백엔드가 페이지네이션 구조로 반환: {items: [], pagination: {...}}
     const data = response.data.data;
     if (data && Array.isArray(data.items)) {
@@ -160,15 +164,15 @@ export const profileBannerApi = {
    * 전체 프로필 배너 목록 조회 (관리자용)
    */
   getAllBanners: async (): Promise<ProfileBanner[]> => {
-    const response = await apiClient.get<ApiResponse<ProfileBanner[]>>('/breeder-management-admin/profile-banners');
+    const response = await apiClient.get<ApiResponse<ProfileBanner[]>>('/auth-admin/profile-banners');
     return response.data.data;
   },
 
   /**
-   * 활성화된 프로필 배너 목록 조회 (프로필 페이지 표시용)
+   * 활성화된 프로필 배너 목록 조회 (로그인 페이지 표시용)
    */
   getActiveBanners: async (): Promise<ProfileBanner[]> => {
-    const response = await apiClient.get<ApiResponse<ProfileBanner[]>>('/auth/login-page-banners');
+    const response = await apiClient.get<ApiResponse<ProfileBanner[]>>('/auth/login-banners');
     return response.data.data;
   },
 
@@ -176,7 +180,7 @@ export const profileBannerApi = {
    * 프로필 배너 생성
    */
   createBanner: async (data: ProfileBannerRequest): Promise<ProfileBanner> => {
-    const response = await apiClient.post<ApiResponse<ProfileBanner>>('/breeder-management-admin/profile-banner', data);
+    const response = await apiClient.post<ApiResponse<ProfileBanner>>('/auth-admin/profile-banner', data);
     return response.data.data;
   },
 
@@ -184,7 +188,7 @@ export const profileBannerApi = {
    * 프로필 배너 수정
    */
   updateBanner: async (bannerId: string, data: Partial<ProfileBannerRequest>): Promise<ProfileBanner> => {
-    const response = await apiClient.put<ApiResponse<ProfileBanner>>(`/breeder-management-admin/profile-banner/${bannerId}`, data);
+    const response = await apiClient.put<ApiResponse<ProfileBanner>>(`/auth-admin/profile-banner/${bannerId}`, data);
     return response.data.data;
   },
 
@@ -192,7 +196,7 @@ export const profileBannerApi = {
    * 프로필 배너 삭제
    */
   deleteBanner: async (bannerId: string): Promise<void> => {
-    await apiClient.delete(`/breeder-management-admin/profile-banner/${bannerId}`);
+    await apiClient.delete(`/auth-admin/profile-banner/${bannerId}`);
   },
 };
 
@@ -204,15 +208,15 @@ export const counselBannerApi = {
    * 전체 상담 배너 목록 조회 (관리자용)
    */
   getAllBanners: async (): Promise<CounselBanner[]> => {
-    const response = await apiClient.get<ApiResponse<CounselBanner[]>>('/breeder-management-admin/counsel-banners');
+    const response = await apiClient.get<ApiResponse<CounselBanner[]>>('/auth-admin/counsel-banners');
     return response.data.data;
   },
 
   /**
-   * 활성화된 상담 배너 목록 조회 (상담 신청 페이지 표시용)
+   * 활성화된 상담 배너 목록 조회 (회원가입 페이지 표시용)
    */
   getActiveBanners: async (): Promise<CounselBanner[]> => {
-    const response = await apiClient.get<ApiResponse<CounselBanner[]>>('/breeder-management-admin/counsel-banners/active');
+    const response = await apiClient.get<ApiResponse<CounselBanner[]>>('/auth/register-banners');
     return response.data.data;
   },
 
@@ -220,7 +224,7 @@ export const counselBannerApi = {
    * 상담 배너 생성
    */
   createBanner: async (data: CounselBannerRequest): Promise<CounselBanner> => {
-    const response = await apiClient.post<ApiResponse<CounselBanner>>('/breeder-management-admin/counsel-banner', data);
+    const response = await apiClient.post<ApiResponse<CounselBanner>>('/auth-admin/counsel-banner', data);
     return response.data.data;
   },
 
@@ -228,7 +232,7 @@ export const counselBannerApi = {
    * 상담 배너 수정
    */
   updateBanner: async (bannerId: string, data: Partial<CounselBannerRequest>): Promise<CounselBanner> => {
-    const response = await apiClient.put<ApiResponse<CounselBanner>>(`/breeder-management-admin/counsel-banner/${bannerId}`, data);
+    const response = await apiClient.put<ApiResponse<CounselBanner>>(`/auth-admin/counsel-banner/${bannerId}`, data);
     return response.data.data;
   },
 
@@ -236,6 +240,6 @@ export const counselBannerApi = {
    * 상담 배너 삭제
    */
   deleteBanner: async (bannerId: string): Promise<void> => {
-    await apiClient.delete(`/breeder-management-admin/counsel-banner/${bannerId}`);
+    await apiClient.delete(`/auth-admin/counsel-banner/${bannerId}`);
   },
 };

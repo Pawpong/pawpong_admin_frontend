@@ -41,6 +41,7 @@ const ProfileBanners = () => {
     setPreviewImage('');
     form.resetFields();
     form.setFieldsValue({
+      bannerType: 'login', // 기본값을 로그인으로 설정
       isActive: true,
       order: banners.length,
     });
@@ -53,6 +54,7 @@ const ProfileBanners = () => {
     setImageFileName(banner.imageFileName);
     setPreviewImage(banner.imageUrl || '');
     form.setFieldsValue({
+      bannerType: banner.bannerType || 'login', // bannerType 추가
       title: banner.title,
       description: banner.description,
       linkType: banner.linkType,
@@ -177,6 +179,29 @@ const ProfileBanners = () => {
       ),
     },
     {
+      title: '배너 타입',
+      dataIndex: 'bannerType',
+      key: 'bannerType',
+      width: 120,
+      render: (type: string) => {
+        const bannerType = type || 'login'; // 기존 배너는 기본값 login
+        return (
+          <span
+            style={{
+              padding: '4px 8px',
+              borderRadius: '4px',
+              backgroundColor: bannerType === 'login' ? 'var(--color-primary-100)' : 'var(--color-secondary-100)',
+              color: bannerType === 'login' ? 'var(--color-primary-600)' : 'var(--color-secondary-600)',
+              fontWeight: 500,
+              fontSize: '12px',
+            }}
+          >
+            {bannerType === 'login' ? '로그인' : '회원가입'}
+          </span>
+        );
+      },
+    },
+    {
       title: '제목',
       dataIndex: 'title',
       key: 'title',
@@ -260,7 +285,7 @@ const ProfileBanners = () => {
           <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--color-primary-500)' }}>
             프로필 배너 관리
           </h1>
-          <p className="text-sm sm:text-base text-gray-500 mt-1">로그인/프로필 페이지에 표시될 배너를 관리합니다</p>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">로그인/회원가입 페이지에 표시될 배너를 관리합니다</p>
         </div>
         <Button
           type="primary"
@@ -295,7 +320,7 @@ const ProfileBanners = () => {
       </div>
 
       <Modal
-        title={editingBanner ? '프로필 배너 수정' : '프로필 배너 추가'}
+        title={editingBanner ? '로그인/회원가입 배너 수정' : '로그인/회원가입 배너 추가'}
         open={modalVisible}
         onOk={handleSubmit}
         onCancel={() => {
@@ -346,6 +371,13 @@ const ProfileBanners = () => {
                 이미지를 업로드해주세요
               </div>
             )}
+          </Form.Item>
+
+          <Form.Item name="bannerType" label="배너 타입" rules={[{ required: true, message: '배너 타입을 선택해주세요' }]}>
+            <Select placeholder="배너가 표시될 페이지를 선택하세요">
+              <Select.Option value="login">로그인 페이지</Select.Option>
+              <Select.Option value="signup">회원가입 페이지</Select.Option>
+            </Select>
           </Form.Item>
 
           <Form.Item name="title" label="제목 (선택)">
