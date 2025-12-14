@@ -260,7 +260,7 @@ const ProfileBanners = () => {
           <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--color-primary-500)' }}>
             프로필 배너 관리
           </h1>
-          <p className="text-sm sm:text-base text-gray-500 mt-1">관리자 프로필 화면에 표시될 배너를 관리합니다</p>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">로그인/프로필 페이지에 표시될 배너를 관리합니다</p>
         </div>
         <Button
           type="primary"
