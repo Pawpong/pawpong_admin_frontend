@@ -1,7 +1,7 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios';
 
-// API 베이스 URL
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8082/api';
+// API 베이스 URL (포트 수정: 8080)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
 // Axios 인스턴스 생성
 const apiClient = axios.create({
@@ -53,7 +53,9 @@ apiClient.interceptors.response.use(
 
         // 새 토큰 저장
         localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', newRefreshToken);
+        if (newRefreshToken) {
+          localStorage.setItem('refreshToken', newRefreshToken);
+        }
 
         // 원래 요청 재시도
         if (originalRequest.headers) {
@@ -61,11 +63,20 @@ apiClient.interceptors.response.use(
         }
         return apiClient(originalRequest);
       } catch (refreshError) {
-        // 토큰 갱신 실패 시 로그아웃 처리
+        // 토큰 갱신 실패 시 로그아웃 처리 및 상태 완전 초기화
+        console.error('Token refresh failed:', refreshError);
+
+        // 로컬 스토리지 완전 초기화
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
-        return Promise.reject(refreshError);
+        localStorage.removeItem('auth-storage'); // Zustand persist storage
+
+        // 로그인 페이지로 강제 리다이렉트
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+
+        return Promise.reject(new Error('세션이 만료되었습니다. 다시 로그인해주세요.'));
       }
     }
 
