@@ -39,7 +39,7 @@ function SidebarContent({ pathname, menuItems, onMenuClick }: SidebarContentProp
       <Menu
         mode="inline"
         selectedKeys={[pathname]}
-        defaultOpenKeys={['breeders', 'reports', 'content', 'settings']}
+        defaultOpenKeys={['users', 'breeders', 'reports', 'content', 'settings']}
         items={menuItems}
         onClick={onMenuClick}
         style={{ borderRight: 0 }}
@@ -69,9 +69,19 @@ export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarPr
       label: 'MVP 통계',
     },
     {
-      key: '/users',
+      key: 'users',
       icon: <UserOutlined />,
       label: '사용자 관리',
+      children: [
+        {
+          key: '/users',
+          label: '전체 사용자',
+        },
+        {
+          key: '/users/deleted',
+          label: '탈퇴 사용자',
+        },
+      ],
     },
     {
       key: 'breeders',

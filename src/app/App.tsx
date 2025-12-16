@@ -13,6 +13,7 @@ import ApplicationMonitoring from '../pages/breeders/ApplicationMonitoring';
 import BreederReports from '../pages/reports/BreederReports';
 import ReviewReports from '../pages/reports/ReviewReports';
 import Users from '../pages/users/Users';
+import DeletedUsers from '../pages/users/DeletedUsers';
 import Banners from '../pages/content/Banners';
 import ProfileBanners from '../pages/content/ProfileBanners';
 import CounselBanners from '../pages/content/CounselBanners';
@@ -139,6 +140,7 @@ function App() {
 
             {/* 사용자 관리 */}
             <Route path="users" element={<Users />} />
+            <Route path="users/deleted" element={<DeletedUsers />} />
 
             {/* 브리더 관리 */}
             <Route path="breeders">

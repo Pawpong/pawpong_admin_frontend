@@ -90,6 +90,47 @@ export interface CounselBannerRequest {
 }
 
 /**
+ * 탈퇴 사용자 인터페이스
+ */
+export interface DeletedUser {
+  userId: string;
+  email: string;
+  nickname: string;
+  userRole: 'adopter' | 'breeder';
+  deleteReason: string;
+  deleteReasonDetail?: string;
+  deletedAt: string;
+  createdAt: string;
+  phone?: string;
+}
+
+/**
+ * 탈퇴 사용자 검색 필터
+ */
+export interface DeletedUserSearchRequest {
+  page?: number;
+  pageSize?: number;
+  role?: 'all' | 'adopter' | 'breeder';
+  deleteReason?: string;
+}
+
+/**
+ * 탈퇴 사용자 통계
+ */
+export interface DeletedUserStats {
+  totalDeletedUsers: number;
+  totalDeletedAdopters: number;
+  totalDeletedBreeders: number;
+  reasonStats: Array<{
+    reason: string;
+    count: number;
+    percentage: number;
+  }>;
+  last7DaysCount: number;
+  last30DaysCount: number;
+}
+
+/**
  * 사용자 관리 API 클라이언트
  */
 export const userApi = {
@@ -125,6 +166,24 @@ export const userApi = {
       data,
       { params: { role } }
     );
+    return response.data.data;
+  },
+
+  /**
+   * 탈퇴 사용자 목록 조회
+   */
+  getDeletedUsers: async (filters?: DeletedUserSearchRequest): Promise<PaginationResponse<DeletedUser>> => {
+    const response = await apiClient.get<ApiResponse<PaginationResponse<DeletedUser>>>('/user-admin/deleted-users', {
+      params: filters,
+    });
+    return response.data.data;
+  },
+
+  /**
+   * 탈퇴 사용자 통계 조회
+   */
+  getDeletedUserStats: async (): Promise<DeletedUserStats> => {
+    const response = await apiClient.get<ApiResponse<DeletedUserStats>>('/user-admin/deleted-users/stats');
     return response.data.data;
   },
 };
