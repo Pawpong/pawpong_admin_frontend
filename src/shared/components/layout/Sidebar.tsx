@@ -139,6 +139,10 @@ export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarPr
           label: 'FAQ',
         },
         {
+          key: '/content/notices',
+          label: '공지사항',
+        },
+        {
           key: '/content/questions',
           label: '표준 질문',
         },

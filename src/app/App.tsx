@@ -19,6 +19,7 @@ import ProfileBanners from '../pages/content/ProfileBanners';
 import CounselBanners from '../pages/content/CounselBanners';
 import Faqs from '../pages/content/Faqs';
 import Announcements from '../pages/content/Announcements';
+import Notices from '../pages/content/Notices';
 import StandardQuestions from '../pages/content/StandardQuestions';
 import Breeds from '../pages/settings/Breeds';
 import Districts from '../pages/settings/Districts';
@@ -162,6 +163,7 @@ function App() {
               <Route path="counsel" element={<CounselBanners />} />
               <Route path="faqs" element={<Faqs />} />
               <Route path="announcements" element={<Announcements />} />
+              <Route path="notices" element={<Notices />} />
               <Route path="questions" element={<StandardQuestions />} />
             </Route>
 
