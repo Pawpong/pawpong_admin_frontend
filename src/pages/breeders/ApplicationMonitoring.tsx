@@ -24,8 +24,8 @@ const ApplicationMonitoring: React.FC = () => {
     completedCount: 0,
   });
   const [filters, setFilters] = useState<ApplicationMonitoringRequest>({
-    pageNumber: 1,
-    itemsPerPage: 10,
+    page: 1,
+    limit: 10,
   });
 
   const fetchApplications = useCallback(async () => {
@@ -266,15 +266,15 @@ const ApplicationMonitoring: React.FC = () => {
             rowKey="applicationId"
             scroll={{ x: 800 }}
             pagination={{
-              current: filters.pageNumber,
-              pageSize: filters.itemsPerPage,
+              current: filters.page,
+              pageSize: filters.limit,
               showSizeChanger: true,
               showTotal: (total) => `총 ${total}개`,
               onChange: (page, pageSize) => {
                 setFilters((prev) => ({
                   ...prev,
-                  pageNumber: page,
-                  itemsPerPage: pageSize,
+                  page: page,
+                  limit: pageSize,
                 }));
               },
               responsive: true,
