@@ -96,7 +96,7 @@ const Users: React.FC = () => {
   const handleStatusFilterChange = (value: string) => {
     setFilters((prev) => ({
       ...prev,
-      accountStatus: value as 'active' | 'suspended' | 'deactivated' | undefined,
+      accountStatus: value as 'active' | 'suspended' | 'deleted' | undefined,
     }));
   };
 
@@ -241,7 +241,7 @@ const Users: React.FC = () => {
           >
             <Option value="active">활성</Option>
             <Option value="suspended">정지</Option>
-            <Option value="deactivated">비활성</Option>
+            <Option value="deleted">탈퇴</Option>
           </Select>
           <Search
             placeholder="이름 또는 이메일 검색"
