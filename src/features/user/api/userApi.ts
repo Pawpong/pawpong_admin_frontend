@@ -205,6 +205,14 @@ export const userApi = {
   restoreDeletedUser: async (userId: string, role: 'adopter' | 'breeder'): Promise<void> => {
     await apiClient.patch(`/user-admin/deleted-users/${userId}/restore`, {}, { params: { role } });
   },
+
+  /**
+   * 사용자 영구 삭제 (하드 딜리트)
+   * deleted 상태의 사용자만 삭제 가능하며, super_admin 권한이 필요합니다.
+   */
+  hardDeleteUser: async (userId: string, role: 'adopter' | 'breeder'): Promise<void> => {
+    await apiClient.patch(`/user-admin/users/${userId}/hard-delete`, {}, { params: { role } });
+  },
 };
 
 /**

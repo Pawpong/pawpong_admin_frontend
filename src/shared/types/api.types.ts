@@ -373,8 +373,8 @@ export interface UserSearchRequest {
 }
 
 export interface UserStatusUpdateRequest {
-  accountStatus: 'active' | 'suspended' | 'deactivated';
-  reason?: string;
+  accountStatus: 'active' | 'suspended' | 'deleted';
+  actionReason?: string;
 }
 
 export interface UserStatusUpdateResponse {

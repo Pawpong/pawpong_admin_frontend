@@ -17,6 +17,8 @@ const Users: React.FC = () => {
   const [dataSource, setDataSource] = useState<UserManagement[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [hardDeleteModalVisible, setHardDeleteModalVisible] = useState(false);
+  const [confirmDeleteInput, setConfirmDeleteInput] = useState('');
   const [selectedUser, setSelectedUser] = useState<UserManagement | null>(null);
   const [form] = Form.useForm();
   const [filters, setFilters] = useState<UserSearchRequest>({});
@@ -47,7 +49,7 @@ const Users: React.FC = () => {
     const statusConfig: Record<string, { color: string; text: string }> = {
       active: { color: 'success', text: '활성' },
       suspended: { color: 'warning', text: '정지' },
-      deactivated: { color: 'error', text: '비활성' },
+      deleted: { color: 'error', text: '탈퇴' },
     };
     const config = statusConfig[status] || { color: 'default', text: status };
     return <Tag color={config.color}>{config.text}</Tag>;
@@ -69,7 +71,7 @@ const Users: React.FC = () => {
       const values = await form.validateFields();
       await userApi.updateUserStatus(selectedUser.userId, selectedUser.userRole as 'adopter' | 'breeder', {
         accountStatus: values.accountStatus,
-        reason: values.reason,
+        actionReason: values.reason,
       });
       message.success('사용자 상태가 변경되었습니다.');
       setModalVisible(false);
@@ -103,6 +105,32 @@ const Users: React.FC = () => {
       ...prev,
       searchKeyword: value || undefined,
     }));
+  };
+
+  const handleHardDelete = (user: UserManagement) => {
+    setSelectedUser(user);
+    setConfirmDeleteInput('');
+    setHardDeleteModalVisible(true);
+  };
+
+  const handleHardDeleteConfirm = async () => {
+    if (!selectedUser) return;
+
+    if (confirmDeleteInput !== selectedUser.userName) {
+      message.error('사용자 이름이 일치하지 않습니다.');
+      return;
+    }
+
+    try {
+      await userApi.hardDeleteUser(selectedUser.userId, selectedUser.userRole as 'adopter' | 'breeder');
+      message.success('사용자가 영구적으로 삭제되었습니다.');
+      setHardDeleteModalVisible(false);
+      setConfirmDeleteInput('');
+      fetchUsers();
+    } catch (error: unknown) {
+      console.error('Failed to hard delete user:', error);
+      message.error('사용자 삭제에 실패했습니다.');
+    }
   };
 
   const columns: ColumnsType<UserManagement> = [
@@ -158,18 +186,33 @@ const Users: React.FC = () => {
     {
       title: '작업',
       key: 'actions',
-      width: 120,
+      width: 200,
       render: (_, record) => (
-        <Button
-          type="link"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleStatusChange(record);
-          }}
-          style={{ padding: 0 }}
-        >
-          상태 변경
-        </Button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <Button
+            type="link"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleStatusChange(record);
+            }}
+            style={{ padding: 0 }}
+          >
+            상태 변경
+          </Button>
+          {record.accountStatus === 'deleted' && (
+            <Button
+              danger
+              type="link"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleHardDelete(record);
+              }}
+              style={{ padding: 0 }}
+            >
+              완전 삭제
+            </Button>
+          )}
+        </div>
       ),
     },
   ];
@@ -245,13 +288,73 @@ const Users: React.FC = () => {
             <Select>
               <Option value="active">활성</Option>
               <Option value="suspended">정지</Option>
-              <Option value="deactivated">비활성</Option>
+              <Option value="deleted">탈퇴</Option>
             </Select>
           </Form.Item>
           <Form.Item name="reason" label="변경 사유" rules={[{ required: true, message: '변경 사유를 입력해주세요' }]}>
             <Input.TextArea rows={4} placeholder="변경 사유를 입력해주세요" />
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* 완전 삭제 확인 모달 */}
+      <Modal
+        title="⚠️ 사용자 영구 삭제"
+        open={hardDeleteModalVisible}
+        onOk={handleHardDeleteConfirm}
+        onCancel={() => {
+          setHardDeleteModalVisible(false);
+          setConfirmDeleteInput('');
+        }}
+        okText="영구 삭제"
+        cancelText="취소"
+        okButtonProps={{ danger: true, disabled: confirmDeleteInput !== selectedUser?.userName }}
+      >
+        {selectedUser && (
+          <div>
+            <div
+              className="p-4 mb-4"
+              style={{
+                backgroundColor: '#fff1f0',
+                border: '1px solid #ffa39e',
+                borderRadius: '8px',
+              }}
+            >
+              <p className="text-sm mb-2" style={{ color: '#cf1322', fontWeight: 'bold' }}>
+                ⚠️ 경고: 이 작업은 되돌릴 수 없습니다
+              </p>
+              <p className="text-sm" style={{ color: '#cf1322' }}>
+                사용자의 모든 데이터가 데이터베이스에서 영구적으로 삭제됩니다.
+              </p>
+            </div>
+
+            <div className="mb-4">
+              <p className="mb-2">
+                <strong>사용자 정보:</strong>
+              </p>
+              <p className="text-sm">이름: {selectedUser.userName}</p>
+              <p className="text-sm">이메일: {selectedUser.emailAddress}</p>
+              <p className="text-sm">역할: {selectedUser.userRole === 'adopter' ? '입양자' : '브리더'}</p>
+            </div>
+
+            <div>
+              <p className="mb-2" style={{ fontWeight: 'bold' }}>
+                계속하려면 사용자 이름을 입력하세요:
+              </p>
+              <Input
+                placeholder={selectedUser.userName}
+                value={confirmDeleteInput}
+                onChange={(e) => setConfirmDeleteInput(e.target.value)}
+                status={confirmDeleteInput && confirmDeleteInput !== selectedUser.userName ? 'error' : ''}
+              />
+              {confirmDeleteInput && confirmDeleteInput !== selectedUser.userName && (
+                <p className="text-sm mt-1" style={{ color: '#cf1322' }}>
+                  이름이 일치하지 않습니다
+                </p>
+              )}
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );
