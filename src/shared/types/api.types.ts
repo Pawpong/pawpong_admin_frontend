@@ -358,7 +358,7 @@ export interface UserManagement {
   userName: string;
   emailAddress: string;
   userRole: 'adopter' | 'breeder';
-  accountStatus: 'active' | 'suspended' | 'deactivated';
+  accountStatus: 'active' | 'suspended' | 'deleted';
   lastLoginAt: string;
   createdAt: string;
   statisticsInfo?: Record<string, unknown>;
@@ -366,7 +366,7 @@ export interface UserManagement {
 
 export interface UserSearchRequest {
   userRole?: 'adopter' | 'breeder';
-  accountStatus?: 'active' | 'suspended' | 'deactivated';
+  accountStatus?: 'active' | 'suspended' | 'deleted';
   searchKeyword?: string;
   page?: number;
   limit?: number;
