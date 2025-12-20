@@ -18,8 +18,11 @@ const Banners = () => {
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
   const [form] = Form.useForm();
   const [uploading, setUploading] = useState(false);
-  const [imageFileName, setImageFileName] = useState<string>('');
-  const [previewImage, setPreviewImage] = useState<string>('');
+  const [uploadingMobile, setUploadingMobile] = useState(false);
+  const [desktopImageFileName, setDesktopImageFileName] = useState<string>('');
+  const [mobileImageFileName, setMobileImageFileName] = useState<string>('');
+  const [desktopPreviewImage, setDesktopPreviewImage] = useState<string>('');
+  const [mobilePreviewImage, setMobilePreviewImage] = useState<string>('');
 
   useEffect(() => {
     fetchBanners();
@@ -42,8 +45,10 @@ const Banners = () => {
 
   const handleCreate = () => {
     setEditingBanner(null);
-    setImageFileName('');
-    setPreviewImage('');
+    setDesktopImageFileName('');
+    setMobileImageFileName('');
+    setDesktopPreviewImage('');
+    setMobilePreviewImage('');
     form.resetFields();
     form.setFieldsValue({
       linkType: 'internal',
@@ -56,8 +61,10 @@ const Banners = () => {
   const handleEdit = (banner: Banner) => {
     setEditingBanner(banner);
     // 백엔드에서 받은 imageFileName 사용
-    setImageFileName(banner.imageFileName);
-    setPreviewImage(banner.imageUrl || '');
+    setDesktopImageFileName(banner.desktopImageFileName);
+    setMobileImageFileName(banner.mobileImageFileName);
+    setDesktopPreviewImage(banner.desktopImageUrl || '');
+    setMobilePreviewImage(banner.mobileImageUrl || '');
     form.setFieldsValue({
       title: banner.title,
       description: banner.description,
@@ -97,16 +104,16 @@ const Banners = () => {
     }
   };
 
-  const handleUpload = async (file: File) => {
+  const handleUploadDesktop = async (file: File) => {
     try {
       setUploading(true);
       const result = await uploadApi.uploadSingle(file, 'banners');
-      setImageFileName(result.fileName);
-      setPreviewImage(result.cdnUrl);
-      message.success('이미지가 업로드되었습니다');
+      setDesktopImageFileName(result.fileName);
+      setDesktopPreviewImage(result.cdnUrl);
+      message.success('PC/Pad 이미지가 업로드되었습니다');
       return false; // Prevent default upload behavior
     } catch (error) {
-      message.error('이미지 업로드 실패');
+      message.error('PC/Pad 이미지 업로드 실패');
       console.error(error);
       return false;
     } finally {
@@ -114,12 +121,34 @@ const Banners = () => {
     }
   };
 
+  const handleUploadMobile = async (file: File) => {
+    try {
+      setUploadingMobile(true);
+      const result = await uploadApi.uploadSingle(file, 'banners');
+      setMobileImageFileName(result.fileName);
+      setMobilePreviewImage(result.cdnUrl);
+      message.success('모바일 이미지가 업로드되었습니다');
+      return false; // Prevent default upload behavior
+    } catch (error) {
+      message.error('모바일 이미지 업로드 실패');
+      console.error(error);
+      return false;
+    } finally {
+      setUploadingMobile(false);
+    }
+  };
+
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
 
-      if (!imageFileName) {
-        message.error('배너 이미지를 업로드해주세요');
+      if (!desktopImageFileName) {
+        message.error('PC/Pad 배너 이미지를 업로드해주세요');
+        return;
+      }
+
+      if (!mobileImageFileName) {
+        message.error('모바일 배너 이미지를 업로드해주세요');
         return;
       }
 
@@ -127,7 +156,8 @@ const Banners = () => {
         // 수정
         const updateData: BannerUpdateRequest = {
           ...values,
-          imageFileName: imageFileName,
+          desktopImageFileName: desktopImageFileName,
+          mobileImageFileName: mobileImageFileName,
         };
         await homeApi.updateBanner(editingBanner.bannerId, updateData);
         message.success('배너가 수정되었습니다');
@@ -135,7 +165,8 @@ const Banners = () => {
         // 생성
         const createData: BannerCreateRequest = {
           ...values,
-          imageFileName: imageFileName,
+          desktopImageFileName: desktopImageFileName,
+          mobileImageFileName: mobileImageFileName,
         };
         await homeApi.createBanner(createData);
         message.success('배너가 생성되었습니다');
@@ -143,8 +174,10 @@ const Banners = () => {
 
       setModalVisible(false);
       form.resetFields();
-      setImageFileName('');
-      setPreviewImage('');
+      setDesktopImageFileName('');
+      setMobileImageFileName('');
+      setDesktopPreviewImage('');
+      setMobilePreviewImage('');
       fetchBanners();
     } catch (error) {
       message.error('배너 저장 실패');
@@ -162,19 +195,35 @@ const Banners = () => {
     },
     {
       title: '미리보기',
-      dataIndex: 'imageUrl',
-      key: 'imageUrl',
-      width: 200,
-      render: (imageUrl: string) => (
-        <Image
-          src={imageUrl}
-          alt="배너"
-          width={150}
-          height={75}
-          style={{ objectFit: 'cover', borderRadius: '8px' }}
-          preview
-          fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
-        />
+      key: 'preview',
+      width: 350,
+      render: (_: unknown, record: Banner) => (
+        <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
+          <div>
+            <div style={{ fontSize: '11px', color: 'var(--color-grayscale-gray5)', marginBottom: '4px' }}>PC/Pad</div>
+            <Image
+              src={record.desktopImageUrl}
+              alt="PC/Pad 배너"
+              width={150}
+              height={75}
+              style={{ objectFit: 'cover', borderRadius: '8px' }}
+              preview
+              fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+            />
+          </div>
+          <div>
+            <div style={{ fontSize: '11px', color: 'var(--color-grayscale-gray5)', marginBottom: '4px' }}>모바일</div>
+            <Image
+              src={record.mobileImageUrl}
+              alt="모바일 배너"
+              width={150}
+              height={75}
+              style={{ objectFit: 'cover', borderRadius: '8px' }}
+              preview
+              fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+            />
+          </div>
+        </div>
       ),
     },
     {
@@ -302,8 +351,10 @@ const Banners = () => {
         onCancel={() => {
           setModalVisible(false);
           form.resetFields();
-          setImageFileName('');
-          setPreviewImage('');
+          setDesktopImageFileName('');
+          setMobileImageFileName('');
+          setDesktopPreviewImage('');
+          setMobilePreviewImage('');
         }}
         width="100%"
         style={{ maxWidth: '700px', top: 20 }}
@@ -317,23 +368,24 @@ const Banners = () => {
         cancelText="취소"
       >
         <Form form={form} layout="vertical">
-          <Form.Item label="배너 이미지">
-            <Upload beforeUpload={handleUpload} showUploadList={false} accept="image/*">
+          {/* PC/Pad 버전 배너 이미지 */}
+          <Form.Item label="배너 이미지 (PC/Pad 버전)" required>
+            <Upload beforeUpload={handleUploadDesktop} showUploadList={false} accept="image/*">
               <Button icon={<UploadOutlined />} loading={uploading}>
-                이미지 업로드
+                PC/Pad 이미지 업로드
               </Button>
             </Upload>
-            {previewImage && (
+            {desktopPreviewImage && (
               <div style={{ marginTop: '12px' }}>
                 <Image
-                  src={previewImage}
-                  alt="미리보기"
+                  src={desktopPreviewImage}
+                  alt="PC/Pad 미리보기"
                   width="100%"
                   style={{ maxHeight: '200px', objectFit: 'contain', borderRadius: '8px' }}
                 />
               </div>
             )}
-            {!previewImage && (
+            {!desktopPreviewImage && (
               <div
                 style={{
                   marginTop: '12px',
@@ -344,7 +396,40 @@ const Banners = () => {
                   color: 'var(--color-grayscale-gray5)',
                 }}
               >
-                이미지를 업로드해주세요
+                PC/Pad용 이미지를 업로드해주세요
+              </div>
+            )}
+          </Form.Item>
+
+          {/* 모바일 버전 배너 이미지 */}
+          <Form.Item label="배너 이미지 (모바일 버전)" required>
+            <Upload beforeUpload={handleUploadMobile} showUploadList={false} accept="image/*">
+              <Button icon={<UploadOutlined />} loading={uploadingMobile}>
+                모바일 이미지 업로드
+              </Button>
+            </Upload>
+            {mobilePreviewImage && (
+              <div style={{ marginTop: '12px' }}>
+                <Image
+                  src={mobilePreviewImage}
+                  alt="모바일 미리보기"
+                  width="100%"
+                  style={{ maxHeight: '200px', objectFit: 'contain', borderRadius: '8px' }}
+                />
+              </div>
+            )}
+            {!mobilePreviewImage && (
+              <div
+                style={{
+                  marginTop: '12px',
+                  padding: '40px',
+                  background: 'var(--color-grayscale-gray1)',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  color: 'var(--color-grayscale-gray5)',
+                }}
+              >
+                모바일용 이미지를 업로드해주세요
               </div>
             )}
           </Form.Item>

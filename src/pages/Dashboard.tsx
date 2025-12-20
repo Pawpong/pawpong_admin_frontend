@@ -46,11 +46,14 @@ export default function Dashboard() {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">대시보드</h1>
+    <div className="p-3 sm:p-4 md:p-6">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-2">대시보드</h1>
+      <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
+        전체 플랫폼 통계를 한눈에 확인합니다.
+      </p>
 
       {/* 사용자 통계 */}
-      <section className="mb-8">
+      <section className="mb-6 sm:mb-8">
         <h2 className="text-lg font-semibold mb-4">사용자 통계</h2>
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} lg={6}>
@@ -60,16 +63,6 @@ export default function Dashboard() {
                 value={stats.userStatistics.totalAdopterCount}
                 prefix={<UserOutlined />}
                 valueStyle={{ color: '#3f8600' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card>
-              <Statistic
-                title="활성 입양자"
-                value={stats.userStatistics.activeAdopterCount}
-                prefix={<CheckCircleOutlined />}
-                valueStyle={{ color: '#52c41a' }}
               />
             </Card>
           </Col>
@@ -89,7 +82,17 @@ export default function Dashboard() {
                 title="승인된 브리더"
                 value={stats.userStatistics.approvedBreederCount}
                 prefix={<CheckCircleOutlined />}
-                valueStyle={{ color: '#1890ff' }}
+                valueStyle={{ color: '#52c41a' }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card>
+              <Statistic
+                title="승인 대기 브리더"
+                value={stats.userStatistics.pendingBreederCount}
+                prefix={<ClockCircleOutlined />}
+                valueStyle={{ color: '#faad14' }}
               />
             </Card>
           </Col>
@@ -97,7 +100,7 @@ export default function Dashboard() {
       </section>
 
       {/* 입양 신청 통계 */}
-      <section className="mb-8">
+      <section className="mb-6 sm:mb-8">
         <h2 className="text-lg font-semibold mb-4">입양 신청 통계</h2>
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} lg={6}>
@@ -142,30 +145,10 @@ export default function Dashboard() {
         </Row>
       </section>
 
-      {/* 브리더 인증 및 신고 통계 */}
+      {/* 신고 통계 */}
       <section>
-        <h2 className="text-lg font-semibold mb-4">브리더 인증 & 신고</h2>
+        <h2 className="text-lg font-semibold mb-4">신고 통계</h2>
         <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} lg={6}>
-            <Card>
-              <Statistic
-                title="승인 대기"
-                value={stats.userStatistics.pendingBreederCount}
-                prefix={<ClockCircleOutlined />}
-                valueStyle={{ color: '#faad14' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card>
-              <Statistic
-                title="승인된 브리더"
-                value={stats.userStatistics.approvedBreederCount}
-                prefix={<CheckCircleOutlined />}
-                valueStyle={{ color: '#52c41a' }}
-              />
-            </Card>
-          </Col>
           <Col xs={24} sm={12} lg={6}>
             <Card>
               <Statistic
@@ -183,6 +166,26 @@ export default function Dashboard() {
                 value={stats.reportStatistics.pendingReportCount}
                 prefix={<ClockCircleOutlined />}
                 valueStyle={{ color: '#faad14' }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card>
+              <Statistic
+                title="처리된 신고"
+                value={stats.reportStatistics.resolvedReportCount}
+                prefix={<CheckCircleOutlined />}
+                valueStyle={{ color: '#52c41a' }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card>
+              <Statistic
+                title="기각된 신고"
+                value={stats.reportStatistics.dismissedReportCount}
+                prefix={<ClockCircleOutlined />}
+                valueStyle={{ color: '#8c8c8c' }}
               />
             </Card>
           </Col>

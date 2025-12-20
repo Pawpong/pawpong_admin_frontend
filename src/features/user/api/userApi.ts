@@ -121,10 +121,22 @@ export interface DeletedUserStats {
   totalDeletedUsers: number;
   totalDeletedAdopters: number;
   totalDeletedBreeders: number;
-  reasonStats: Array<{
+  adopterReasonStats: Array<{
     reason: string;
+    reasonLabel: string;
     count: number;
     percentage: number;
+  }>;
+  breederReasonStats: Array<{
+    reason: string;
+    reasonLabel: string;
+    count: number;
+    percentage: number;
+  }>;
+  otherReasonDetails: Array<{
+    userType: 'adopter' | 'breeder';
+    reason: string;
+    deletedAt: string;
   }>;
   last7DaysCount: number;
   last30DaysCount: number;
@@ -185,6 +197,13 @@ export const userApi = {
   getDeletedUserStats: async (): Promise<DeletedUserStats> => {
     const response = await apiClient.get<ApiResponse<DeletedUserStats>>('/user-admin/deleted-users/stats');
     return response.data.data;
+  },
+
+  /**
+   * 탈퇴 사용자 복구
+   */
+  restoreDeletedUser: async (userId: string, role: 'adopter' | 'breeder'): Promise<void> => {
+    await apiClient.patch(`/user-admin/deleted-users/${userId}/restore`, {}, { params: { role } });
   },
 };
 

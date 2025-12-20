@@ -345,8 +345,8 @@ export interface ApplicationMonitoringRequest {
   targetBreederId?: string;
   startDate?: string;
   endDate?: string;
-  pageNumber?: number;
-  itemsPerPage?: number;
+  page?: number;
+  limit?: number;
 }
 
 /**
@@ -367,8 +367,8 @@ export interface UserSearchRequest {
   userRole?: 'adopter' | 'breeder';
   accountStatus?: 'active' | 'suspended' | 'deactivated';
   searchKeyword?: string;
-  pageNumber?: number;
-  itemsPerPage?: number;
+  page?: number;
+  limit?: number;
 }
 
 export interface UserStatusUpdateRequest {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Table, Card, Tag, Statistic, Row, Col, Select, message, Modal } from 'antd';
+import { Table, Card, Tag, Statistic, Row, Col, Select, message, Modal, Button, Space } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
@@ -112,6 +112,29 @@ const DeletedUsers: React.FC = () => {
     setDetailModalVisible(true);
   };
 
+  const handleRestoreUser = (record: DeletedUser) => {
+    Modal.confirm({
+      title: '사용자 복구',
+      content: `${record.nickname}(${record.userRole === 'adopter' ? '입양자' : '브리더'}) 계정을 복구하시겠습니까?`,
+      okText: '복구',
+      cancelText: '취소',
+      okButtonProps: { danger: false, type: 'primary' },
+      onOk: async () => {
+        try {
+          console.log('Restoring user:', record.userId, record.userRole);
+          await userApi.restoreDeletedUser(record.userId, record.userRole);
+          message.success('사용자가 복구되었습니다.');
+          await fetchDeletedUsers();
+          await fetchStats();
+        } catch (error: any) {
+          console.error('Failed to restore user:', error);
+          const errorMsg = error?.response?.data?.error || error?.message || '사용자 복구에 실패했습니다.';
+          message.error(errorMsg);
+        }
+      },
+    });
+  };
+
   const columns: ColumnsType<DeletedUser> = [
     {
       title: '사용자 ID',
@@ -167,28 +190,45 @@ const DeletedUsers: React.FC = () => {
     {
       title: '작업',
       key: 'actions',
-      width: 100,
+      width: 180,
       render: (_, record) => (
-        <a
-          onClick={(e) => {
-            e.stopPropagation();
-            showDetail(record);
-          }}
-          style={{ color: '#4f3b2e' }}
-        >
-          상세보기
-        </a>
+        <Space size="small">
+          <Button
+            type="link"
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              showDetail(record);
+            }}
+            style={{ color: '#4f3b2e', padding: 0 }}
+          >
+            상세보기
+          </Button>
+          <Button
+            type="primary"
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRestoreUser(record);
+            }}
+          >
+            복구
+          </Button>
+        </Space>
       ),
     },
   ];
 
   return (
     <div className="p-3 sm:p-4 md:p-6">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">탈퇴 사용자 관리</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold mb-2">탈퇴 사용자 관리</h1>
+      <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
+        입양자와 브리더의 탈퇴 내역을 조회하고 통계를 확인합니다.
+      </p>
 
       {/* 통계 카드 */}
       {stats && (
-        <Row gutter={[16, 16]} className="mb-4 sm:mb-6">
+        <Row gutter={[16, 16]} className="mb-6 sm:mb-8">
           <Col xs={24} sm={12} lg={6}>
             <Card>
               <Statistic
@@ -232,16 +272,52 @@ const DeletedUsers: React.FC = () => {
         </Row>
       )}
 
-      {/* 탈퇴 사유 통계 */}
-      {stats && stats.reasonStats.length > 0 && (
-        <Card className="mb-4 sm:mb-6" title="탈퇴 사유 통계">
+      {/* 입양자 탈퇴 사유 통계 */}
+      {stats && stats.adopterReasonStats.length > 0 && (
+        <Card className="mb-6 sm:mb-8" title="입양자 탈퇴 사유 통계" style={{ marginBottom: '2rem' }}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {stats.reasonStats.map((stat) => (
-              <div key={stat.reason} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span className="text-sm font-medium">{stat.reason}</span>
+            {stats.adopterReasonStats.map((stat) => (
+              <div key={stat.reason} className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                <span className="text-sm font-medium">{stat.reasonLabel}</span>
                 <div className="text-right">
-                  <div className="text-lg font-bold">{stat.count}명</div>
-                  <div className="text-xs text-gray-500">{stat.percentage}%</div>
+                  <div className="text-lg font-bold text-blue-700">{stat.count}명</div>
+                  <div className="text-xs text-blue-600">{stat.percentage}%</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* 브리더 탈퇴 사유 통계 */}
+      {stats && stats.breederReasonStats.length > 0 && (
+        <Card className="mb-6 sm:mb-8" title="브리더 탈퇴 사유 통계" style={{ marginBottom: '2rem' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {stats.breederReasonStats.map((stat) => (
+              <div key={stat.reason} className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                <span className="text-sm font-medium">{stat.reasonLabel}</span>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-green-700">{stat.count}명</div>
+                  <div className="text-xs text-green-600">{stat.percentage}%</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* 기타 사유 상세 목록 */}
+      {stats && stats.otherReasonDetails.length > 0 && (
+        <Card className="mb-6 sm:mb-8" title="기타 탈퇴 사유 상세 (최근 50개)" style={{ marginBottom: '2rem' }}>
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {stats.otherReasonDetails.map((detail, index) => (
+              <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                <Tag color={detail.userType === 'adopter' ? 'blue' : 'green'}>
+                  {detail.userType === 'adopter' ? '입양자' : '브리더'}
+                </Tag>
+                <div className="flex-1">
+                  <div className="text-sm text-gray-700">{detail.reason}</div>
+                  <div className="text-xs text-gray-500 mt-1">{dayjs(detail.deletedAt).format('YYYY-MM-DD HH:mm')}</div>
                 </div>
               </div>
             ))}
@@ -250,7 +326,7 @@ const DeletedUsers: React.FC = () => {
       )}
 
       {/* 필터 */}
-      <Card className="mb-4 sm:mb-6" style={{ borderRadius: '12px', boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)' }}>
+      <Card className="mb-6 sm:mb-8" style={{ borderRadius: '12px', marginBottom: '2rem' }}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <Select
             placeholder="역할 선택"
@@ -327,7 +403,9 @@ const DeletedUsers: React.FC = () => {
             </div>
             <div>
               <div className="text-sm text-gray-500 mb-1">탈퇴 사유</div>
-              <div className="font-medium">{getDeleteReasonLabel(selectedUser.deleteReason, selectedUser.userRole)}</div>
+              <div className="font-medium">
+                {getDeleteReasonLabel(selectedUser.deleteReason, selectedUser.userRole)}
+              </div>
             </div>
             {selectedUser.deleteReasonDetail && (
               <div>

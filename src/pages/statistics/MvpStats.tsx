@@ -70,11 +70,14 @@ export default function MvpStatsPage() {
   ];
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">MVP 핵심 통계</h1>
+    <div className="p-3 sm:p-4 md:p-6">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-2">MVP 핵심 통계</h1>
+      <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
+        서비스의 핵심 지표와 사용자 활동 데이터를 확인합니다.
+      </p>
 
       {/* 활성 사용자 통계 */}
-      <section className="mb-8">
+      <section className="mb-6 sm:mb-8">
         <h2 className="text-lg font-semibold mb-4">활성 사용자 통계</h2>
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
@@ -148,7 +151,7 @@ export default function MvpStatsPage() {
       </section>
 
       {/* 상담/입양 신청 통계 */}
-      <section className="mb-8">
+      <section className="mb-6 sm:mb-8">
         <h2 className="text-lg font-semibold mb-4">상담/입양 신청 통계</h2>
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
@@ -222,7 +225,7 @@ export default function MvpStatsPage() {
       </section>
 
       {/* 필터 사용 통계 */}
-      <section className="mb-8">
+      <section className="mb-6 sm:mb-8">
         <h2 className="text-lg font-semibold mb-4">인기 검색 필터</h2>
         <Card>
           <Tabs defaultActiveKey="locations">

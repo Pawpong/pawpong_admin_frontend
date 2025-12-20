@@ -2,8 +2,10 @@ import apiClient from '../../../shared/api/axios';
 
 export interface Banner {
   bannerId: string;
-  imageUrl: string;
-  imageFileName: string; // 추가: 파일명 (수정 시 필요)
+  desktopImageUrl: string; // PC/Pad 버전 이미지 URL
+  mobileImageUrl: string; // 모바일 버전 이미지 URL
+  desktopImageFileName: string; // PC/Pad 버전 파일명 (수정 시 필요)
+  mobileImageFileName: string; // 모바일 버전 파일명 (수정 시 필요)
   linkType: 'internal' | 'external';
   linkUrl: string;
   title?: string;
@@ -13,7 +15,8 @@ export interface Banner {
 }
 
 export interface BannerCreateRequest {
-  imageFileName: string;
+  desktopImageFileName: string; // PC/Pad 버전 파일명
+  mobileImageFileName: string; // 모바일 버전 파일명
   linkType: 'internal' | 'external';
   linkUrl: string;
   title?: string;
@@ -23,7 +26,8 @@ export interface BannerCreateRequest {
 }
 
 export interface BannerUpdateRequest {
-  imageFileName?: string;
+  desktopImageFileName?: string; // PC/Pad 버전 파일명
+  mobileImageFileName?: string; // 모바일 버전 파일명
   linkType?: 'internal' | 'external';
   linkUrl?: string;
   title?: string;
