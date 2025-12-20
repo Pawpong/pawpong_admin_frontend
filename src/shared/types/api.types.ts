@@ -69,6 +69,7 @@ export interface BreederVerification {
   breederId: string;
   breederName: string;
   emailAddress: string;
+  accountStatus?: 'active' | 'suspended' | 'deleted';
   verificationInfo: {
     verificationStatus: 'pending' | 'approved' | 'rejected';
     subscriptionPlan: 'basic' | 'premium';

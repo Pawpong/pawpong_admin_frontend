@@ -121,6 +121,15 @@ export const breederApi = {
   },
 
   /**
+   * 브리더 계정 정지 해제
+   * 엔드포인트: POST /api/breeder-admin/unsuspend/:breederId
+   * 모듈: BreederAdminModule
+   */
+  unsuspendBreeder: async (breederId: string): Promise<void> => {
+    await apiClient.post(`/breeder-admin/unsuspend/${breederId}`);
+  },
+
+  /**
    * 리마인드 알림 보내기 (미완료 브리더들에게 일괄 발송)
    * 엔드포인트: POST /api/breeder-remind-admin/remind
    * 모듈: BreederRemindAdminModule

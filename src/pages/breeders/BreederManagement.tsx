@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Table, Tag, Button, Modal, Form, Input, Card, message, Space, Descriptions, Select, Tooltip } from 'antd';
-import { SwapOutlined, StopOutlined, BellOutlined, EyeOutlined, UserOutlined } from '@ant-design/icons';
+import { SwapOutlined, StopOutlined, BellOutlined, EyeOutlined, UserOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 
 import { breederApi } from '../../features/breeder/api/breederApi';
@@ -49,6 +49,7 @@ export default function BreederManagement() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isLevelChangeModalOpen, setIsLevelChangeModalOpen] = useState(false);
   const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
+  const [isUnsuspendModalOpen, setIsUnsuspendModalOpen] = useState(false);
   const [isRemindModalOpen, setIsRemindModalOpen] = useState(false);
   const [selectedBreeders, setSelectedBreeders] = useState<string[]>([]);
   const [levelChangeForm] = Form.useForm();
@@ -142,6 +143,26 @@ export default function BreederManagement() {
     }
   };
 
+  const handleUnsuspendClick = (record: BreederVerification) => {
+    setSelectedBreeder(record);
+    setIsUnsuspendModalOpen(true);
+  };
+
+  const handleUnsuspendSubmit = async () => {
+    if (!selectedBreeder) return;
+
+    try {
+      await breederApi.unsuspendBreeder(selectedBreeder.breederId);
+      message.success('브리더 계정 정지가 해제되었습니다.');
+      setIsUnsuspendModalOpen(false);
+      fetchApprovedBreeders();
+      fetchStats();
+    } catch (error: unknown) {
+      console.error('Unsuspend failed:', error);
+      message.error('계정 정지 해제에 실패했습니다.');
+    }
+  };
+
   const handleRemindClick = () => {
     if (selectedBreeders.length === 0) {
       message.warning('리마인드를 보낼 브리더를 선택해주세요.');
@@ -194,36 +215,62 @@ export default function BreederManagement() {
       render: (date: string) => (date ? new Date(date).toLocaleDateString('ko-KR') : '-'),
     },
     {
+      title: '계정 상태',
+      dataIndex: 'accountStatus',
+      key: 'accountStatus',
+      width: 100,
+      render: (status: string) => {
+        if (status === 'suspended') {
+          return <Tag color="red">정지됨</Tag>;
+        }
+        return <Tag color="green">활성</Tag>;
+      },
+    },
+    {
       title: '액션',
       key: 'action',
       width: 350,
-      render: (_, record) => (
-        <Space size="small">
-          <Tooltip title="상세 보기">
-            <Button type="link" icon={<EyeOutlined />} onClick={() => handleViewDetails(record)}>
-              상세
-            </Button>
-          </Tooltip>
-          <Tooltip title="레벨 변경 (뉴 ↔ 엘리트)">
-            <Button
-              icon={<SwapOutlined />}
-              onClick={() => handleChangeLevelClick(record)}
-              size="small"
-              style={{
-                backgroundColor: 'var(--color-tertiary-500)',
-                borderColor: 'var(--color-primary-500)',
-              }}
-            >
-              레벨 변경
-            </Button>
-          </Tooltip>
-          <Tooltip title="계정 정지 (영구)">
-            <Button danger icon={<StopOutlined />} onClick={() => handleSuspendClick(record)} size="small">
-              정지
-            </Button>
-          </Tooltip>
-        </Space>
-      ),
+      render: (_, record) => {
+        const isSuspended = record.accountStatus === 'suspended';
+
+        return (
+          <Space size="small">
+            <Tooltip title="상세 보기">
+              <Button type="link" icon={<EyeOutlined />} onClick={() => handleViewDetails(record)}>
+                상세
+              </Button>
+            </Tooltip>
+            {!isSuspended && (
+              <Tooltip title="레벨 변경 (뉴 ↔ 엘리트)">
+                <Button
+                  icon={<SwapOutlined />}
+                  onClick={() => handleChangeLevelClick(record)}
+                  size="small"
+                  style={{
+                    backgroundColor: 'var(--color-tertiary-500)',
+                    borderColor: 'var(--color-primary-500)',
+                  }}
+                >
+                  레벨 변경
+                </Button>
+              </Tooltip>
+            )}
+            {isSuspended ? (
+              <Tooltip title="계정 정지 해제">
+                <Button icon={<CheckCircleOutlined />} onClick={() => handleUnsuspendClick(record)} size="small">
+                  정지 해제
+                </Button>
+              </Tooltip>
+            ) : (
+              <Tooltip title="계정 정지 (영구)">
+                <Button danger icon={<StopOutlined />} onClick={() => handleSuspendClick(record)} size="small">
+                  정지
+                </Button>
+              </Tooltip>
+            )}
+          </Space>
+        );
+      },
     },
   ];
 
@@ -447,6 +494,33 @@ export default function BreederManagement() {
             </p>
           </div>
         </Form>
+      </Modal>
+
+      {/* 계정 정지 해제 모달 */}
+      <Modal
+        title="브리더 계정 정지 해제"
+        open={isUnsuspendModalOpen}
+        onOk={handleUnsuspendSubmit}
+        onCancel={() => setIsUnsuspendModalOpen(false)}
+        okText="해제"
+        cancelText="취소"
+        width="100%"
+        style={{ maxWidth: '500px', top: 20 }}
+        styles={{ body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' } }}
+      >
+        {selectedBreeder && (
+          <>
+            <p className="mb-4">
+              <strong>{selectedBreeder.breederName}</strong>님의 계정 정지를 해제하시겠습니까?
+            </p>
+
+            <div className="p-3 rounded mt-4" style={{ backgroundColor: 'var(--color-tertiary-500)' }}>
+              <p className="text-sm" style={{ color: 'var(--color-primary-500)' }}>
+                ✅ 정지가 해제되면 브리더는 다시 서비스를 이용할 수 있으며, 해제 안내 이메일이 발송됩니다.
+              </p>
+            </div>
+          </>
+        )}
       </Modal>
 
       {/* 리마인드 발송 모달 */}
