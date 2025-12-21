@@ -427,6 +427,8 @@ export interface ReviewReportItem {
   reviewId: string;
   breederId: string;
   breederName: string;
+  authorId: string;
+  authorName: string;
   reportedBy: string;
   reporterName: string;
   reportReason: string;

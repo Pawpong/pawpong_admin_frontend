@@ -100,6 +100,12 @@ const ReviewReports: React.FC = () => {
       ),
     },
     {
+      title: '작성자',
+      dataIndex: 'authorName',
+      key: 'authorName',
+      width: 120,
+    },
+    {
       title: '신고자',
       dataIndex: 'reporterName',
       key: 'reporterName',
@@ -257,6 +263,17 @@ const ReviewReports: React.FC = () => {
                 <br />
                 <Text type="secondary" style={{ fontSize: '12px' }}>
                   ID: {selectedReport.breederId}
+                </Text>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <Text strong>후기 작성자</Text>
+              <div style={{ marginTop: '8px' }}>
+                <Text>이름: {selectedReport.authorName}</Text>
+                <br />
+                <Text type="secondary" style={{ fontSize: '12px' }}>
+                  ID: {selectedReport.authorId}
                 </Text>
               </div>
             </div>
