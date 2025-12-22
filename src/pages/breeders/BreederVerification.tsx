@@ -8,13 +8,25 @@ import type { BreederVerification } from '../../shared/types/api.types';
 
 const { TextArea } = Input;
 
-// 반려 사유 목록 (MVP 명세서 기준)
-const REJECTION_REASONS = [
-  '제출된 서류가 불명확하거나 확인이 어려움',
-  '필수 서류 누락 (신분증, 동물생산업 등록증 등)',
-  '사업자 정보 불일치',
-  '브리더 활동 이력 부족',
-  '기타 사유',
+// 반려 사유 목록 - 공통
+const COMMON_REJECTION_REASONS = [
+  '제출한 서류가 식별이 어렵거나 해상도가 낮음',
+  '유효하지 않거나 만료된 서류 제출',
+  '필수 제출 서류 일부 누락',
+  '제출한 서류의 상호명이 브리더 정보에 입력한 상호명과 일치하지 않음',
+  '제출한 서류의 성명과 신분증 상 성명이 일치하지 않음',
+  'SNS, 커뮤니티 등에서 허위 홍보나 불법 거래 사례가 확인됨',
+  '타인의 사진 또는 자료 도용이 확인됨',
+  '브리더의 윤리 기준이 포퐁의 가치관과 현저히 부합하지 않음',
+  '동물 복지 수준이 명백히 낮다고 판단됨 (비위생적 환경, 과번식 등)',
+  '비윤리적 번식 정황 확인',
+];
+
+// 반려 사유 목록 - 엘리트 레벨 한정
+const ELITE_REJECTION_REASONS = [
+  '브리딩 품종이 3종 이상으로 확인되었거나, 프로필에서 3종 이상 선택함',
+  '도그쇼/캣쇼 참가 이력 증빙이 불충분하거나 허위로 확인됨',
+  '혈통서, 협회 등록증 등 전문성 증빙 서류가 기준에 미달',
 ];
 
 // 서류 타입 한국어 매핑
@@ -547,6 +559,9 @@ export default function BreederVerification() {
         okText="반려 처리"
         okButtonProps={{ danger: true }}
         cancelText="취소"
+        width="100%"
+        style={{ maxWidth: '600px', top: 20 }}
+        styles={{ body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' } }}
       >
         <Form form={form} layout="vertical">
           <Form.Item
@@ -554,12 +569,49 @@ export default function BreederVerification() {
             label="반려 사유 (복수 선택 가능)"
             rules={[{ required: true, message: '최소 1개 이상 선택해주세요' }]}
           >
-            <Checkbox.Group className="flex flex-col space-y-2">
-              {REJECTION_REASONS.slice(0, -1).map((reason, index) => (
-                <Checkbox key={index} value={reason}>
-                  {reason}
-                </Checkbox>
-              ))}
+            <Checkbox.Group style={{ width: '100%' }}>
+              {/* 공통 반려 사유 */}
+              <div className="mb-4">
+                <div
+                  className="px-3 py-2 rounded mb-3"
+                  style={{ backgroundColor: 'var(--color-tertiary-500)', borderLeft: '3px solid var(--color-primary-500)' }}
+                >
+                  <p className="text-sm font-semibold" style={{ color: 'var(--color-primary-500)' }}>
+                    ✅ 공통 반려 사유
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2 pl-2">
+                  {COMMON_REJECTION_REASONS.map((reason, index) => (
+                    <Checkbox key={`common-${index}`} value={reason}>
+                      <span className="text-sm">{reason}</span>
+                    </Checkbox>
+                  ))}
+                </div>
+              </div>
+
+              {/* 엘리트 레벨 한정 반려 사유 */}
+              {selectedBreeder?.verificationInfo?.level === 'elite' && (
+                <div className="mt-4">
+                  <div
+                    className="px-3 py-2 rounded mb-3"
+                    style={{
+                      backgroundColor: 'var(--color-level-elite-100)',
+                      borderLeft: '3px solid var(--color-level-elite-500)',
+                    }}
+                  >
+                    <p className="text-sm font-semibold" style={{ color: 'var(--color-level-elite-500)' }}>
+                      🏅 엘리트 레벨 한정 반려 사유
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-2 pl-2">
+                    {ELITE_REJECTION_REASONS.map((reason, index) => (
+                      <Checkbox key={`elite-${index}`} value={reason}>
+                        <span className="text-sm">{reason}</span>
+                      </Checkbox>
+                    ))}
+                  </div>
+                </div>
+              )}
             </Checkbox.Group>
           </Form.Item>
 
@@ -567,8 +619,11 @@ export default function BreederVerification() {
             <TextArea rows={3} placeholder="기타 반려 사유를 입력해주세요" maxLength={500} showCount />
           </Form.Item>
 
-          <div className="bg-yellow-50 p-3 rounded mt-4">
-            <p className="text-sm text-yellow-800">
+          <div
+            className="p-3 rounded"
+            style={{ backgroundColor: '#fef3c7', borderLeft: '3px solid #f59e0b' }}
+          >
+            <p className="text-sm" style={{ color: '#92400e' }}>
               💡 선택된 반려 사유는 자동으로 이메일에 포함되어 브리더에게 발송됩니다.
             </p>
           </div>
