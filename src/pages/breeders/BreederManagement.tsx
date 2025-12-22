@@ -202,10 +202,10 @@ export default function BreederManagement() {
     },
     {
       title: '레벨',
-      dataIndex: ['verificationInfo', 'subscriptionPlan'],
+      dataIndex: ['verificationInfo', 'level'],
       key: 'level',
       width: 100,
-      render: (plan: string) => getLevelTag(plan === 'premium' ? 'elite' : 'new'),
+      render: (level: string) => getLevelTag(level || 'new'),
     },
     {
       title: '승인일',
@@ -422,7 +422,7 @@ export default function BreederManagement() {
             </Descriptions.Item>
             <Descriptions.Item label="이메일">{selectedBreeder.emailAddress}</Descriptions.Item>
             <Descriptions.Item label="레벨">
-              {getLevelTag(selectedBreeder.verificationInfo.subscriptionPlan === 'premium' ? 'elite' : 'new')}
+              {getLevelTag(selectedBreeder.verificationInfo.level || 'new')}
             </Descriptions.Item>
             <Descriptions.Item label="승인일" span={2}>
               {selectedBreeder.verificationInfo.submittedAt
