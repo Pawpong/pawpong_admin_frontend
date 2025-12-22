@@ -1,5 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, Switch, Upload, message, Image, Card, Space, Popconfirm } from 'antd';
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Select,
+  Switch,
+  Upload,
+  message,
+  Image,
+  Card,
+  Space,
+  Popconfirm,
+  Checkbox,
+  Tag,
+} from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -54,6 +70,7 @@ const Banners = () => {
       linkType: 'internal',
       isActive: true,
       order: banners.length,
+      targetAudience: ['guest', 'adopter', 'breeder'], // 기본값: 전체 선택
     });
     setModalVisible(true);
   };
@@ -72,6 +89,7 @@ const Banners = () => {
       linkUrl: banner.linkUrl,
       order: banner.order,
       isActive: banner.isActive !== false,
+      targetAudience: banner.targetAudience || [],
     });
     setModalVisible(true);
   };
@@ -253,6 +271,24 @@ const Banners = () => {
       dataIndex: 'linkUrl',
       key: 'linkUrl',
       ellipsis: true,
+    },
+    {
+      title: '표시 대상',
+      dataIndex: 'targetAudience',
+      key: 'targetAudience',
+      width: 150,
+      render: (targetAudience: string[] | undefined) => {
+        if (!targetAudience || targetAudience.length === 0) {
+          return <Tag color="blue">전체</Tag>;
+        }
+        return (
+          <Space size={4} wrap>
+            {targetAudience.includes('guest') && <Tag color="default">비회원</Tag>}
+            {targetAudience.includes('adopter') && <Tag color="green">입양자</Tag>}
+            {targetAudience.includes('breeder') && <Tag color="purple">브리더</Tag>}
+          </Space>
+        );
+      },
     },
     {
       title: '활성화',
@@ -459,6 +495,20 @@ const Banners = () => {
 
           <Form.Item name="order" label="정렬 순서" rules={[{ required: true, message: '정렬 순서를 입력해주세요' }]}>
             <Input type="number" placeholder="0부터 시작 (낮을수록 먼저 표시)" />
+          </Form.Item>
+
+          <Form.Item
+            name="targetAudience"
+            label="표시 대상"
+            extra="선택하지 않으면 전체 사용자에게 표시됩니다"
+          >
+            <Checkbox.Group
+              options={[
+                { label: '비회원', value: 'guest' },
+                { label: '입양자', value: 'adopter' },
+                { label: '브리더', value: 'breeder' },
+              ]}
+            />
           </Form.Item>
 
           <Form.Item name="isActive" label="활성화 여부" valuePropName="checked">

@@ -12,6 +12,7 @@ export interface Banner {
   description?: string;
   order: number;
   isActive?: boolean;
+  targetAudience?: ('guest' | 'adopter' | 'breeder')[]; // 표시 대상 (비어있으면 전체)
 }
 
 export interface BannerCreateRequest {
@@ -23,6 +24,7 @@ export interface BannerCreateRequest {
   description?: string;
   order?: number;
   isActive?: boolean;
+  targetAudience?: ('guest' | 'adopter' | 'breeder')[]; // 표시 대상
 }
 
 export interface BannerUpdateRequest {
@@ -34,6 +36,7 @@ export interface BannerUpdateRequest {
   description?: string;
   order?: number;
   isActive?: boolean;
+  targetAudience?: ('guest' | 'adopter' | 'breeder')[]; // 표시 대상
 }
 
 export interface Faq {
