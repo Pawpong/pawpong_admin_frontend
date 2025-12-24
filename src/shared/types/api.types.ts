@@ -70,6 +70,7 @@ export interface BreederVerification {
   breederName: string;
   emailAddress: string;
   accountStatus?: 'active' | 'suspended' | 'deleted';
+  isTestAccount?: boolean;
   verificationInfo: {
     verificationStatus: 'pending' | 'approved' | 'rejected';
     subscriptionPlan: 'basic' | 'premium';
@@ -493,4 +494,46 @@ export interface DistrictCreateRequest {
 export interface DistrictUpdateRequest {
   city?: string;
   districts?: string[];
+}
+
+/**
+ * 전화번호 화이트리스트 관련 타입 (백엔드 API와 일치)
+ */
+export interface PhoneWhitelist {
+  id: string;
+  phoneNumber: string;
+  description: string;
+  isActive: boolean;
+  createdBy?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PhoneWhitelistCreateRequest {
+  phoneNumber: string;
+  description: string;
+}
+
+export interface PhoneWhitelistUpdateRequest {
+  description?: string;
+  isActive?: boolean;
+}
+
+export interface PhoneWhitelistListResponse {
+  items: PhoneWhitelist[];
+  totalCount: number;
+}
+
+/**
+ * 테스트 계정 관련 타입 (백엔드 API와 일치)
+ */
+export interface SetTestAccountRequest {
+  isTestAccount: boolean;
+}
+
+export interface SetTestAccountResponse {
+  breederId: string;
+  breederName: string;
+  isTestAccount: boolean;
+  updatedAt: string;
 }

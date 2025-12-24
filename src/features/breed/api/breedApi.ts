@@ -1,10 +1,5 @@
 import apiClient from '../../../shared/api/axios';
-import type {
-  ApiResponse,
-  Breed,
-  BreedCreateRequest,
-  BreedUpdateRequest,
-} from '../../../shared/types/api.types';
+import type { ApiResponse, Breed, BreedCreateRequest, BreedUpdateRequest } from '../../../shared/types/api.types';
 
 /**
  * 품종 관리 API 클라이언트

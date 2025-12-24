@@ -414,9 +414,13 @@ export default function BreederVerification() {
                 <Descriptions.Item label="지역">{String(selectedBreeder.profileInfo.location)}</Descriptions.Item>
               ) : null}
               {selectedBreeder.profileInfo?.detailedLocation ? (
-                <Descriptions.Item label="세부 지역">{String(selectedBreeder.profileInfo.detailedLocation)}</Descriptions.Item>
+                <Descriptions.Item label="세부 지역">
+                  {String(selectedBreeder.profileInfo.detailedLocation)}
+                </Descriptions.Item>
               ) : null}
-              {selectedBreeder.profileInfo?.specialization && Array.isArray(selectedBreeder.profileInfo.specialization) && selectedBreeder.profileInfo.specialization.length > 0 ? (
+              {selectedBreeder.profileInfo?.specialization &&
+              Array.isArray(selectedBreeder.profileInfo.specialization) &&
+              selectedBreeder.profileInfo.specialization.length > 0 ? (
                 <Descriptions.Item label="전문 분야" span={2}>
                   {selectedBreeder.profileInfo.specialization.map((spec: unknown) => (
                     <Tag key={String(spec)} color="blue">
@@ -574,7 +578,10 @@ export default function BreederVerification() {
               <div className="mb-4">
                 <div
                   className="px-3 py-2 rounded mb-3"
-                  style={{ backgroundColor: 'var(--color-tertiary-500)', borderLeft: '3px solid var(--color-primary-500)' }}
+                  style={{
+                    backgroundColor: 'var(--color-tertiary-500)',
+                    borderLeft: '3px solid var(--color-primary-500)',
+                  }}
                 >
                   <p className="text-sm font-semibold" style={{ color: 'var(--color-primary-500)' }}>
                     ✅ 공통 반려 사유
@@ -619,10 +626,7 @@ export default function BreederVerification() {
             <TextArea rows={3} placeholder="기타 반려 사유를 입력해주세요" maxLength={500} showCount />
           </Form.Item>
 
-          <div
-            className="p-3 rounded"
-            style={{ backgroundColor: '#fef3c7', borderLeft: '3px solid #f59e0b' }}
-          >
+          <div className="p-3 rounded" style={{ backgroundColor: '#fef3c7', borderLeft: '3px solid #f59e0b' }}>
             <p className="text-sm" style={{ color: '#92400e' }}>
               💡 선택된 반려 사유는 자동으로 이메일에 포함되어 브리더에게 발송됩니다.
             </p>

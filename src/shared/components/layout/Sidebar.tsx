@@ -161,6 +161,10 @@ export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarPr
           key: '/settings/districts',
           label: '지역 관리',
         },
+        {
+          key: '/settings/phone-whitelist',
+          label: '전화번호 화이트리스트',
+        },
       ],
     },
   ];

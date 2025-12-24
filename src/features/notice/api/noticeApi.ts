@@ -82,7 +82,11 @@ export const noticeApi = {
   /**
    * 공지사항 목록 조회 (관리자)
    */
-  async getNotices(page: number = 1, pageSize: number = 10, status?: 'published' | 'draft' | 'archived'): Promise<NoticePaginationResponse> {
+  async getNotices(
+    page: number = 1,
+    pageSize: number = 10,
+    status?: 'published' | 'draft' | 'archived'
+  ): Promise<NoticePaginationResponse> {
     const params: any = { page, pageSize };
     if (status) {
       params.status = status;

@@ -1,6 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Table, Tag, Button, Modal, Form, Input, Card, message, Space, Descriptions, Select, Tooltip } from 'antd';
-import { SwapOutlined, StopOutlined, BellOutlined, EyeOutlined, UserOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { Table, Tag, Button, Modal, Form, Input, Card, message, Space, Descriptions, Select, Tooltip, Switch } from 'antd';
+import {
+  SwapOutlined,
+  StopOutlined,
+  BellOutlined,
+  EyeOutlined,
+  UserOutlined,
+  CheckCircleOutlined,
+  ExperimentOutlined,
+} from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 
 import { breederApi } from '../../features/breeder/api/breederApi';
@@ -186,6 +194,22 @@ export default function BreederManagement() {
     }
   };
 
+  // 테스트 계정 토글 핸들러
+  const handleTestAccountToggle = async (record: BreederVerification, checked: boolean) => {
+    try {
+      await breederApi.setTestAccount(record.breederId, checked);
+      message.success(
+        checked
+          ? `${record.breederName}님이 테스트 계정으로 설정되었습니다.`
+          : `${record.breederName}님의 테스트 계정이 해제되었습니다.`
+      );
+      fetchApprovedBreeders();
+    } catch (error: unknown) {
+      console.error('Test account toggle failed:', error);
+      message.error('테스트 계정 설정에 실패했습니다.');
+    }
+  };
+
   const columns: ColumnsType<BreederVerification> = [
     {
       title: '브리더명',
@@ -225,6 +249,28 @@ export default function BreederManagement() {
         }
         return <Tag color="green">활성</Tag>;
       },
+    },
+    {
+      title: (
+        <Tooltip title="테스트 계정은 탐색 페이지와 홈 화면에 노출되지 않습니다">
+          <span>
+            <ExperimentOutlined style={{ marginRight: 4 }} />
+            테스트
+          </span>
+        </Tooltip>
+      ),
+      dataIndex: 'isTestAccount',
+      key: 'isTestAccount',
+      width: 100,
+      render: (isTestAccount: boolean, record: BreederVerification) => (
+        <Switch
+          checked={isTestAccount || false}
+          onChange={(checked) => handleTestAccountToggle(record, checked)}
+          checkedChildren="ON"
+          unCheckedChildren="OFF"
+          size="small"
+        />
+      ),
     },
     {
       title: '액션',

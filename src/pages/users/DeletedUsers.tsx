@@ -113,6 +113,14 @@ const DeletedUsers: React.FC = () => {
   };
 
   const handleRestoreUser = (record: DeletedUser) => {
+    console.log('[DEBUG] handleRestoreUser called with:', record);
+
+    if (!record.userId || !record.userRole) {
+      console.error('[DEBUG] Missing userId or userRole:', { userId: record.userId, userRole: record.userRole });
+      message.error('사용자 정보가 올바르지 않습니다.');
+      return;
+    }
+
     Modal.confirm({
       title: '사용자 복구',
       content: `${record.nickname}(${record.userRole === 'adopter' ? '입양자' : '브리더'}) 계정을 복구하시겠습니까?`,
@@ -121,13 +129,13 @@ const DeletedUsers: React.FC = () => {
       okButtonProps: { danger: false, type: 'primary' },
       onOk: async () => {
         try {
-          console.log('Restoring user:', record.userId, record.userRole);
+          console.log('[DEBUG] Restoring user:', record.userId, record.userRole);
           await userApi.restoreDeletedUser(record.userId, record.userRole);
           message.success('사용자가 복구되었습니다.');
           await fetchDeletedUsers();
           await fetchStats();
         } catch (error: any) {
-          console.error('Failed to restore user:', error);
+          console.error('[DEBUG] Failed to restore user:', error);
           const errorMsg = error?.response?.data?.error || error?.message || '사용자 복구에 실패했습니다.';
           message.error(errorMsg);
         }

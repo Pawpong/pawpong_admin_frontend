@@ -10,6 +10,7 @@ import type {
   ApplicationMonitoringResponse,
   ApplicationMonitoringRequest,
   BreederStats,
+  SetTestAccountResponse,
 } from '../../../shared/types/api.types';
 
 /**
@@ -67,7 +68,9 @@ export const breederApi = {
    * 엔드포인트: GET /api/breeder-verification-admin/verification/:breederId
    */
   getBreederDetail: async (breederId: string): Promise<BreederVerification> => {
-    const response = await apiClient.get<ApiResponse<BreederVerification>>(`/breeder-verification-admin/verification/${breederId}`);
+    const response = await apiClient.get<ApiResponse<BreederVerification>>(
+      `/breeder-verification-admin/verification/${breederId}`
+    );
     return response.data.data;
   },
 
@@ -160,6 +163,20 @@ export const breederApi = {
    */
   getBreederStats: async (): Promise<BreederStats> => {
     const response = await apiClient.get<ApiResponse<BreederStats>>('/breeder-verification-admin/stats');
+    return response.data.data;
+  },
+
+  /**
+   * 테스트 계정 설정/해제
+   * 엔드포인트: PATCH /api/breeder-admin/test-account/:breederId
+   * 모듈: BreederAdminModule
+   * 테스트 계정은 탐색 페이지와 홈 화면에 노출되지 않습니다.
+   */
+  setTestAccount: async (breederId: string, isTestAccount: boolean): Promise<SetTestAccountResponse> => {
+    const response = await apiClient.patch<ApiResponse<SetTestAccountResponse>>(
+      `/breeder-admin/test-account/${breederId}`,
+      { isTestAccount }
+    );
     return response.data.data;
   },
 };
