@@ -23,19 +23,30 @@ const Users: React.FC = () => {
   const [form] = Form.useForm();
   const [filters, setFilters] = useState<UserSearchRequest>({});
 
+  // 페이지네이션 상태
+  const [current, setCurrent] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
+
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await userApi.getUsers(filters);
-      setDataSource(data);
+      const response = await userApi.getUsers({
+        ...filters,
+        page: current,
+        limit: pageSize,
+      });
+      setDataSource(response.items);
+      setTotal(response.pagination.totalItems);
     } catch (error: unknown) {
       console.error('Failed to fetch users:', error);
       setDataSource([]);
+      setTotal(0);
       message.error('사용자 목록을 불러올 수 없습니다.');
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filters, current, pageSize]);
 
   useEffect(() => {
     fetchUsers();
@@ -87,6 +98,7 @@ const Users: React.FC = () => {
   };
 
   const handleRoleFilterChange = (value: string) => {
+    setCurrent(1); // 필터 변경 시 첫 페이지로
     setFilters((prev) => ({
       ...prev,
       userRole: (value as 'adopter' | 'breeder') || undefined,
@@ -94,6 +106,7 @@ const Users: React.FC = () => {
   };
 
   const handleStatusFilterChange = (value: string) => {
+    setCurrent(1); // 필터 변경 시 첫 페이지로
     setFilters((prev) => ({
       ...prev,
       accountStatus: value as 'active' | 'suspended' | 'deleted' | undefined,
@@ -101,10 +114,16 @@ const Users: React.FC = () => {
   };
 
   const handleSearch = (value: string) => {
+    setCurrent(1); // 검색 시 첫 페이지로
     setFilters((prev) => ({
       ...prev,
       searchKeyword: value || undefined,
     }));
+  };
+
+  const handleTableChange = (pagination: any) => {
+    setCurrent(pagination.current);
+    setPageSize(pagination.pageSize);
   };
 
   const handleHardDelete = (user: UserManagement) => {
@@ -263,9 +282,14 @@ const Users: React.FC = () => {
           loading={loading}
           rowKey="userId"
           pagination={{
+            current,
+            pageSize,
+            total,
             showSizeChanger: true,
             showTotal: (total) => `총 ${total}명`,
+            pageSizeOptions: ['10', '20', '50', '100'],
           }}
+          onChange={handleTableChange}
           scroll={{ x: 1200 }}
         />
       </Card>
