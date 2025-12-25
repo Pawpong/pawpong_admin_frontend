@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Table, Card, Tag, Statistic, Row, Col, Select, message, Modal, Button, Space } from 'antd';
+import { Table, Card, Tag, Statistic, Row, Col, Select, message, Modal, Button, Space, Input } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
@@ -28,6 +28,8 @@ const DeletedUsers: React.FC = () => {
   });
   const [selectedUser, setSelectedUser] = useState<DeletedUser | null>(null);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [hardDeleteModalVisible, setHardDeleteModalVisible] = useState(false);
+  const [confirmDeleteInput, setConfirmDeleteInput] = useState('');
 
   const fetchDeletedUsers = useCallback(async () => {
     setLoading(true);
@@ -143,6 +145,33 @@ const DeletedUsers: React.FC = () => {
     });
   };
 
+  const handleHardDelete = (user: DeletedUser) => {
+    setSelectedUser(user);
+    setConfirmDeleteInput('');
+    setHardDeleteModalVisible(true);
+  };
+
+  const handleHardDeleteConfirm = async () => {
+    if (!selectedUser) return;
+
+    if (confirmDeleteInput !== selectedUser.nickname) {
+      message.error('사용자 이름이 일치하지 않습니다.');
+      return;
+    }
+
+    try {
+      await userApi.hardDeleteUser(selectedUser.userId, selectedUser.userRole);
+      message.success('사용자가 영구적으로 삭제되었습니다.');
+      setHardDeleteModalVisible(false);
+      setConfirmDeleteInput('');
+      await fetchDeletedUsers();
+      await fetchStats();
+    } catch (error: unknown) {
+      console.error('Failed to hard delete user:', error);
+      message.error('사용자 삭제에 실패했습니다.');
+    }
+  };
+
   const columns: ColumnsType<DeletedUser> = [
     {
       title: '사용자 ID',
@@ -198,7 +227,7 @@ const DeletedUsers: React.FC = () => {
     {
       title: '작업',
       key: 'actions',
-      width: 180,
+      width: 240,
       render: (_, record) => (
         <Space size="small">
           <Button
@@ -221,6 +250,16 @@ const DeletedUsers: React.FC = () => {
             }}
           >
             복구
+          </Button>
+          <Button
+            danger
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleHardDelete(record);
+            }}
+          >
+            완전 삭제
           </Button>
         </Space>
       ),
@@ -421,6 +460,66 @@ const DeletedUsers: React.FC = () => {
                 <div className="p-3 bg-gray-50 rounded-lg">{selectedUser.deleteReasonDetail}</div>
               </div>
             )}
+          </div>
+        )}
+      </Modal>
+
+      {/* 완전 삭제 확인 모달 */}
+      <Modal
+        title="⚠️ 사용자 영구 삭제"
+        open={hardDeleteModalVisible}
+        onOk={handleHardDeleteConfirm}
+        onCancel={() => {
+          setHardDeleteModalVisible(false);
+          setConfirmDeleteInput('');
+        }}
+        okText="영구 삭제"
+        cancelText="취소"
+        okButtonProps={{ danger: true, disabled: confirmDeleteInput !== selectedUser?.nickname }}
+      >
+        {selectedUser && (
+          <div>
+            <div
+              className="p-4 mb-4"
+              style={{
+                backgroundColor: '#fff1f0',
+                border: '1px solid #ffa39e',
+                borderRadius: '8px',
+              }}
+            >
+              <p className="text-sm mb-2" style={{ color: '#cf1322', fontWeight: 'bold' }}>
+                ⚠️ 경고: 이 작업은 되돌릴 수 없습니다
+              </p>
+              <p className="text-sm" style={{ color: '#cf1322' }}>
+                사용자의 모든 데이터가 데이터베이스에서 영구적으로 삭제됩니다.
+              </p>
+            </div>
+
+            <div className="mb-4">
+              <p className="mb-2">
+                <strong>사용자 정보:</strong>
+              </p>
+              <p className="text-sm">이름: {selectedUser.nickname}</p>
+              <p className="text-sm">이메일: {selectedUser.email}</p>
+              <p className="text-sm">역할: {selectedUser.userRole === 'adopter' ? '입양자' : '브리더'}</p>
+            </div>
+
+            <div>
+              <p className="mb-2" style={{ fontWeight: 'bold' }}>
+                계속하려면 사용자 이름을 입력하세요:
+              </p>
+              <Input
+                placeholder={selectedUser.nickname}
+                value={confirmDeleteInput}
+                onChange={(e) => setConfirmDeleteInput(e.target.value)}
+                status={confirmDeleteInput && confirmDeleteInput !== selectedUser.nickname ? 'error' : ''}
+              />
+              {confirmDeleteInput && confirmDeleteInput !== selectedUser.nickname && (
+                <p className="text-sm mt-1" style={{ color: '#cf1322' }}>
+                  이름이 일치하지 않습니다
+                </p>
+              )}
+            </div>
           </div>
         )}
       </Modal>
