@@ -133,14 +133,17 @@ export const breederApi = {
   },
 
   /**
-   * 리마인드 알림 보내기 (미완료 브리더들에게 일괄 발송)
-   * 엔드포인트: POST /api/breeder-remind-admin/remind
-   * 모듈: BreederRemindAdminModule
+   * 리마인드 알림 보내기
+   * 엔드포인트: POST /api/breeder-admin/remind
+   * remindType: 'document_reminder' | 'profile_completion_reminder'
    */
-  sendReminder: async (breederIds: string[], message: string): Promise<void> => {
-    await apiClient.post('/breeder-remind-admin/remind', {
+  sendReminder: async (
+    breederIds: string[],
+    remindType: 'document_reminder' | 'profile_completion_reminder'
+  ): Promise<void> => {
+    await apiClient.post('/breeder-admin/remind', {
       breederIds,
-      message,
+      remindType,
     });
   },
 

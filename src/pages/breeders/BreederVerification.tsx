@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Table, Tag, Button, Modal, Form, Checkbox, Input, message, Space, Descriptions, Image, Card } from 'antd';
-import { CheckCircleOutlined, CloseCircleOutlined, EyeOutlined, FileTextOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined, EyeOutlined, FileTextOutlined, BellOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 
 import { breederApi } from '../../features/breeder/api/breederApi';
@@ -44,6 +44,8 @@ export default function BreederVerification() {
   const [selectedBreeder, setSelectedBreeder] = useState<BreederVerification | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [isDocumentRemindModalOpen, setIsDocumentRemindModalOpen] = useState(false);
+  const [selectedBreeders, setSelectedBreeders] = useState<string[]>([]);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -153,6 +155,27 @@ export default function BreederVerification() {
     } catch (error: unknown) {
       console.error('Rejection failed:', error);
       message.error('반려 처리에 실패했습니다.');
+    }
+  };
+
+  // 입점 심사 독촉 알림
+  const handleDocumentRemindClick = () => {
+    if (selectedBreeders.length === 0) {
+      message.warning('입점 심사 독촉 알림을 보낼 브리더를 선택해주세요.');
+      return;
+    }
+    setIsDocumentRemindModalOpen(true);
+  };
+
+  const handleDocumentRemindSubmit = async () => {
+    try {
+      await breederApi.sendReminder(selectedBreeders, 'document_reminder');
+      message.success(`${selectedBreeders.length}명의 브리더에게 입점 심사 독촉 알림이 발송되었습니다.`);
+      setIsDocumentRemindModalOpen(false);
+      setSelectedBreeders([]);
+    } catch (error: unknown) {
+      console.error('Document remind failed:', error);
+      message.error('입점 심사 독촉 알림 발송에 실패했습니다.');
     }
   };
 
@@ -335,6 +358,22 @@ export default function BreederVerification() {
         </div>
       </Card>
 
+      {/* 액션 버튼 */}
+      <div className="mb-4 flex justify-end">
+        <Button
+          icon={<BellOutlined />}
+          onClick={handleDocumentRemindClick}
+          disabled={selectedBreeders.length === 0}
+          style={{
+            backgroundColor: selectedBreeders.length > 0 ? '#f59e0b' : undefined,
+            color: selectedBreeders.length > 0 ? '#fff' : undefined,
+            borderColor: selectedBreeders.length > 0 ? '#f59e0b' : undefined,
+          }}
+        >
+          입점 심사 독촉 알림 ({selectedBreeders.length})
+        </Button>
+      </div>
+
       {/* 테이블 스크롤 래퍼 - 모바일에서 가로 스크롤 가능 */}
       <div className="overflow-x-auto -mx-3 sm:mx-0">
         <Table
@@ -343,6 +382,10 @@ export default function BreederVerification() {
           rowKey="breederId"
           loading={loading}
           scroll={{ x: 800 }}
+          rowSelection={{
+            selectedRowKeys: selectedBreeders,
+            onChange: (selectedRowKeys) => setSelectedBreeders(selectedRowKeys as string[]),
+          }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
@@ -632,6 +675,39 @@ export default function BreederVerification() {
             </p>
           </div>
         </Form>
+      </Modal>
+
+      {/* 입점 심사 독촉 알림 모달 */}
+      <Modal
+        title="입점 심사 독촉 알림 발송"
+        open={isDocumentRemindModalOpen}
+        onOk={handleDocumentRemindSubmit}
+        onCancel={() => setIsDocumentRemindModalOpen(false)}
+        okText="발송"
+        cancelText="취소"
+        width="100%"
+        style={{ maxWidth: '500px', top: 20 }}
+        styles={{ body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' } }}
+      >
+        <p className="mb-4 text-sm text-gray-600">
+          선택한 {selectedBreeders.length}명의 브리더에게 입점 심사 독촉 알림을 발송합니다.
+        </p>
+
+        <div className="p-4 rounded mb-4" style={{ backgroundColor: '#fef3c7', borderLeft: '4px solid #f59e0b' }}>
+          <p className="text-sm font-semibold mb-2" style={{ color: '#92400e' }}>📄 발송 메시지</p>
+          <p className="text-sm mb-2" style={{ color: '#78350f' }}>
+            <strong>서비스 알림:</strong> 브리더 입점 절차가 아직 완료되지 않았어요! 필요한 서류들을 제출하시면 입양자에게 프로필이 공개됩니다.
+          </p>
+          <p className="text-sm" style={{ color: '#78350f' }}>
+            <strong>이메일:</strong> [포퐁] 브리더 입점 절차를 완료해주세요 ✨
+          </p>
+        </div>
+
+        <div className="p-3 rounded" style={{ backgroundColor: 'var(--color-tertiary-500)' }}>
+          <p className="text-sm" style={{ color: 'var(--color-primary-500)' }}>
+            💡 서류 미제출 상태(PENDING)인 브리더에게만 발송됩니다.
+          </p>
+        </div>
       </Modal>
     </div>
   );

@@ -58,11 +58,10 @@ export default function BreederManagement() {
   const [isLevelChangeModalOpen, setIsLevelChangeModalOpen] = useState(false);
   const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
   const [isUnsuspendModalOpen, setIsUnsuspendModalOpen] = useState(false);
-  const [isRemindModalOpen, setIsRemindModalOpen] = useState(false);
+  const [isProfileRemindModalOpen, setIsProfileRemindModalOpen] = useState(false);
   const [selectedBreeders, setSelectedBreeders] = useState<string[]>([]);
   const [levelChangeForm] = Form.useForm();
   const [suspendForm] = Form.useForm();
-  const [remindForm] = Form.useForm();
 
   // 통계 상태
   const [stats, setStats] = useState({
@@ -171,26 +170,24 @@ export default function BreederManagement() {
     }
   };
 
-  const handleRemindClick = () => {
+  // 프로필 완성 독려 알림
+  const handleProfileRemindClick = () => {
     if (selectedBreeders.length === 0) {
-      message.warning('리마인드를 보낼 브리더를 선택해주세요.');
+      message.warning('프로필 완성 독려 알림을 보낼 브리더를 선택해주세요.');
       return;
     }
-    remindForm.resetFields();
-    setIsRemindModalOpen(true);
+    setIsProfileRemindModalOpen(true);
   };
 
-  const handleRemindSubmit = async () => {
+  const handleProfileRemindSubmit = async () => {
     try {
-      const values = await remindForm.validateFields();
-      await breederApi.sendReminder(selectedBreeders, values.message);
-
-      message.success(`${selectedBreeders.length}명의 브리더에게 리마인드가 발송되었습니다.`);
-      setIsRemindModalOpen(false);
+      await breederApi.sendReminder(selectedBreeders, 'profile_completion_reminder');
+      message.success(`${selectedBreeders.length}명의 브리더에게 프로필 완성 독려 알림이 발송되었습니다.`);
+      setIsProfileRemindModalOpen(false);
       setSelectedBreeders([]);
     } catch (error: unknown) {
-      console.error('Remind failed:', error);
-      message.error('리마인드 발송에 실패했습니다.');
+      console.error('Profile remind failed:', error);
+      message.error('프로필 완성 독려 알림 발송에 실패했습니다.');
     }
   };
 
@@ -400,12 +397,10 @@ export default function BreederManagement() {
       </div>
 
       {/* 액션 버튼 */}
-      <div className="mb-4 flex flex-col sm:flex-row justify-end gap-2">
+      <div className="mb-4 flex justify-end">
         <Button
-          block
-          className="sm:w-auto"
           icon={<BellOutlined />}
-          onClick={handleRemindClick}
+          onClick={handleProfileRemindClick}
           disabled={selectedBreeders.length === 0}
           style={{
             backgroundColor: selectedBreeders.length > 0 ? 'var(--color-primary-500)' : undefined,
@@ -413,7 +408,7 @@ export default function BreederManagement() {
             borderColor: selectedBreeders.length > 0 ? 'var(--color-primary-500)' : undefined,
           }}
         >
-          선택한 브리더에게 리마인드 발송 ({selectedBreeders.length})
+          프로필 완성 독려 알림 ({selectedBreeders.length})
         </Button>
       </div>
 
@@ -569,33 +564,37 @@ export default function BreederManagement() {
         )}
       </Modal>
 
-      {/* 리마인드 발송 모달 */}
+      {/* 프로필 완성 독려 알림 모달 */}
       <Modal
-        title="리마인드 알림 발송"
-        open={isRemindModalOpen}
-        onOk={handleRemindSubmit}
-        onCancel={() => setIsRemindModalOpen(false)}
+        title="프로필 완성 독려 알림 발송"
+        open={isProfileRemindModalOpen}
+        onOk={handleProfileRemindSubmit}
+        onCancel={() => setIsProfileRemindModalOpen(false)}
         okText="발송"
         cancelText="취소"
         width="100%"
         style={{ maxWidth: '500px', top: 20 }}
         styles={{ body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' } }}
       >
-        <Form form={remindForm} layout="vertical">
-          <p className="mb-4 text-sm text-gray-600">
-            선택한 {selectedBreeders.length}명의 브리더에게 리마인드 알림을 발송합니다.
+        <p className="mb-4 text-sm text-gray-600">
+          선택한 {selectedBreeders.length}명의 브리더에게 프로필 완성 독려 알림을 발송합니다.
+        </p>
+
+        <div className="p-4 rounded mb-4" style={{ backgroundColor: '#dbeafe', borderLeft: '4px solid var(--color-primary-500)' }}>
+          <p className="text-sm font-semibold mb-2" style={{ color: '#1e3a8a' }}>📝 발송 메시지</p>
+          <p className="text-sm mb-2" style={{ color: '#1e40af' }}>
+            <strong>서비스 알림:</strong> 브리더 프로필이 아직 완성되지 않았어요! 프로필 작성을 마무리하면 입양자에게 노출되고 상담을 받을 수 있어요.
           </p>
+          <p className="text-sm" style={{ color: '#1e40af' }}>
+            <strong>이메일:</strong> [포퐁] 브리더 프로필을 완성해주세요 🐾
+          </p>
+        </div>
 
-          <Form.Item name="message" label="메시지" rules={[{ required: true, message: '메시지를 입력해주세요' }]}>
-            <TextArea rows={4} placeholder="브리더에게 전달할 메시지를 입력해주세요" maxLength={1000} showCount />
-          </Form.Item>
-
-          <div className="p-3 rounded mt-4" style={{ backgroundColor: 'var(--color-tertiary-500)' }}>
-            <p className="text-sm" style={{ color: 'var(--color-primary-500)' }}>
-              💡 리마인드는 이메일로 발송됩니다.
-            </p>
-          </div>
-        </Form>
+        <div className="p-3 rounded" style={{ backgroundColor: 'var(--color-tertiary-500)' }}>
+          <p className="text-sm" style={{ color: 'var(--color-primary-500)' }}>
+            💡 입점 승인(APPROVED) 후 프로필 미완성인 브리더에게만 발송됩니다.
+          </p>
+        </div>
       </Modal>
     </div>
   );
