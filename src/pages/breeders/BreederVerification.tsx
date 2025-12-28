@@ -61,7 +61,7 @@ export default function BreederVerification() {
     try {
       const response = await breederApi.getBreeders(statusFilter, currentPage, pageSize);
       setDataSource(response.items);
-      setTotalCount(response.pagination.totalCount);
+      setTotalCount(response.pagination.totalItems);
     } catch (error: unknown) {
       console.error('Failed to fetch verifications:', error);
       message.error('브리더 목록을 불러올 수 없습니다.');
