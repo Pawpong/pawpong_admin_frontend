@@ -444,17 +444,13 @@ export default function BreederVerification() {
       >
         {selectedBreeder && (
           <div>
-            <Descriptions bordered column={{ xs: 1, sm: 2 }}>
-              <Descriptions.Item label="브리더명" span={2}>
-                {selectedBreeder.breederName}
-              </Descriptions.Item>
+            <Descriptions bordered column={{ xs: 1, sm: 2 }} size="middle">
+              {/* 기본 정보 */}
+              <Descriptions.Item label="브리더명">{selectedBreeder.breederName}</Descriptions.Item>
               <Descriptions.Item label="이메일">{selectedBreeder.emailAddress}</Descriptions.Item>
-              <Descriptions.Item label="요금제">
-                <Tag color={selectedBreeder.verificationInfo.subscriptionPlan === 'premium' ? 'gold' : 'blue'}>
-                  {selectedBreeder.verificationInfo.subscriptionPlan === 'premium' ? '프리미엄' : '베이직'}
-                </Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="신청 레벨" span={2}>
+
+              {/* 인증 정보 */}
+              <Descriptions.Item label="신청 레벨">
                 <Tag
                   style={{
                     backgroundColor:
@@ -475,14 +471,12 @@ export default function BreederVerification() {
                   {selectedBreeder.verificationInfo.level === 'elite' ? '엘리트' : '뉴'}
                 </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="신청일" span={2}>
-                {selectedBreeder.verificationInfo.submittedAt
-                  ? new Date(selectedBreeder.verificationInfo.submittedAt).toLocaleString('ko-KR')
-                  : '-'}
+              <Descriptions.Item label="요금제">
+                <Tag color={selectedBreeder.verificationInfo.subscriptionPlan === 'premium' ? 'gold' : 'blue'}>
+                  {selectedBreeder.verificationInfo.subscriptionPlan === 'premium' ? '프리미엄' : '베이직'}
+                </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="계정 생성일" span={2}>
-                {selectedBreeder.createdAt ? new Date(selectedBreeder.createdAt).toLocaleString('ko-KR') : '-'}
-              </Descriptions.Item>
+
               <Descriptions.Item label="상태" span={2}>
                 {(() => {
                   const status = selectedBreeder.verificationInfo.verificationStatus;
@@ -496,30 +490,57 @@ export default function BreederVerification() {
                   return <Tag color={statusInfo.color}>{statusInfo.label}</Tag>;
                 })()}
               </Descriptions.Item>
-              {selectedBreeder.profileInfo?.location ? (
-                <Descriptions.Item label="지역">{String(selectedBreeder.profileInfo.location)}</Descriptions.Item>
-              ) : null}
-              {selectedBreeder.profileInfo?.detailedLocation ? (
-                <Descriptions.Item label="세부 지역">
-                  {String(selectedBreeder.profileInfo.detailedLocation)}
-                </Descriptions.Item>
-              ) : null}
-              {selectedBreeder.profileInfo?.specialization &&
-              Array.isArray(selectedBreeder.profileInfo.specialization) &&
-              selectedBreeder.profileInfo.specialization.length > 0 ? (
-                <Descriptions.Item label="전문 분야" span={2}>
-                  {selectedBreeder.profileInfo.specialization.map((spec: unknown) => (
-                    <Tag key={String(spec)} color="blue">
-                      {spec === 'dog' ? '강아지' : '고양이'}
-                    </Tag>
-                  ))}
-                </Descriptions.Item>
-              ) : null}
-              {selectedBreeder.verificationInfo.isSubmittedByEmail && (
-                <Descriptions.Item label="제출 방식" span={2}>
-                  <Tag color="blue">이메일 제출</Tag>
-                </Descriptions.Item>
-              )}
+
+              {/* 일시 정보 */}
+              <Descriptions.Item label="계정 생성일">
+                {selectedBreeder.createdAt ? new Date(selectedBreeder.createdAt).toLocaleString('ko-KR') : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="신청일">
+                {selectedBreeder.verificationInfo.submittedAt
+                  ? new Date(selectedBreeder.verificationInfo.submittedAt).toLocaleString('ko-KR')
+                  : '-'}
+              </Descriptions.Item>
+
+              {/* 위치 정보 */}
+              <Descriptions.Item label="지역">
+                {selectedBreeder.profileInfo?.location ? String(selectedBreeder.profileInfo.location) : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="세부 지역">
+                {selectedBreeder.profileInfo?.detailedLocation ? String(selectedBreeder.profileInfo.detailedLocation) : '-'}
+              </Descriptions.Item>
+
+              {/* 전문 분야 */}
+              <Descriptions.Item label="전문 분야" span={2}>
+                {selectedBreeder.profileInfo?.specialization &&
+                Array.isArray(selectedBreeder.profileInfo.specialization) &&
+                selectedBreeder.profileInfo.specialization.length > 0
+                  ? selectedBreeder.profileInfo.specialization.map((spec: unknown) => (
+                      <Tag key={String(spec)} color="blue">
+                        {spec === 'dog' ? '강아지' : '고양이'}
+                      </Tag>
+                    ))
+                  : '-'}
+              </Descriptions.Item>
+
+              {/* 품종 정보 */}
+              <Descriptions.Item label="품종" span={2}>
+                {selectedBreeder.profileInfo?.breeds &&
+                Array.isArray(selectedBreeder.profileInfo.breeds) &&
+                selectedBreeder.profileInfo.breeds.length > 0 ? (
+                  <>
+                    {selectedBreeder.profileInfo.breeds.map((breed: unknown) => (
+                      <Tag key={String(breed)} color="green">
+                        {String(breed)}
+                      </Tag>
+                    ))}
+                    <span style={{ marginLeft: '8px', color: '#666' }}>
+                      ({selectedBreeder.profileInfo.breeds.length}종)
+                    </span>
+                  </>
+                ) : (
+                  '-'
+                )}
+              </Descriptions.Item>
             </Descriptions>
 
             <div className="mt-4 sm:mt-6">
