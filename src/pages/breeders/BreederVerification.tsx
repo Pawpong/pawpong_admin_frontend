@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Table, Tag, Button, Modal, Form, Checkbox, Input, message, Space, Descriptions, Image, Card } from 'antd';
+import { Table, Tag, Button, Modal, Form, Checkbox, Input, message, Space, Descriptions, Image, Card, Tabs } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, EyeOutlined, FileTextOutlined, BellOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -46,20 +46,25 @@ export default function BreederVerification() {
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [isDocumentRemindModalOpen, setIsDocumentRemindModalOpen] = useState(false);
   const [selectedBreeders, setSelectedBreeders] = useState<string[]>([]);
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined); // 상태 필터 추가
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [form] = Form.useForm();
 
   useEffect(() => {
-    fetchPendingVerifications();
-  }, []);
+    fetchVerifications();
+  }, [statusFilter, currentPage, pageSize]);
 
-  const fetchPendingVerifications = async () => {
+  const fetchVerifications = async () => {
     setLoading(true);
     try {
-      const data = await breederApi.getPendingVerifications();
-      setDataSource(data);
+      const response = await breederApi.getBreeders(statusFilter, currentPage, pageSize);
+      setDataSource(response.items);
+      setTotalCount(response.pagination.totalCount);
     } catch (error: unknown) {
-      console.error('Failed to fetch pending verifications:', error);
-      message.error('인증 대기 목록을 불러올 수 없습니다.');
+      console.error('Failed to fetch verifications:', error);
+      message.error('브리더 목록을 불러올 수 없습니다.');
     } finally {
       setLoading(false);
     }
@@ -100,7 +105,7 @@ export default function BreederVerification() {
       console.log('✅ [handleMarkAsReviewing] API 호출 성공');
       message.success('리뷰 완료로 표시되었습니다.');
       setIsModalOpen(false);
-      fetchPendingVerifications();
+      fetchVerifications();
     } catch (error: unknown) {
       console.error('❌ [handleMarkAsReviewing] API 호출 실패:', error);
       message.error('상태 변경에 실패했습니다.');
@@ -119,7 +124,7 @@ export default function BreederVerification() {
       console.log('✅ [handleApprove] API 호출 성공');
       message.success('브리더 인증이 승인되었습니다.');
       setIsModalOpen(false);
-      fetchPendingVerifications();
+      fetchVerifications();
     } catch (error: unknown) {
       console.error('❌ [handleApprove] API 호출 실패:', error);
       message.error('승인에 실패했습니다.');
@@ -151,7 +156,7 @@ export default function BreederVerification() {
 
       message.success('브리더 인증이 반려되었습니다. 반려 사유가 이메일로 발송됩니다.');
       setIsRejectModalOpen(false);
-      fetchPendingVerifications();
+      fetchVerifications();
     } catch (error: unknown) {
       console.error('Rejection failed:', error);
       message.error('반려 처리에 실패했습니다.');
@@ -231,8 +236,17 @@ export default function BreederVerification() {
       title: '상태',
       dataIndex: ['verificationInfo', 'verificationStatus'],
       key: 'verificationStatus',
-      width: 100,
-      render: (status: string) => <Tag color="orange">{status === 'pending' ? '대기 중' : status}</Tag>,
+      width: 120,
+      render: (status: string) => {
+        const statusMap: Record<string, { label: string; color: string }> = {
+          pending: { label: '대기 중', color: 'default' },
+          reviewing: { label: '검토 중', color: 'processing' },
+          approved: { label: '승인됨', color: 'success' },
+          rejected: { label: '반려됨', color: 'error' },
+        };
+        const statusInfo = statusMap[status] || { label: status, color: 'default' };
+        return <Tag color={statusInfo.color}>{statusInfo.label}</Tag>;
+      },
     },
     {
       title: '액션',
@@ -350,13 +364,30 @@ export default function BreederVerification() {
             <FileTextOutlined style={{ fontSize: '20px', color: 'var(--color-primary-500)' }} className="sm:text-2xl" />
           </div>
           <div>
-            <p className="text-xs sm:text-sm text-gray-500">승인 대기 중</p>
+            <p className="text-xs sm:text-sm text-gray-500">총 브리더</p>
             <p className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--color-primary-500)' }}>
-              {dataSource.length}명
+              {totalCount}명
             </p>
           </div>
         </div>
       </Card>
+
+      {/* 상태 필터 탭 */}
+      <Tabs
+        activeKey={statusFilter || 'all'}
+        onChange={(key) => {
+          setStatusFilter(key === 'all' ? undefined : key);
+          setCurrentPage(1);
+        }}
+        className="mb-4"
+        items={[
+          { key: 'all', label: '전체' },
+          { key: 'pending', label: '대기 중 (서류 미제출)' },
+          { key: 'reviewing', label: '검토 중' },
+          { key: 'approved', label: '승인됨' },
+          { key: 'rejected', label: '반려됨' },
+        ]}
+      />
 
       {/* 액션 버튼 */}
       <div className="mb-4 flex justify-end">
@@ -387,10 +418,16 @@ export default function BreederVerification() {
             onChange: (selectedRowKeys) => setSelectedBreeders(selectedRowKeys as string[]),
           }}
           pagination={{
-            pageSize: 10,
+            current: currentPage,
+            pageSize: pageSize,
+            total: totalCount,
             showSizeChanger: true,
             showTotal: (total) => `총 ${total}건`,
             responsive: true,
+            onChange: (page, newPageSize) => {
+              setCurrentPage(page);
+              setPageSize(newPageSize);
+            },
           }}
         />
       </div>
@@ -447,11 +484,17 @@ export default function BreederVerification() {
                 {selectedBreeder.createdAt ? new Date(selectedBreeder.createdAt).toLocaleString('ko-KR') : '-'}
               </Descriptions.Item>
               <Descriptions.Item label="상태" span={2}>
-                <Tag color="orange">
-                  {selectedBreeder.verificationInfo.verificationStatus === 'pending'
-                    ? '대기 중'
-                    : selectedBreeder.verificationInfo.verificationStatus}
-                </Tag>
+                {(() => {
+                  const status = selectedBreeder.verificationInfo.verificationStatus;
+                  const statusMap: Record<string, { label: string; color: string }> = {
+                    pending: { label: '대기 중', color: 'default' },
+                    reviewing: { label: '검토 중', color: 'processing' },
+                    approved: { label: '승인됨', color: 'success' },
+                    rejected: { label: '반려됨', color: 'error' },
+                  };
+                  const statusInfo = statusMap[status] || { label: status, color: 'default' };
+                  return <Tag color={statusInfo.color}>{statusInfo.label}</Tag>;
+                })()}
               </Descriptions.Item>
               {selectedBreeder.profileInfo?.location ? (
                 <Descriptions.Item label="지역">{String(selectedBreeder.profileInfo.location)}</Descriptions.Item>
