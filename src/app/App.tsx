@@ -24,6 +24,7 @@ import StandardQuestions from '../pages/content/StandardQuestions';
 import Breeds from '../pages/settings/Breeds';
 import Districts from '../pages/settings/Districts';
 import PhoneWhitelist from '../pages/settings/PhoneWhitelist';
+import AlimtalkTemplates from '../pages/settings/AlimtalkTemplates';
 import { useAuthStore } from '../features/auth/store/authStore';
 
 // Protected Route 컴포넌트
@@ -173,6 +174,7 @@ function App() {
               <Route path="breeds" element={<Breeds />} />
               <Route path="districts" element={<Districts />} />
               <Route path="phone-whitelist" element={<PhoneWhitelist />} />
+              <Route path="alimtalk" element={<AlimtalkTemplates />} />
             </Route>
 
             {/* 표준 질문 관리 (deprecated - 위 content/questions로 이동됨) */}

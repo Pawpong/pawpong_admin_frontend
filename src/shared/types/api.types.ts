@@ -537,3 +537,62 @@ export interface SetTestAccountResponse {
   isTestAccount: boolean;
   updatedAt: string;
 }
+
+/**
+ * 알림톡 템플릿 관련 타입 (백엔드 API와 일치)
+ */
+export type AlimtalkButtonType = 'WL' | 'AL' | 'BK' | 'MD' | 'DS' | 'BC' | 'BT' | 'AC';
+
+export interface AlimtalkButton {
+  buttonType: AlimtalkButtonType;
+  buttonName: string;
+  linkMo?: string;
+  linkPc?: string;
+  linkAnd?: string;
+  linkIos?: string;
+}
+
+export interface AlimtalkTemplate {
+  templateCode: string;
+  templateId: string;
+  name: string;
+  description?: string;
+  requiredVariables: string[];
+  fallbackToSms: boolean;
+  isActive: boolean;
+  reviewStatus: 'pending' | 'approved' | 'rejected' | 're_review';
+  memo?: string;
+  buttons: AlimtalkButton[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AlimtalkTemplateListResponse {
+  templates: AlimtalkTemplate[];
+  totalCount: number;
+}
+
+export interface AlimtalkTemplateUpdateRequest {
+  templateId?: string;
+  name?: string;
+  description?: string;
+  requiredVariables?: string[];
+  fallbackToSms?: boolean;
+  isActive?: boolean;
+  reviewStatus?: 'pending' | 'approved' | 'rejected' | 're_review';
+  memo?: string;
+  buttons?: AlimtalkButton[];
+}
+
+export interface AlimtalkTemplateCreateRequest {
+  templateCode: string;
+  templateId: string;
+  name: string;
+  description?: string;
+  requiredVariables: string[];
+  fallbackToSms?: boolean;
+  isActive?: boolean;
+  reviewStatus?: 'pending' | 'approved' | 'rejected' | 're_review';
+  memo?: string;
+  buttons?: AlimtalkButton[];
+}

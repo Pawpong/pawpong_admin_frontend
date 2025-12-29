@@ -165,6 +165,10 @@ export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarPr
           key: '/settings/phone-whitelist',
           label: '전화번호 화이트리스트',
         },
+        {
+          key: '/settings/alimtalk',
+          label: '알림톡 템플릿',
+        },
       ],
     },
   ];
