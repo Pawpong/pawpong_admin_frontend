@@ -93,7 +93,7 @@ export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarPr
             children: [
                 {
                     key: '/breeders/verification',
-                    label: '인증 관리',
+                    label: '신청 관리',
                 },
                 {
                     key: '/breeders/management',

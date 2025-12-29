@@ -631,9 +631,37 @@ export default function BreederManagement() {
                         <strong>서비스 알림:</strong> 브리더 프로필이 아직 완성되지 않았어요! 프로필 작성을 마무리하면
                         입양자에게 노출되고 상담을 받을 수 있어요.
                     </p>
-                    <p className="text-sm" style={{ color: '#1e40af' }}>
+                    <p className="text-sm mb-2" style={{ color: '#1e40af' }}>
                         <strong>이메일:</strong> [포퐁] 브리더 프로필을 완성해주세요 🐾
                     </p>
+                </div>
+
+                <div
+                    className="p-4 rounded mb-4"
+                    style={{ backgroundColor: '#fef3c7', borderLeft: '4px solid #f59e0b' }}
+                >
+                    <p className="text-sm font-semibold mb-2" style={{ color: '#92400e' }}>
+                        💬 카카오 알림톡 (강조타입)
+                    </p>
+                    <div
+                        className="p-3 rounded text-sm"
+                        style={{ backgroundColor: '#fffbeb', border: '1px solid #fde68a' }}
+                    >
+                        <p className="font-bold mb-1" style={{ color: '#78350f' }}>
+                            브리더 입점 절차를 완료해주세요
+                        </p>
+                        <p style={{ color: '#92400e', whiteSpace: 'pre-line' }}>
+                            {`안녕하세요, #{브리더명}님!
+
+포퐁에 입점 신청해 주셔서 감사합니다.
+
+현재 서류 검토가 진행 중이며, 추가 서류 제출이 필요할 수 있습니다.
+
+빠른 입점 완료를 위해 아래 버튼을 눌러 서류 제출 상태를 확인해주세요.
+
+감사합니다.`}
+                        </p>
+                    </div>
                 </div>
 
                 <div className="p-3 rounded" style={{ backgroundColor: 'var(--color-tertiary-500)' }}>

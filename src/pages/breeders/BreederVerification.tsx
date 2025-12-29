@@ -366,9 +366,9 @@ export default function BreederVerification() {
             {/* 페이지 헤더 */}
             <div className="mb-4 sm:mb-6">
                 <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: 'var(--color-primary-500)' }}>
-                    브리더 인증 관리
+                    브리더 신청 관리
                 </h1>
-                <p className="text-sm sm:text-base text-gray-500">브리더 인증 신청을 검토하고 승인/반려 처리합니다</p>
+                <p className="text-sm sm:text-base text-gray-500">브리더 입점 신청을 검토하고 승인/반려 처리합니다</p>
             </div>
 
             {/* 통계 카드 */}
