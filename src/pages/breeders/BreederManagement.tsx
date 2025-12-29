@@ -664,9 +664,18 @@ export default function BreederManagement() {
                     </div>
                 </div>
 
-                <div className="p-3 rounded" style={{ backgroundColor: 'var(--color-tertiary-500)' }}>
+                <div className="p-3 rounded mb-3" style={{ backgroundColor: 'var(--color-tertiary-500)' }}>
                     <p className="text-sm" style={{ color: 'var(--color-primary-500)' }}>
                         💡 입점 승인(APPROVED) 후 프로필 미완성인 브리더에게만 발송됩니다.
+                    </p>
+                </div>
+
+                <div
+                    className="p-3 rounded"
+                    style={{ backgroundColor: '#dbeafe', borderLeft: '3px solid #3b82f6' }}
+                >
+                    <p className="text-sm" style={{ color: '#1e40af' }}>
+                        📱 <strong>카카오 알림톡:</strong> 프리미엄(Pro) 요금제 브리더에게만 발송됩니다.
                     </p>
                 </div>
             </Modal>

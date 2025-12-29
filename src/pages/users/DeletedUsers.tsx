@@ -116,16 +116,10 @@ const DeletedUsers: React.FC = () => {
     };
 
     const handleRestoreUser = (record: DeletedUser) => {
-        console.log('[DEBUG] handleRestoreUser called with:', record);
-        console.log('[DEBUG] record keys:', Object.keys(record));
-
         if (!record.userId || !record.userRole) {
-            console.error('[DEBUG] Missing userId or userRole:', { userId: record.userId, userRole: record.userRole });
             message.error('사용자 정보가 올바르지 않습니다.');
             return;
         }
-
-        console.log('[DEBUG] About to show modal.confirm');
 
         modal.confirm({
             title: '사용자 복구',
@@ -134,29 +128,21 @@ const DeletedUsers: React.FC = () => {
             cancelText: '취소',
             okButtonProps: { danger: false, type: 'primary' },
             onOk: () => {
-                console.log('[DEBUG] Modal onOk clicked, starting restore...');
                 return userApi
                     .restoreDeletedUser(record.userId, record.userRole)
                     .then(() => {
-                        console.log('[DEBUG] Restore successful');
                         message.success('사용자가 복구되었습니다.');
                         fetchDeletedUsers();
                         fetchStats();
                     })
                     .catch((error: any) => {
-                        console.error('[DEBUG] Failed to restore user:', error);
                         const errorMsg =
                             error?.response?.data?.error || error?.message || '사용자 복구에 실패했습니다.';
                         message.error(errorMsg);
-                        throw error; // Re-throw to prevent modal from closing
+                        throw error;
                     });
             },
-            onCancel: () => {
-                console.log('[DEBUG] Modal cancelled');
-            },
         });
-
-        console.log('[DEBUG] modal.confirm called');
     };
 
     const handleHardDelete = (user: DeletedUser) => {
@@ -260,8 +246,6 @@ const DeletedUsers: React.FC = () => {
                         size="small"
                         onClick={(e) => {
                             e.stopPropagation();
-                            console.log('[DEBUG] Restore button clicked, record:', record);
-                            console.log('[DEBUG] record.userId:', record.userId, 'record.userRole:', record.userRole);
                             handleRestoreUser(record);
                         }}
                     >

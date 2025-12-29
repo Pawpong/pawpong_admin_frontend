@@ -790,11 +790,20 @@ export default function BreederVerification() {
                     </Form.Item>
 
                     <div
-                        className="p-3 rounded"
+                        className="p-3 rounded mb-3"
                         style={{ backgroundColor: '#fef3c7', borderLeft: '3px solid #f59e0b' }}
                     >
                         <p className="text-sm" style={{ color: '#92400e' }}>
                             💡 선택된 반려 사유는 자동으로 이메일에 포함되어 브리더에게 발송됩니다.
+                        </p>
+                    </div>
+
+                    <div
+                        className="p-3 rounded"
+                        style={{ backgroundColor: '#dbeafe', borderLeft: '3px solid #3b82f6' }}
+                    >
+                        <p className="text-sm" style={{ color: '#1e40af' }}>
+                            📱 <strong>카카오 알림톡:</strong> 프리미엄(Pro) 요금제 브리더에게만 발송됩니다.
                         </p>
                     </div>
                 </Form>
@@ -832,9 +841,18 @@ export default function BreederVerification() {
                     </p>
                 </div>
 
-                <div className="p-3 rounded" style={{ backgroundColor: 'var(--color-tertiary-500)' }}>
+                <div className="p-3 rounded mb-3" style={{ backgroundColor: 'var(--color-tertiary-500)' }}>
                     <p className="text-sm" style={{ color: 'var(--color-primary-500)' }}>
                         💡 서류 미제출 상태(PENDING)인 브리더에게만 발송됩니다.
+                    </p>
+                </div>
+
+                <div
+                    className="p-3 rounded"
+                    style={{ backgroundColor: '#dbeafe', borderLeft: '3px solid #3b82f6' }}
+                >
+                    <p className="text-sm" style={{ color: '#1e40af' }}>
+                        📱 <strong>카카오 알림톡:</strong> 프리미엄(Pro) 요금제 브리더에게만 발송됩니다.
                     </p>
                 </div>
             </Modal>
