@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, App as AntdApp } from 'antd';
 import koKR from 'antd/locale/ko_KR';
 
 import AdminLayout from '../shared/components/layout/AdminLayout';
@@ -121,74 +121,76 @@ function App() {
                 },
             }}
         >
-            <BrowserRouter>
-                <Routes>
-                    {/* 로그인 페이지 */}
-                    <Route path="/login" element={<Login />} />
+            <AntdApp>
+                <BrowserRouter>
+                    <Routes>
+                        {/* 로그인 페이지 */}
+                        <Route path="/login" element={<Login />} />
 
-                    {/* 어드민 레이아웃 (인증 필요) */}
-                    <Route
-                        path="/"
-                        element={
-                            <ProtectedRoute>
-                                <AdminLayout />
-                            </ProtectedRoute>
-                        }
-                    >
-                        {/* 대시보드 */}
-                        <Route index element={<Navigate to="/dashboard" replace />} />
-                        <Route path="dashboard" element={<Dashboard />} />
+                        {/* 어드민 레이아웃 (인증 필요) */}
+                        <Route
+                            path="/"
+                            element={
+                                <ProtectedRoute>
+                                    <AdminLayout />
+                                </ProtectedRoute>
+                            }
+                        >
+                            {/* 대시보드 */}
+                            <Route index element={<Navigate to="/dashboard" replace />} />
+                            <Route path="dashboard" element={<Dashboard />} />
 
-                        {/* MVP 통계 */}
-                        <Route path="statistics" element={<MvpStatsPage />} />
+                            {/* MVP 통계 */}
+                            <Route path="statistics" element={<MvpStatsPage />} />
 
-                        {/* 사용자 관리 */}
-                        <Route path="users" element={<Users />} />
-                        <Route path="users/deleted" element={<DeletedUsers />} />
+                            {/* 사용자 관리 */}
+                            <Route path="users" element={<Users />} />
+                            <Route path="users/deleted" element={<DeletedUsers />} />
 
-                        {/* 브리더 관리 */}
-                        <Route path="breeders">
-                            <Route path="verification" element={<BreederVerification />} />
-                            <Route path="management" element={<BreederManagement />} />
-                            <Route path="applications" element={<ApplicationMonitoring />} />
+                            {/* 브리더 관리 */}
+                            <Route path="breeders">
+                                <Route path="verification" element={<BreederVerification />} />
+                                <Route path="management" element={<BreederManagement />} />
+                                <Route path="applications" element={<ApplicationMonitoring />} />
+                            </Route>
+
+                            {/* 신고 관리 */}
+                            <Route path="reports">
+                                <Route path="breeders" element={<BreederReports />} />
+                                <Route path="reviews" element={<ReviewReports />} />
+                            </Route>
+
+                            {/* 콘텐츠 관리 */}
+                            <Route path="content">
+                                <Route path="banners" element={<Banners />} />
+                                <Route path="profile" element={<ProfileBanners />} />
+                                <Route path="counsel" element={<CounselBanners />} />
+                                <Route path="faqs" element={<Faqs />} />
+                                <Route path="announcements" element={<Announcements />} />
+                                <Route path="notices" element={<Notices />} />
+                                <Route path="questions" element={<StandardQuestions />} />
+                            </Route>
+
+                            {/* 시스템 설정 */}
+                            <Route path="settings">
+                                <Route path="breeds" element={<Breeds />} />
+                                <Route path="districts" element={<Districts />} />
+                                <Route path="phone-whitelist" element={<PhoneWhitelist />} />
+                                <Route path="alimtalk" element={<AlimtalkTemplates />} />
+                            </Route>
+
+                            {/* 표준 질문 관리 (deprecated - 위 content/questions로 이동됨) */}
+                            <Route path="questions" element={<Navigate to="/content/questions" replace />} />
+
+                            {/* 프로필 */}
+                            <Route path="profile" element={<Profile />} />
                         </Route>
 
-                        {/* 신고 관리 */}
-                        <Route path="reports">
-                            <Route path="breeders" element={<BreederReports />} />
-                            <Route path="reviews" element={<ReviewReports />} />
-                        </Route>
-
-                        {/* 콘텐츠 관리 */}
-                        <Route path="content">
-                            <Route path="banners" element={<Banners />} />
-                            <Route path="profile" element={<ProfileBanners />} />
-                            <Route path="counsel" element={<CounselBanners />} />
-                            <Route path="faqs" element={<Faqs />} />
-                            <Route path="announcements" element={<Announcements />} />
-                            <Route path="notices" element={<Notices />} />
-                            <Route path="questions" element={<StandardQuestions />} />
-                        </Route>
-
-                        {/* 시스템 설정 */}
-                        <Route path="settings">
-                            <Route path="breeds" element={<Breeds />} />
-                            <Route path="districts" element={<Districts />} />
-                            <Route path="phone-whitelist" element={<PhoneWhitelist />} />
-                            <Route path="alimtalk" element={<AlimtalkTemplates />} />
-                        </Route>
-
-                        {/* 표준 질문 관리 (deprecated - 위 content/questions로 이동됨) */}
-                        <Route path="questions" element={<Navigate to="/content/questions" replace />} />
-
-                        {/* 프로필 */}
-                        <Route path="profile" element={<Profile />} />
-                    </Route>
-
-                    {/* 404 */}
-                    <Route path="*" element={<Navigate to="/dashboard" replace />} />
-                </Routes>
-            </BrowserRouter>
+                        {/* 404 */}
+                        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                    </Routes>
+                </BrowserRouter>
+            </AntdApp>
         </ConfigProvider>
     );
 }

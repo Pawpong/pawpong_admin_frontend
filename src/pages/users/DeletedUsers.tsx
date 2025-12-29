@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Table, Card, Tag, Statistic, Row, Col, Select, message, Modal, Button, Space, Input } from 'antd';
+import { Table, Card, Tag, Statistic, Row, Col, Select, Button, Space, Input, App, Modal } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
@@ -13,6 +13,7 @@ const { Option } = Select;
  * 입양자와 브리더의 탈퇴 내역을 조회하고 통계를 확인합니다.
  */
 const DeletedUsers: React.FC = () => {
+    const { message, modal } = App.useApp();
     const [dataSource, setDataSource] = useState<DeletedUser[]>([]);
     const [loading, setLoading] = useState(false);
     const [stats, setStats] = useState<DeletedUserStats | null>(null);
@@ -116,6 +117,7 @@ const DeletedUsers: React.FC = () => {
 
     const handleRestoreUser = (record: DeletedUser) => {
         console.log('[DEBUG] handleRestoreUser called with:', record);
+        console.log('[DEBUG] record keys:', Object.keys(record));
 
         if (!record.userId || !record.userRole) {
             console.error('[DEBUG] Missing userId or userRole:', { userId: record.userId, userRole: record.userRole });
@@ -123,26 +125,38 @@ const DeletedUsers: React.FC = () => {
             return;
         }
 
-        Modal.confirm({
+        console.log('[DEBUG] About to show modal.confirm');
+
+        modal.confirm({
             title: '사용자 복구',
             content: `${record.nickname}(${record.userRole === 'adopter' ? '입양자' : '브리더'}) 계정을 복구하시겠습니까?`,
             okText: '복구',
             cancelText: '취소',
             okButtonProps: { danger: false, type: 'primary' },
-            onOk: async () => {
-                try {
-                    console.log('[DEBUG] Restoring user:', record.userId, record.userRole);
-                    await userApi.restoreDeletedUser(record.userId, record.userRole);
-                    message.success('사용자가 복구되었습니다.');
-                    await fetchDeletedUsers();
-                    await fetchStats();
-                } catch (error: any) {
-                    console.error('[DEBUG] Failed to restore user:', error);
-                    const errorMsg = error?.response?.data?.error || error?.message || '사용자 복구에 실패했습니다.';
-                    message.error(errorMsg);
-                }
+            onOk: () => {
+                console.log('[DEBUG] Modal onOk clicked, starting restore...');
+                return userApi
+                    .restoreDeletedUser(record.userId, record.userRole)
+                    .then(() => {
+                        console.log('[DEBUG] Restore successful');
+                        message.success('사용자가 복구되었습니다.');
+                        fetchDeletedUsers();
+                        fetchStats();
+                    })
+                    .catch((error: any) => {
+                        console.error('[DEBUG] Failed to restore user:', error);
+                        const errorMsg =
+                            error?.response?.data?.error || error?.message || '사용자 복구에 실패했습니다.';
+                        message.error(errorMsg);
+                        throw error; // Re-throw to prevent modal from closing
+                    });
+            },
+            onCancel: () => {
+                console.log('[DEBUG] Modal cancelled');
             },
         });
+
+        console.log('[DEBUG] modal.confirm called');
     };
 
     const handleHardDelete = (user: DeletedUser) => {
@@ -246,6 +260,8 @@ const DeletedUsers: React.FC = () => {
                         size="small"
                         onClick={(e) => {
                             e.stopPropagation();
+                            console.log('[DEBUG] Restore button clicked, record:', record);
+                            console.log('[DEBUG] record.userId:', record.userId, 'record.userRole:', record.userRole);
                             handleRestoreUser(record);
                         }}
                     >
