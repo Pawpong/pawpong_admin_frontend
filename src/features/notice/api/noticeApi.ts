@@ -84,10 +84,10 @@ export const noticeApi = {
      */
     async getNotices(
         page: number = 1,
-        pageSize: number = 10,
+        limit: number = 10,
         status?: 'published' | 'draft' | 'archived',
     ): Promise<NoticePaginationResponse> {
-        const params: any = { page, pageSize };
+        const params: any = { page, limit };
         if (status) {
             params.status = status;
         }
@@ -129,7 +129,7 @@ export const noticeApi = {
      * 공지사항 수정
      */
     async updateNotice(noticeId: string, data: NoticeUpdateRequest): Promise<NoticeDetailResponse> {
-        const response = await axios.put(`${API_BASE_URL}/notice-admin/${noticeId}`, data, {
+        const response = await axios.patch(`${API_BASE_URL}/notice-admin/${noticeId}`, data, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             },

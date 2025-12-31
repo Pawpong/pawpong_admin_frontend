@@ -220,6 +220,13 @@ export default function BreederVerification() {
             width: 200,
         },
         {
+            title: '전화번호',
+            dataIndex: 'phoneNumber',
+            key: 'phoneNumber',
+            width: 130,
+            render: (phone: string) => phone || '-',
+        },
+        {
             title: '요금제',
             dataIndex: ['verificationInfo', 'subscriptionPlan'],
             key: 'subscriptionPlan',
@@ -474,6 +481,7 @@ export default function BreederVerification() {
                             {/* 기본 정보 */}
                             <Descriptions.Item label="브리더명">{selectedBreeder.breederName}</Descriptions.Item>
                             <Descriptions.Item label="이메일">{selectedBreeder.emailAddress}</Descriptions.Item>
+                            <Descriptions.Item label="전화번호" span={2}>{selectedBreeder.phoneNumber || '-'}</Descriptions.Item>
 
                             {/* 인증 정보 */}
                             <Descriptions.Item label="신청 레벨">

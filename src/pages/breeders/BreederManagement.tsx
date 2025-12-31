@@ -236,6 +236,13 @@ export default function BreederManagement() {
             width: 200,
         },
         {
+            title: '전화번호',
+            dataIndex: 'phoneNumber',
+            key: 'phoneNumber',
+            width: 130,
+            render: (phone: string) => phone || '-',
+        },
+        {
             title: '레벨',
             dataIndex: ['verificationInfo', 'level'],
             key: 'level',
@@ -493,6 +500,7 @@ export default function BreederManagement() {
                             <strong>{selectedBreeder.breederName}</strong>
                         </Descriptions.Item>
                         <Descriptions.Item label="이메일">{selectedBreeder.emailAddress}</Descriptions.Item>
+                        <Descriptions.Item label="전화번호">{selectedBreeder.phoneNumber || '-'}</Descriptions.Item>
                         <Descriptions.Item label="레벨">
                             {getLevelTag(selectedBreeder.verificationInfo.level || 'new')}
                         </Descriptions.Item>

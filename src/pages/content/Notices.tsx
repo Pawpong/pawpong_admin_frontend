@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Switch, message, Card, Space, Tag, Popconfirm, DatePicker } from 'antd';
+import { Table, Button, Modal, Form, Input, Switch, message, Card, Space, Tag, Popconfirm, DatePicker, Select } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -11,7 +11,6 @@ import {
 import dayjs from 'dayjs';
 
 const { TextArea } = Input;
-const { RangePicker } = DatePicker;
 
 const Notices = () => {
     const [notices, setNotices] = useState<Notice[]>([]);
@@ -23,16 +22,17 @@ const Notices = () => {
     const [form] = Form.useForm();
     const [currentPage, setCurrentPage] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
-    const pageSize = 10;
+    const [statusFilter, setStatusFilter] = useState<'published' | 'draft' | 'archived' | undefined>(undefined);
+    const limit = 10;
 
     useEffect(() => {
         fetchNotices();
-    }, [currentPage]);
+    }, [currentPage, statusFilter]);
 
     const fetchNotices = async () => {
         try {
             setLoading(true);
-            const response = await noticeApi.getNotices(currentPage, pageSize);
+            const response = await noticeApi.getNotices(currentPage, limit, statusFilter);
             setNotices(response.data.items);
             setTotalItems(response.data.pagination.totalItems);
         } catch (error) {
@@ -192,9 +192,26 @@ const Notices = () => {
         <Card
             title="공지사항 관리"
             extra={
-                <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
-                    공지사항 추가
-                </Button>
+                <Space>
+                    <Select
+                        placeholder="상태 필터"
+                        allowClear
+                        style={{ width: 120 }}
+                        value={statusFilter}
+                        onChange={(value) => {
+                            setStatusFilter(value);
+                            setCurrentPage(1);
+                        }}
+                        options={[
+                            { value: 'published', label: '게시' },
+                            { value: 'draft', label: '임시저장' },
+                            { value: 'archived', label: '보관' },
+                        ]}
+                    />
+                    <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+                        공지사항 추가
+                    </Button>
+                </Space>
             }
         >
             <Table
@@ -205,7 +222,7 @@ const Notices = () => {
                 scroll={{ x: 1000 }}
                 pagination={{
                     current: currentPage,
-                    pageSize: pageSize,
+                    pageSize: limit,
                     total: totalItems,
                     onChange: (page) => setCurrentPage(page),
                     showSizeChanger: false,
