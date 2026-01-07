@@ -8,6 +8,7 @@ import Dashboard from '../pages/Dashboard';
 import Profile from '../pages/Profile';
 import MvpStatsPage from '../pages/statistics/MvpStats';
 import BreederVerification from '../pages/breeders/BreederVerification';
+import BreederLevelChangeRequests from '../pages/breeders/BreederLevelChangeRequests';
 import BreederManagement from '../pages/breeders/BreederManagement';
 import ApplicationMonitoring from '../pages/breeders/ApplicationMonitoring';
 import BreederReports from '../pages/reports/BreederReports';
@@ -150,6 +151,7 @@ function App() {
                             {/* 브리더 관리 */}
                             <Route path="breeders">
                                 <Route path="verification" element={<BreederVerification />} />
+                                <Route path="level-change-requests" element={<BreederLevelChangeRequests />} />
                                 <Route path="management" element={<BreederManagement />} />
                                 <Route path="applications" element={<ApplicationMonitoring />} />
                             </Route>

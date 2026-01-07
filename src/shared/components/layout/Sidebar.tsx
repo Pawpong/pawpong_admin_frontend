@@ -96,6 +96,10 @@ export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarPr
                     label: '신청 관리',
                 },
                 {
+                    key: '/breeders/level-change-requests',
+                    label: '레벨 변경 신청',
+                },
+                {
                     key: '/breeders/management',
                     label: '브리더 관리',
                 },

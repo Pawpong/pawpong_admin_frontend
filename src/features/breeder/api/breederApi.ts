@@ -56,6 +56,26 @@ export const breederApi = {
     },
 
     /**
+     * 레벨 변경 신청 목록 조회
+     * 엔드포인트: GET /api/breeder-verification-admin/verification/level-change-requests
+     */
+    getLevelChangeRequests: async (
+        page: number = 1,
+        limit: number = 10,
+    ): Promise<BreederVerificationPaginationResponse> => {
+        const response = await apiClient.get<ApiResponse<BreederVerificationPaginationResponse>>(
+            '/breeder-verification-admin/verification/level-change-requests',
+            {
+                params: {
+                    pageNumber: page,
+                    itemsPerPage: limit,
+                },
+            },
+        );
+        return response.data.data;
+    },
+
+    /**
      * 브리더 인증 승인/거절
      * 엔드포인트: PATCH /api/breeder-verification-admin/verification/:breederId
      */
