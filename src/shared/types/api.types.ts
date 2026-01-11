@@ -76,6 +76,7 @@ export interface BreederVerification {
         verificationStatus: 'pending' | 'approved' | 'rejected';
         subscriptionPlan: 'basic' | 'premium';
         level: 'new' | 'elite';
+        previousLevel?: 'new' | 'elite';
         submittedAt?: string;
         documents: Array<{
             type: string;

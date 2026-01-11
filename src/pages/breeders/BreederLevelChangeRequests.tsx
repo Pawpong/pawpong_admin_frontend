@@ -286,7 +286,7 @@ export default function BreederLevelChangeRequests() {
                                 </Space>
                             </Descriptions.Item>
                             <Descriptions.Item label="요금제">
-                                {selectedBreeder.verificationInfo.subscriptionPlan === 'pro' ? 'Pro' : 'Basic'}
+                                {selectedBreeder.verificationInfo.subscriptionPlan === 'premium' ? 'Premium' : 'Basic'}
                             </Descriptions.Item>
                             <Descriptions.Item label="신청일">
                                 {selectedBreeder.verificationInfo.submittedAt
