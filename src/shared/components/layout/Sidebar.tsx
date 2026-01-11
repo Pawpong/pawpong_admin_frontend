@@ -153,6 +153,10 @@ export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarPr
                     key: '/content/questions',
                     label: '표준 질문',
                 },
+                {
+                    key: '/content/storage',
+                    label: '스토리지 관리',
+                },
             ],
         },
         {

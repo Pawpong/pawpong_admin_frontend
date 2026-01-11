@@ -22,6 +22,7 @@ import Faqs from '../pages/content/Faqs';
 import Announcements from '../pages/content/Announcements';
 import Notices from '../pages/content/Notices';
 import StandardQuestions from '../pages/content/StandardQuestions';
+import StorageManager from '../pages/content/StorageManager';
 import Breeds from '../pages/settings/Breeds';
 import Districts from '../pages/settings/Districts';
 import PhoneWhitelist from '../pages/settings/PhoneWhitelist';
@@ -171,6 +172,7 @@ function App() {
                                 <Route path="announcements" element={<Announcements />} />
                                 <Route path="notices" element={<Notices />} />
                                 <Route path="questions" element={<StandardQuestions />} />
+                                <Route path="storage" element={<StorageManager />} />
                             </Route>
 
                             {/* 시스템 설정 */}
