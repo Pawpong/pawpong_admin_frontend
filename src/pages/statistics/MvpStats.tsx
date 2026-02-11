@@ -6,7 +6,6 @@ import {
   FilterOutlined,
   EnvironmentOutlined,
   FormOutlined,
-  CheckCircleOutlined,
   InfoCircleOutlined,
   HeartOutlined,
   FileSearchOutlined,
@@ -178,140 +177,57 @@ export default function MvpStatsPage() {
         </Row>
       </section>
 
-      {/* 상담/입양 신청 통계 */}
+      {/* 상담 신청 통계 */}
       <section className="mb-6 sm:mb-8">
         <div className="flex items-center gap-2 mb-4">
           <HeartOutlined className="text-xl text-pink-500" />
-          <h2 className="text-lg font-semibold m-0">상담 및 입양 현황</h2>
+          <h2 className="text-lg font-semibold m-0">상담 신청 현황</h2>
         </div>
-        <Row gutter={[16, 16]}>
-          <Col xs={24} lg={12}>
-            <Card
-              title={
-                <CardTitleWithTooltip
-                  title="상담 신청 현황"
-                  tooltip="입양자가 브리더에게 제출한 상담 신청서 총 건수 (모든 신청은 상담 신청으로 시작)"
-                />
-              }
-              bordered={false}
-              className="shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="mb-3">
-                <Text type="secondary" className="text-xs">
-                  포퐁에서 입양자가 제출한 전체 상담 신청 건수입니다.
-                </Text>
-              </div>
-              <Row gutter={16}>
-                <Col span={8}>
-                  <Statistic
-                    title="최근 7일"
-                    value={stats.consultationStats.consultations7Days}
-                    prefix={<FormOutlined />}
-                    suffix="건"
-                    valueStyle={{ color: '#722ed1', fontSize: '24px' }}
-                  />
-                </Col>
-                <Col span={8}>
-                  <Statistic
-                    title="최근 14일"
-                    value={stats.consultationStats.consultations14Days}
-                    prefix={<FormOutlined />}
-                    suffix="건"
-                    valueStyle={{ color: '#9254de', fontSize: '24px' }}
-                  />
-                </Col>
-                <Col span={8}>
-                  <Statistic
-                    title="최근 28일"
-                    value={stats.consultationStats.consultations28Days}
-                    prefix={<FormOutlined />}
-                    suffix="건"
-                    valueStyle={{ color: '#b37feb', fontSize: '24px' }}
-                  />
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-
-          <Col xs={24} lg={12}>
-            <Card
-              title={
-                <CardTitleWithTooltip
-                  title="입양 완료 현황"
-                  tooltip="브리더가 '입양 승인' 처리한 건수 (상담 → 입양까지 완료된 케이스)"
-                />
-              }
-              bordered={false}
-              className="shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="mb-3">
-                <Text type="secondary" className="text-xs">
-                  상담 후 브리더가 입양을 최종 승인한 건수입니다.
-                </Text>
-              </div>
-              <Row gutter={16}>
-                <Col span={8}>
-                  <Statistic
-                    title="최근 7일"
-                    value={stats.consultationStats.adoptions7Days}
-                    prefix={<CheckCircleOutlined />}
-                    suffix="건"
-                    valueStyle={{ color: '#fa8c16', fontSize: '24px' }}
-                  />
-                </Col>
-                <Col span={8}>
-                  <Statistic
-                    title="최근 14일"
-                    value={stats.consultationStats.adoptions14Days}
-                    prefix={<CheckCircleOutlined />}
-                    suffix="건"
-                    valueStyle={{ color: '#ffa940', fontSize: '24px' }}
-                  />
-                </Col>
-                <Col span={8}>
-                  <Statistic
-                    title="최근 28일"
-                    value={stats.consultationStats.adoptions28Days}
-                    prefix={<CheckCircleOutlined />}
-                    suffix="건"
-                    valueStyle={{ color: '#ffc069', fontSize: '24px' }}
-                  />
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-        </Row>
-
-        {/* 전환율 표시 */}
-        {stats.consultationStats.consultations28Days > 0 && (
-          <div className="mt-4">
-            <Card size="small" className="bg-gray-50">
-              <div className="flex items-center justify-center gap-6 flex-wrap">
-                <div className="text-center">
-                  <Text type="secondary" className="text-xs block mb-1">
-                    28일 기준 입양 전환율
-                  </Text>
-                  <Text strong className="text-lg text-green-600">
-                    {(
-                      (stats.consultationStats.adoptions28Days / stats.consultationStats.consultations28Days) *
-                      100
-                    ).toFixed(1)}
-                    %
-                  </Text>
-                </div>
-                <div className="text-gray-300">|</div>
-                <div className="text-center">
-                  <Text type="secondary" className="text-xs block mb-1">
-                    상담 신청 → 입양 완료
-                  </Text>
-                  <Text className="text-sm">
-                    {stats.consultationStats.consultations28Days}건 → {stats.consultationStats.adoptions28Days}건
-                  </Text>
-                </div>
-              </div>
-            </Card>
+        <Card
+          title={
+            <CardTitleWithTooltip
+              title="상담 신청 현황"
+              tooltip="입양자가 브리더에게 제출한 상담 신청서 총 건수 (모든 신청은 상담 신청으로 시작)"
+            />
+          }
+          bordered={false}
+          className="shadow-sm hover:shadow-md transition-shadow"
+        >
+          <div className="mb-3">
+            <Text type="secondary" className="text-xs">
+              포퐁에서 입양자가 제출한 전체 상담 신청 건수입니다.
+            </Text>
           </div>
-        )}
+          <Row gutter={16}>
+            <Col xs={24} sm={8}>
+              <Statistic
+                title="최근 7일"
+                value={stats.consultationStats.consultations7Days}
+                prefix={<FormOutlined />}
+                suffix="건"
+                valueStyle={{ color: '#722ed1', fontSize: '24px' }}
+              />
+            </Col>
+            <Col xs={24} sm={8}>
+              <Statistic
+                title="최근 14일"
+                value={stats.consultationStats.consultations14Days}
+                prefix={<FormOutlined />}
+                suffix="건"
+                valueStyle={{ color: '#9254de', fontSize: '24px' }}
+              />
+            </Col>
+            <Col xs={24} sm={8}>
+              <Statistic
+                title="최근 28일"
+                value={stats.consultationStats.consultations28Days}
+                prefix={<FormOutlined />}
+                suffix="건"
+                valueStyle={{ color: '#b37feb', fontSize: '24px' }}
+              />
+            </Col>
+          </Row>
+        </Card>
       </section>
 
       {/* 필터 사용 통계 */}

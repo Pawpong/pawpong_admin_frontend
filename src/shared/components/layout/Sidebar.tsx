@@ -1,6 +1,7 @@
-import { Layout, Menu, Drawer } from 'antd';
+import { Layout, Menu, Drawer, Badge } from 'antd';
 import type { MenuProps } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import {
   DashboardOutlined,
   BarChartOutlined,
@@ -10,6 +11,8 @@ import {
   FileTextOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
+
+import { platformApi } from '../../../features/platform/api/platformApi';
 
 const { Sider } = Layout;
 
@@ -56,6 +59,26 @@ function SidebarContent({ pathname, menuItems, onMenuClick }: SidebarContentProp
 export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [consultationCount, setConsultationCount] = useState<number>(0);
+
+  // MVP 통계에서 상담 신청 건수 가져오기
+  useEffect(() => {
+    const fetchConsultationStats = async () => {
+      try {
+        const stats = await platformApi.getMvpStats();
+        // 최근 7일 상담 신청 건수
+        setConsultationCount(stats.consultationStats?.consultations7Days || 0);
+      } catch (error) {
+        console.error('Failed to fetch consultation stats:', error);
+        setConsultationCount(0);
+      }
+    };
+
+    fetchConsultationStats();
+    // 1분마다 자동 갱신
+    const interval = setInterval(fetchConsultationStats, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const menuItems = [
     {
@@ -102,7 +125,20 @@ export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarPr
         },
         {
           key: '/breeders/applications',
-          label: '입양 신청 모니터링',
+          label: (
+            <span className="flex items-center justify-between w-full">
+              <span>입양 신청 모니터링</span>
+              {consultationCount > 0 && (
+                <Badge
+                  count={consultationCount}
+                  style={{
+                    backgroundColor: 'var(--color-primary-500)',
+                  }}
+                  overflowCount={99}
+                />
+              )}
+            </span>
+          ),
         },
       ],
     },
