@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Table, Card, Tag, Button, message, DatePicker, Input } from 'antd';
+import { Table, Card, Tag, Button, message, DatePicker, Input, Select } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs, { Dayjs } from 'dayjs';
+import { FileTextOutlined, ReloadOutlined } from '@ant-design/icons';
 
-import { breederApi } from '../../features/breeder/api/breederApi';
+import { platformApi } from '../../features/platform/api/platformApi';
 import type { ApplicationData, ApplicationMonitoringRequest } from '../../shared/types/api.types';
 
 const { RangePicker } = DatePicker;
@@ -31,7 +32,7 @@ const ApplicationMonitoring: React.FC = () => {
   const fetchApplications = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await breederApi.getApplications(filters);
+      const data = await platformApi.getApplicationList(filters);
       // 데이터 검증
       if (data && Array.isArray(data.applications)) {
         setDataSource(data.applications);
@@ -62,11 +63,10 @@ const ApplicationMonitoring: React.FC = () => {
 
   const getStatusTag = (status: string) => {
     const statusConfig: Record<string, { color: string; text: string }> = {
-      pending: { color: 'default', text: '대기 중' },
-      reviewed: { color: 'processing', text: '검토 중' },
-      approved: { color: 'success', text: '승인됨' },
-      rejected: { color: 'error', text: '거절됨' },
-      completed: { color: 'blue', text: '완료됨' },
+      consultation_pending: { color: 'default', text: '상담 대기' },
+      consultation_completed: { color: 'processing', text: '상담 완료' },
+      adoption_approved: { color: 'success', text: '입양 승인' },
+      adoption_rejected: { color: 'error', text: '입양 거절' },
     };
     const config = statusConfig[status] || { color: 'default', text: status };
     return <Tag color={config.color}>{config.text}</Tag>;
@@ -91,7 +91,7 @@ const ApplicationMonitoring: React.FC = () => {
   const handleBreederSearch = (value: string) => {
     setFilters((prev) => ({
       ...prev,
-      targetBreederId: value || undefined,
+      breederName: value || undefined,
     }));
   };
 
@@ -136,127 +136,162 @@ const ApplicationMonitoring: React.FC = () => {
       render: (date: string) => dayjs(date).format('YYYY-MM-DD HH:mm'),
     },
     {
-      title: '최근 업데이트',
-      dataIndex: 'lastUpdatedAt',
-      key: 'lastUpdatedAt',
+      title: '처리일시',
+      dataIndex: 'processedAt',
+      key: 'processedAt',
       width: 150,
-      render: (date: string) => dayjs(date).format('YYYY-MM-DD HH:mm'),
+      render: (date: string) => (date ? dayjs(date).format('YYYY-MM-DD HH:mm') : '-'),
     },
   ];
 
   return (
     <div className="p-3 sm:p-4 md:p-6">
       {/* 페이지 헤더 */}
-      <div className="mb-4 sm:mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: 'var(--color-primary-500)' }}>
-          입양 신청 모니터링
-        </h1>
-        <p className="text-sm sm:text-base text-gray-500">전체 입양 신청 현황을 모니터링합니다</p>
-      </div>
-
-      {/* 통계 카드 - 모바일 1열, 중간 2열, 데스크탑 5열 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 mb-4 sm:mb-6">
-        <Card
-          style={{
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
-          }}
-        >
-          <div>
-            <p className="text-xs sm:text-sm text-gray-500">전체 신청</p>
-            <p className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--color-primary-500)' }}>
-              {stats.totalCount}
-            </p>
-          </div>
-        </Card>
-
-        <Card
-          style={{
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
-          }}
-        >
-          <div>
-            <p className="text-xs sm:text-sm text-gray-500">대기 중</p>
-            <p className="text-xl sm:text-2xl font-bold text-gray-600">{stats.pendingCount}</p>
-          </div>
-        </Card>
-
-        <Card
-          style={{
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
-          }}
-        >
-          <div>
-            <p className="text-xs sm:text-sm text-gray-500">승인됨</p>
-            <p className="text-xl sm:text-2xl font-bold" style={{ color: '#52c41a' }}>
-              {stats.approvedCount}
-            </p>
-          </div>
-        </Card>
-
-        <Card
-          style={{
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
-          }}
-        >
-          <div>
-            <p className="text-xs sm:text-sm text-gray-500">거절됨</p>
-            <p className="text-xl sm:text-2xl font-bold" style={{ color: '#ff4d4f' }}>
-              {stats.rejectedCount}
-            </p>
-          </div>
-        </Card>
-
-        <Card
-          style={{
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
-          }}
-        >
-          <div>
-            <p className="text-xs sm:text-sm text-gray-500">완료됨</p>
-            <p className="text-xl sm:text-2xl font-bold" style={{ color: '#1890ff' }}>
-              {stats.completedCount}
-            </p>
-          </div>
-        </Card>
-      </div>
-
-      {/* 필터 영역 - 모바일에서는 세로 정렬 */}
-      <Card
-        className="mb-4 sm:mb-6"
-        style={{
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
-        }}
-      >
-        <div className="flex flex-col sm:flex-row gap-3">
-          <RangePicker
-            onChange={handleDateRangeChange}
-            placeholder={['시작일', '종료일']}
-            className="w-full sm:w-auto"
-          />
-          <Search
-            placeholder="브리더 ID로 검색"
-            onSearch={handleBreederSearch}
-            allowClear
-            className="w-full sm:w-auto"
-          />
-          <Button onClick={fetchApplications} className="w-full sm:w-auto">
-            새로고침
-          </Button>
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-2">
+          <FileTextOutlined className="text-2xl" style={{ color: 'var(--color-primary-500)' }} />
+          <h1 className="text-2xl sm:text-3xl font-bold m-0" style={{ color: 'var(--color-primary-500)' }}>
+            상담 신청 현황
+          </h1>
         </div>
-      </Card>
+        <p className="text-sm sm:text-base" style={{ color: 'var(--color-gray-500)' }}>
+          전체 상담 신청 현황을 조회하고 모니터링합니다
+        </p>
+      </div>
 
-      {/* 신청 목록 테이블 - 모바일에서 가로 스크롤 */}
-      <div className="overflow-x-auto -mx-3 sm:mx-0">
+      {/* 통계 섹션 */}
+      <section className="mb-6">
+        <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--color-gray-700)' }}>
+          신청 현황 통계
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <Card
+            style={{
+              borderRadius: '8px',
+              border: '1px solid var(--color-gray-200)',
+            }}
+          >
+            <p className="text-sm mb-1" style={{ color: 'var(--color-gray-500)' }}>
+              전체 신청
+            </p>
+            <p className="text-2xl font-bold" style={{ color: 'var(--color-primary-500)' }}>
+              {stats.totalCount}건
+            </p>
+          </Card>
+
+          <Card
+            style={{
+              borderRadius: '8px',
+              border: '1px solid var(--color-gray-200)',
+            }}
+          >
+            <p className="text-sm mb-1" style={{ color: 'var(--color-gray-500)' }}>
+              상담 대기
+            </p>
+            <p className="text-2xl font-bold" style={{ color: 'var(--color-gray-600)' }}>
+              {stats.pendingCount}건
+            </p>
+          </Card>
+
+          <Card
+            style={{
+              borderRadius: '8px',
+              border: '1px solid var(--color-gray-200)',
+            }}
+          >
+            <p className="text-sm mb-1" style={{ color: 'var(--color-gray-500)' }}>
+              상담 완료
+            </p>
+            <p className="text-2xl font-bold" style={{ color: '#1890ff' }}>
+              {stats.completedCount}건
+            </p>
+          </Card>
+
+          <Card
+            style={{
+              borderRadius: '8px',
+              border: '1px solid var(--color-gray-200)',
+            }}
+          >
+            <p className="text-sm mb-1" style={{ color: 'var(--color-gray-500)' }}>
+              입양 승인
+            </p>
+            <p className="text-2xl font-bold" style={{ color: '#52c41a' }}>
+              {stats.approvedCount}건
+            </p>
+          </Card>
+
+          <Card
+            style={{
+              borderRadius: '8px',
+              border: '1px solid var(--color-gray-200)',
+            }}
+          >
+            <p className="text-sm mb-1" style={{ color: 'var(--color-gray-500)' }}>
+              입양 거절
+            </p>
+            <p className="text-2xl font-bold" style={{ color: '#ff4d4f' }}>
+              {stats.rejectedCount}건
+            </p>
+          </Card>
+        </div>
+      </section>
+
+      {/* 필터 섹션 */}
+      <section className="mb-6">
         <Card
           style={{
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
+            borderRadius: '8px',
+            border: '1px solid var(--color-gray-200)',
+          }}
+        >
+          <div className="flex flex-wrap gap-4 items-center justify-between">
+            <div className="flex flex-wrap gap-4 flex-1">
+              <RangePicker
+                onChange={handleDateRangeChange}
+                placeholder={['시작일', '종료일']}
+                style={{ minWidth: '250px', flex: '1 1 auto' }}
+              />
+              <Select
+                placeholder="상태 선택"
+                allowClear
+                style={{ minWidth: '150px', flex: '0 1 auto' }}
+                onChange={(value) => {
+                  setFilters((prev) => ({
+                    ...prev,
+                    status: value,
+                  }));
+                }}
+                options={[
+                  { label: '상담 대기', value: 'consultation_pending' },
+                  { label: '상담 완료', value: 'consultation_completed' },
+                  { label: '입양 승인', value: 'adoption_approved' },
+                  { label: '입양 거절', value: 'adoption_rejected' },
+                ]}
+              />
+              <Search
+                placeholder="브리더 이름 검색"
+                onSearch={handleBreederSearch}
+                allowClear
+                style={{ minWidth: '200px', flex: '1 1 auto' }}
+              />
+            </div>
+            <Button type="primary" icon={<ReloadOutlined />} onClick={fetchApplications}>
+              새로고침
+            </Button>
+          </div>
+        </Card>
+      </section>
+
+      {/* 신청 목록 테이블 */}
+      <section>
+        <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--color-gray-700)' }}>
+          상담 신청 목록
+        </h2>
+        <Card
+          style={{
+            borderRadius: '8px',
+            border: '1px solid var(--color-gray-200)',
           }}
         >
           <Table
@@ -264,12 +299,13 @@ const ApplicationMonitoring: React.FC = () => {
             columns={columns}
             loading={loading}
             rowKey="applicationId"
-            scroll={{ x: 800 }}
+            scroll={{ x: 1000 }}
             pagination={{
               current: filters.page,
               pageSize: filters.limit,
+              total: stats.totalCount,
               showSizeChanger: true,
-              showTotal: (total) => `총 ${total}개`,
+              showTotal: (total) => `총 ${total}건`,
               onChange: (page, pageSize) => {
                 setFilters((prev) => ({
                   ...prev,
@@ -277,11 +313,11 @@ const ApplicationMonitoring: React.FC = () => {
                   limit: pageSize,
                 }));
               },
-              responsive: true,
+              pageSizeOptions: ['10', '20', '50', '100'],
             }}
           />
         </Card>
-      </div>
+      </section>
     </div>
   );
 };

@@ -325,28 +325,32 @@ export interface MvpStats {
  */
 export interface ApplicationData {
   applicationId: string;
-  adopterId: string;
   adopterName: string;
+  adopterEmail: string;
+  adopterPhone: string;
   breederId: string;
   breederName: string;
-  petId: string;
-  petName: string;
-  status: 'pending' | 'reviewed' | 'approved' | 'rejected' | 'completed';
+  petName?: string;
+  status: 'consultation_pending' | 'consultation_completed' | 'adoption_approved' | 'adoption_rejected';
   appliedAt: string;
-  lastUpdatedAt: string;
+  processedAt?: string;
 }
 
 export interface ApplicationMonitoringResponse {
   applications: ApplicationData[];
   totalCount: number;
   pendingCount: number;
+  completedCount: number;
   approvedCount: number;
   rejectedCount: number;
-  completedCount: number;
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
 }
 
 export interface ApplicationMonitoringRequest {
-  targetBreederId?: string;
+  breederName?: string;
+  status?: 'consultation_pending' | 'consultation_completed' | 'adoption_approved' | 'adoption_rejected';
   startDate?: string;
   endDate?: string;
   page?: number;

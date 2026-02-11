@@ -7,6 +7,8 @@ import type {
   PhoneWhitelistCreateRequest,
   PhoneWhitelistUpdateRequest,
   PhoneWhitelistListResponse,
+  ApplicationMonitoringResponse,
+  ApplicationMonitoringRequest,
 } from '../../../shared/types/api.types';
 
 /**
@@ -27,6 +29,17 @@ export const platformApi = {
    */
   getMvpStats: async (): Promise<MvpStats> => {
     const response = await apiClient.get<ApiResponse<MvpStats>>('/platform-admin/mvp-stats');
+    return response.data.data;
+  },
+
+  /**
+   * 입양 신청 리스트 조회
+   * 전체 입양 신청 내역을 조회합니다 (페이지네이션, 필터링 지원)
+   */
+  getApplicationList: async (params?: ApplicationMonitoringRequest): Promise<ApplicationMonitoringResponse> => {
+    const response = await apiClient.get<ApiResponse<ApplicationMonitoringResponse>>('/platform-admin/applications', {
+      params,
+    });
     return response.data.data;
   },
 
