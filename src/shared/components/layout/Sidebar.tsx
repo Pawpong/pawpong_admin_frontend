@@ -127,7 +127,7 @@ export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarPr
           key: '/breeders/applications',
           label: (
             <span className="flex items-center justify-between w-full">
-              <span>입양 신청 모니터링</span>
+              <span>상담 신청 현황</span>
               {consultationCount > 0 && (
                 <Badge
                   count={consultationCount}

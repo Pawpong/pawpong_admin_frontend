@@ -136,11 +136,11 @@ const ApplicationMonitoring: React.FC = () => {
       render: (date: string) => dayjs(date).format('YYYY-MM-DD HH:mm'),
     },
     {
-      title: '최근 업데이트',
-      dataIndex: 'lastUpdatedAt',
-      key: 'lastUpdatedAt',
+      title: '처리일시',
+      dataIndex: 'processedAt',
+      key: 'processedAt',
       width: 150,
-      render: (date: string) => dayjs(date).format('YYYY-MM-DD HH:mm'),
+      render: (date: string) => (date ? dayjs(date).format('YYYY-MM-DD HH:mm') : '-'),
     },
   ];
 
@@ -151,11 +151,11 @@ const ApplicationMonitoring: React.FC = () => {
         <div className="flex items-center gap-2 mb-2">
           <FileTextOutlined className="text-2xl" style={{ color: 'var(--color-primary-500)' }} />
           <h1 className="text-2xl sm:text-3xl font-bold m-0" style={{ color: 'var(--color-primary-500)' }}>
-            입양 신청 모니터링
+            상담 신청 현황
           </h1>
         </div>
         <p className="text-sm sm:text-base" style={{ color: 'var(--color-gray-500)' }}>
-          전체 입양 신청 현황을 조회하고 모니터링합니다
+          전체 상담 신청 현황을 조회하고 모니터링합니다
         </p>
       </div>
 
@@ -286,7 +286,7 @@ const ApplicationMonitoring: React.FC = () => {
       {/* 신청 목록 테이블 */}
       <section>
         <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--color-gray-700)' }}>
-          입양 신청 목록
+          상담 신청 목록
         </h2>
         <Card
           style={{
