@@ -348,6 +348,48 @@ export interface ApplicationMonitoringResponse {
   totalPages: number;
 }
 
+/**
+ * 입양 신청 상세 조회 관련 타입 (백엔드 API와 일치)
+ */
+export interface StandardResponses {
+  privacyConsent: boolean;
+  selfIntroduction: string;
+  familyMembers: string;
+  allFamilyConsent: boolean;
+  allergyTestInfo: string;
+  timeAwayFromHome: string;
+  livingSpaceDescription: string;
+  previousPetExperience: string;
+  canProvideBasicCare: boolean;
+  canAffordMedicalExpenses: boolean;
+  preferredPetDescription?: string;
+  desiredAdoptionTiming?: string;
+  additionalNotes?: string;
+}
+
+export interface CustomResponse {
+  questionId: string;
+  questionLabel: string;
+  questionType: string;
+  answer: any;
+}
+
+export interface ApplicationDetailData {
+  applicationId: string;
+  adopterName: string;
+  adopterEmail: string;
+  adopterPhone: string;
+  breederId: string;
+  breederName: string;
+  petName?: string;
+  status: 'consultation_pending' | 'consultation_completed' | 'adoption_approved' | 'adoption_rejected';
+  standardResponses: StandardResponses;
+  customResponses: CustomResponse[];
+  appliedAt: string;
+  processedAt?: string;
+  breederNotes?: string;
+}
+
 export interface ApplicationMonitoringRequest {
   breederName?: string;
   status?: 'consultation_pending' | 'consultation_completed' | 'adoption_approved' | 'adoption_rejected';

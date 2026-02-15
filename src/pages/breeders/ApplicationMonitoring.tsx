@@ -1,11 +1,15 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Table, Card, Tag, Button, message, DatePicker, Input, Select } from 'antd';
+import { Table, Card, Tag, Button, message, DatePicker, Input, Select, Modal, Descriptions, Spin } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs, { Dayjs } from 'dayjs';
 import { FileTextOutlined, ReloadOutlined } from '@ant-design/icons';
 
 import { platformApi } from '../../features/platform/api/platformApi';
-import type { ApplicationData, ApplicationMonitoringRequest } from '../../shared/types/api.types';
+import type {
+  ApplicationData,
+  ApplicationMonitoringRequest,
+  ApplicationDetailData,
+} from '../../shared/types/api.types';
 
 const { RangePicker } = DatePicker;
 const { Search } = Input;
@@ -28,6 +32,11 @@ const ApplicationMonitoring: React.FC = () => {
     page: 1,
     limit: 10,
   });
+
+  // 상세 모달 상태
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState<ApplicationDetailData | null>(null);
 
   const fetchApplications = useCallback(async () => {
     setLoading(true);
@@ -93,6 +102,25 @@ const ApplicationMonitoring: React.FC = () => {
       ...prev,
       breederName: value || undefined,
     }));
+  };
+
+  /**
+   * 테이블 행 클릭 시 상세 조회
+   */
+  const handleRowClick = async (record: ApplicationData) => {
+    setIsDetailModalOpen(true);
+    setDetailLoading(true);
+    setSelectedApplication(null);
+    try {
+      const detail = await platformApi.getApplicationDetail(record.applicationId);
+      setSelectedApplication(detail);
+    } catch (error: unknown) {
+      console.error('Failed to fetch application detail:', error);
+      message.error('신청 상세 정보를 불러올 수 없습니다.');
+      setIsDetailModalOpen(false);
+    } finally {
+      setDetailLoading(false);
+    }
   };
 
   const columns: ColumnsType<ApplicationData> = [
@@ -300,6 +328,10 @@ const ApplicationMonitoring: React.FC = () => {
             loading={loading}
             rowKey="applicationId"
             scroll={{ x: 1000 }}
+            onRow={(record) => ({
+              onClick: () => handleRowClick(record),
+              style: { cursor: 'pointer' },
+            })}
             pagination={{
               current: filters.page,
               pageSize: filters.limit,
@@ -318,6 +350,133 @@ const ApplicationMonitoring: React.FC = () => {
           />
         </Card>
       </section>
+
+      {/* 신청 상세 모달 */}
+      <Modal
+        title="상담 신청 상세"
+        open={isDetailModalOpen}
+        onCancel={() => setIsDetailModalOpen(false)}
+        footer={[
+          <Button key="close" onClick={() => setIsDetailModalOpen(false)}>
+            닫기
+          </Button>,
+        ]}
+        width="100%"
+        style={{ maxWidth: '800px', top: 20 }}
+        styles={{ body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' } }}
+      >
+        {detailLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <Spin size="large" />
+          </div>
+        ) : selectedApplication ? (
+          <div className="flex flex-col gap-6">
+            {/* 기본 정보 */}
+            <Descriptions title="기본 정보" bordered column={{ xs: 1, sm: 2 }} size="small">
+              <Descriptions.Item label="신청 ID" span={2}>
+                {selectedApplication.applicationId}
+              </Descriptions.Item>
+              <Descriptions.Item label="상태">{getStatusTag(selectedApplication.status)}</Descriptions.Item>
+              <Descriptions.Item label="반려동물">{selectedApplication.petName || '-'}</Descriptions.Item>
+              <Descriptions.Item label="입양자명">{selectedApplication.adopterName}</Descriptions.Item>
+              <Descriptions.Item label="이메일">{selectedApplication.adopterEmail}</Descriptions.Item>
+              <Descriptions.Item label="전화번호">{selectedApplication.adopterPhone}</Descriptions.Item>
+              <Descriptions.Item label="브리더명">{selectedApplication.breederName}</Descriptions.Item>
+              <Descriptions.Item label="신청일">
+                {dayjs(selectedApplication.appliedAt).format('YYYY-MM-DD HH:mm')}
+              </Descriptions.Item>
+              <Descriptions.Item label="처리일시">
+                {selectedApplication.processedAt
+                  ? dayjs(selectedApplication.processedAt).format('YYYY-MM-DD HH:mm')
+                  : '-'}
+              </Descriptions.Item>
+            </Descriptions>
+
+            {/* 신청서 내용 */}
+            <Descriptions title="신청서 내용" bordered column={1} size="small">
+              <Descriptions.Item label="개인정보 수집 동의">
+                <Tag color={selectedApplication.standardResponses.privacyConsent ? 'success' : 'error'}>
+                  {selectedApplication.standardResponses.privacyConsent ? '동의' : '미동의'}
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="자기소개">
+                <div style={{ whiteSpace: 'pre-wrap' }}>{selectedApplication.standardResponses.selfIntroduction}</div>
+              </Descriptions.Item>
+              <Descriptions.Item label="가족 구성원">
+                {selectedApplication.standardResponses.familyMembers}
+              </Descriptions.Item>
+              <Descriptions.Item label="가족 전원 동의">
+                <Tag color={selectedApplication.standardResponses.allFamilyConsent ? 'success' : 'error'}>
+                  {selectedApplication.standardResponses.allFamilyConsent ? '동의' : '미동의'}
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="알러지 검사 정보">
+                {selectedApplication.standardResponses.allergyTestInfo}
+              </Descriptions.Item>
+              <Descriptions.Item label="집을 비우는 시간">
+                {selectedApplication.standardResponses.timeAwayFromHome}
+              </Descriptions.Item>
+              <Descriptions.Item label="주거 공간 소개">
+                <div style={{ whiteSpace: 'pre-wrap' }}>
+                  {selectedApplication.standardResponses.livingSpaceDescription}
+                </div>
+              </Descriptions.Item>
+              <Descriptions.Item label="반려동물 경험">
+                <div style={{ whiteSpace: 'pre-wrap' }}>
+                  {selectedApplication.standardResponses.previousPetExperience}
+                </div>
+              </Descriptions.Item>
+              <Descriptions.Item label="기본 케어 가능">
+                <Tag color={selectedApplication.standardResponses.canProvideBasicCare ? 'success' : 'error'}>
+                  {selectedApplication.standardResponses.canProvideBasicCare ? '가능' : '불가'}
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="치료비 감당 가능">
+                <Tag color={selectedApplication.standardResponses.canAffordMedicalExpenses ? 'success' : 'error'}>
+                  {selectedApplication.standardResponses.canAffordMedicalExpenses ? '가능' : '불가'}
+                </Tag>
+              </Descriptions.Item>
+              {selectedApplication.standardResponses.preferredPetDescription && (
+                <Descriptions.Item label="관심 동물 특징">
+                  <div style={{ whiteSpace: 'pre-wrap' }}>
+                    {selectedApplication.standardResponses.preferredPetDescription}
+                  </div>
+                </Descriptions.Item>
+              )}
+              {selectedApplication.standardResponses.desiredAdoptionTiming && (
+                <Descriptions.Item label="희망 입양 시기">
+                  {selectedApplication.standardResponses.desiredAdoptionTiming}
+                </Descriptions.Item>
+              )}
+              {selectedApplication.standardResponses.additionalNotes && (
+                <Descriptions.Item label="추가 메시지">
+                  <div style={{ whiteSpace: 'pre-wrap' }}>{selectedApplication.standardResponses.additionalNotes}</div>
+                </Descriptions.Item>
+              )}
+            </Descriptions>
+
+            {/* 커스텀 질문 응답 */}
+            {selectedApplication.customResponses.length > 0 && (
+              <Descriptions title="추가 질문 응답" bordered column={1} size="small">
+                {selectedApplication.customResponses.map((cr) => (
+                  <Descriptions.Item key={cr.questionId} label={cr.questionLabel}>
+                    {Array.isArray(cr.answer) ? cr.answer.join(', ') : String(cr.answer)}
+                  </Descriptions.Item>
+                ))}
+              </Descriptions>
+            )}
+
+            {/* 브리더 메모 */}
+            {selectedApplication.breederNotes && (
+              <Descriptions title="브리더 메모" bordered column={1} size="small">
+                <Descriptions.Item label="메모 내용">
+                  <div style={{ whiteSpace: 'pre-wrap' }}>{selectedApplication.breederNotes}</div>
+                </Descriptions.Item>
+              </Descriptions>
+            )}
+          </div>
+        ) : null}
+      </Modal>
     </div>
   );
 };
