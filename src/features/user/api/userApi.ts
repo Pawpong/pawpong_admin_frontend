@@ -6,6 +6,10 @@ import type {
   UserStatusUpdateRequest,
   UserStatusUpdateResponse,
   PaginationResponse,
+  PhoneWhitelist,
+  PhoneWhitelistCreateRequest,
+  PhoneWhitelistUpdateRequest,
+  PhoneWhitelistListResponse,
 } from '../../../shared/types/api.types';
 
 /**
@@ -204,6 +208,41 @@ export const userApi = {
    */
   hardDeleteUser: async (userId: string, role: 'adopter' | 'breeder'): Promise<void> => {
     await apiClient.patch(`/user-admin/users/${userId}/hard-delete`, {}, { params: { role } });
+  },
+
+  /**
+   * 전화번호 화이트리스트 목록 조회
+   * 엔드포인트: GET /api/user-admin/phone-whitelist
+   */
+  getPhoneWhitelist: async (): Promise<PhoneWhitelistListResponse> => {
+    const response = await apiClient.get<ApiResponse<PhoneWhitelistListResponse>>('/user-admin/phone-whitelist');
+    return response.data.data;
+  },
+
+  /**
+   * 전화번호 화이트리스트 추가
+   * 엔드포인트: POST /api/user-admin/phone-whitelist
+   */
+  addPhoneWhitelist: async (data: PhoneWhitelistCreateRequest): Promise<PhoneWhitelist> => {
+    const response = await apiClient.post<ApiResponse<PhoneWhitelist>>('/user-admin/phone-whitelist', data);
+    return response.data.data;
+  },
+
+  /**
+   * 전화번호 화이트리스트 수정
+   * 엔드포인트: PATCH /api/user-admin/phone-whitelist/:id
+   */
+  updatePhoneWhitelist: async (id: string, data: PhoneWhitelistUpdateRequest): Promise<PhoneWhitelist> => {
+    const response = await apiClient.patch<ApiResponse<PhoneWhitelist>>(`/user-admin/phone-whitelist/${id}`, data);
+    return response.data.data;
+  },
+
+  /**
+   * 전화번호 화이트리스트 삭제
+   * 엔드포인트: DELETE /api/user-admin/phone-whitelist/:id
+   */
+  deletePhoneWhitelist: async (id: string): Promise<void> => {
+    await apiClient.delete(`/user-admin/phone-whitelist/${id}`);
   },
 };
 

@@ -7,8 +7,6 @@ import type {
   VerificationAction,
   BreederReport,
   ReportAction,
-  ApplicationMonitoringResponse,
-  ApplicationMonitoringRequest,
   BreederStats,
   SetTestAccountResponse,
 } from '../../../shared/types/api.types';
@@ -16,10 +14,10 @@ import type {
 /**
  * 브리더 관리 API 클라이언트
  *
- * 백엔드 모듈 구조:
- * - /breeder-verification-admin: 브리더 인증 관리 (BreederVerificationAdminModule)
- * - /breeder-level-admin: 브리더 레벨 변경 (BreederLevelAdminModule)
- * - /breeder-admin: 입양 신청 모니터링, 제재, 리마인드 (BreederAdminModule)
+ * 백엔드 모듈 구조 (파일 경로는 계층적, API 라우트는 flat):
+ * - 파일: breeder/admin/ → API: /breeder-admin (계정 관리)
+ * - 파일: breeder/admin/verification/ → API: /breeder-verification-admin (인증 관리)
+ * - 파일: breeder/admin/report/ → API: /breeder-report-admin (신고 관리)
  */
 export const breederApi = {
   /**
@@ -123,11 +121,11 @@ export const breederApi = {
 
   /**
    * 브리더 레벨 변경 (뉴 ↔ 엘리트)
-   * 엔드포인트: PATCH /api/breeder-level-admin/level/:breederId
-   * 모듈: BreederLevelAdminModule
+   * 엔드포인트: PATCH /api/breeder-verification-admin/level/:breederId
+   * 모듈: BreederVerificationAdminModule
    */
   changeLevel: async (breederId: string, newLevel: 'new' | 'elite'): Promise<void> => {
-    await apiClient.patch(`/breeder-level-admin/level/${breederId}`, {
+    await apiClient.patch(`/breeder-verification-admin/level/${breederId}`, {
       newLevel,
     });
   },
@@ -165,18 +163,6 @@ export const breederApi = {
       breederIds,
       remindType,
     });
-  },
-
-  /**
-   * 입양 신청 모니터링
-   * 엔드포인트: GET /api/breeder-admin/applications
-   * 모듈: BreederAdminModule
-   */
-  getApplications: async (filters?: ApplicationMonitoringRequest): Promise<ApplicationMonitoringResponse> => {
-    const response = await apiClient.get<ApiResponse<ApplicationMonitoringResponse>>('/breeder-admin/applications', {
-      params: filters,
-    });
-    return response.data.data;
   },
 
   /**

@@ -4,7 +4,7 @@ import type { ColumnsType } from 'antd/es/table';
 import dayjs, { Dayjs } from 'dayjs';
 import { FileTextOutlined, ReloadOutlined } from '@ant-design/icons';
 
-import { platformApi } from '../../features/platform/api/platformApi';
+import { adopterApi } from '../../features/adopter/api/adopterApi';
 import type {
   ApplicationData,
   ApplicationMonitoringRequest,
@@ -41,7 +41,7 @@ const ApplicationMonitoring: React.FC = () => {
   const fetchApplications = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await platformApi.getApplicationList(filters);
+      const data = await adopterApi.getApplicationList(filters);
       // 데이터 검증
       if (data && Array.isArray(data.applications)) {
         setDataSource(data.applications);
@@ -112,7 +112,7 @@ const ApplicationMonitoring: React.FC = () => {
     setDetailLoading(true);
     setSelectedApplication(null);
     try {
-      const detail = await platformApi.getApplicationDetail(record.applicationId);
+      const detail = await adopterApi.getApplicationDetail(record.applicationId);
       setSelectedApplication(detail);
     } catch (error: unknown) {
       console.error('Failed to fetch application detail:', error);
