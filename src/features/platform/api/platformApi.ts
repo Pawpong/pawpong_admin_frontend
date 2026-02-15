@@ -9,6 +9,7 @@ import type {
   PhoneWhitelistListResponse,
   ApplicationMonitoringResponse,
   ApplicationMonitoringRequest,
+  ApplicationDetailData,
 } from '../../../shared/types/api.types';
 
 /**
@@ -40,6 +41,17 @@ export const platformApi = {
     const response = await apiClient.get<ApiResponse<ApplicationMonitoringResponse>>('/platform-admin/applications', {
       params,
     });
+    return response.data.data;
+  },
+
+  /**
+   * 입양 신청 상세 조회
+   * 특정 입양 신청의 상세 정보를 조회합니다
+   */
+  getApplicationDetail: async (applicationId: string): Promise<ApplicationDetailData> => {
+    const response = await apiClient.get<ApiResponse<ApplicationDetailData>>(
+      `/platform-admin/applications/${applicationId}`,
+    );
     return response.data.data;
   },
 
