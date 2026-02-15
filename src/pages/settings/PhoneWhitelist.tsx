@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Card, Button, message, Modal, Form, Input, Space, Tag, Popconfirm, Switch } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, PhoneOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { platformApi } from '../../features/platform/api/platformApi';
+import { userApi } from '../../features/user/api/userApi';
 import type {
   PhoneWhitelist,
   PhoneWhitelistCreateRequest,
@@ -29,7 +29,7 @@ const PhoneWhitelistPage: React.FC = () => {
   const fetchWhitelist = async () => {
     setLoading(true);
     try {
-      const data = await platformApi.getPhoneWhitelist();
+      const data = await userApi.getPhoneWhitelist();
       if (data && Array.isArray(data.items)) {
         setDataSource(data.items);
       } else {
@@ -64,7 +64,7 @@ const PhoneWhitelistPage: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await platformApi.deletePhoneWhitelist(id);
+      await userApi.deletePhoneWhitelist(id);
       message.success('화이트리스트에서 삭제되었습니다.');
       fetchWhitelist();
     } catch (error: unknown) {
@@ -75,7 +75,7 @@ const PhoneWhitelistPage: React.FC = () => {
 
   const handleToggleActive = async (item: PhoneWhitelist) => {
     try {
-      await platformApi.updatePhoneWhitelist(item.id, { isActive: !item.isActive });
+      await userApi.updatePhoneWhitelist(item.id, { isActive: !item.isActive });
       message.success(item.isActive ? '비활성화되었습니다.' : '활성화되었습니다.');
       fetchWhitelist();
     } catch (error: unknown) {
@@ -96,14 +96,14 @@ const PhoneWhitelistPage: React.FC = () => {
           description: values.description,
           isActive: values.isActive,
         };
-        await platformApi.updatePhoneWhitelist(editingItem.id, updateData);
+        await userApi.updatePhoneWhitelist(editingItem.id, updateData);
         message.success('화이트리스트가 수정되었습니다.');
       } else {
         const createData: PhoneWhitelistCreateRequest = {
           phoneNumber: normalizedPhone,
           description: values.description,
         };
-        await platformApi.addPhoneWhitelist(createData);
+        await userApi.addPhoneWhitelist(createData);
         message.success('화이트리스트에 추가되었습니다.');
       }
 
