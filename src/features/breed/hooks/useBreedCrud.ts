@@ -19,7 +19,7 @@ export function useBreedCrud() {
     createFn: (values) => {
       const breedsArray = parseBreedsString(values.breeds as string);
       const createData: BreedCreateRequest = {
-        petType: values.petType as string,
+        petType: values.petType as 'dog' | 'cat',
         category: values.category as string,
         categoryDescription: (values.categoryDescription as string) || undefined,
         breeds: breedsArray,

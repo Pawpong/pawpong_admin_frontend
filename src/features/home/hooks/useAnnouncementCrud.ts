@@ -19,11 +19,21 @@ export function useAnnouncementCrud() {
     entityName: '공지사항',
     createDefaults: { isActive: true, order: 0 },
     createFn: (values) => {
-      const data: AnnouncementCreateRequest = { ...values } as AnnouncementCreateRequest;
+      const data: AnnouncementCreateRequest = {
+        title: values.title as string,
+        content: values.content as string,
+        isActive: values.isActive as boolean | undefined,
+        order: values.order as number | undefined,
+      };
       return announcementApi.createAnnouncement(data);
     },
     updateFn: (item, values) => {
-      const data: AnnouncementUpdateRequest = { ...values } as AnnouncementUpdateRequest;
+      const data: AnnouncementUpdateRequest = {
+        title: values.title as string | undefined,
+        content: values.content as string | undefined,
+        isActive: values.isActive as boolean | undefined,
+        order: values.order as number | undefined,
+      };
       return announcementApi.updateAnnouncement(item.announcementId, data);
     },
     onSuccess: refetch,

@@ -22,8 +22,8 @@ export function useFaqCrud() {
       const data: FaqCreateRequest = {
         question: values.question as string,
         answer: values.answer as string,
-        category: values.category as string,
-        userType: values.userType as string,
+        category: values.category as FaqCreateRequest['category'],
+        userType: values.userType as FaqCreateRequest['userType'],
         order: values.order as number,
         isActive: values.isActive as boolean,
       };
@@ -33,8 +33,8 @@ export function useFaqCrud() {
       const data: FaqUpdateRequest = {
         question: values.question as string,
         answer: values.answer as string,
-        category: values.category as string,
-        userType: values.userType as string,
+        category: values.category as FaqUpdateRequest['category'],
+        userType: values.userType as FaqUpdateRequest['userType'],
         order: values.order as number,
         isActive: values.isActive as boolean,
       };
