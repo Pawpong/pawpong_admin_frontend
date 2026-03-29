@@ -1,0 +1,32 @@
+import React from 'react';
+import { Tag } from 'antd';
+
+/** 역할 태그 렌더링 */
+export const getUserRoleTag = (role: string) => {
+  return role === 'adopter' ? <Tag color="blue">입양자</Tag> : <Tag color="green">브리더</Tag>;
+};
+
+/** 탈퇴 사유 라벨 변환 */
+export const getDeleteReasonLabel = (reason: string, role: string): string => {
+  if (role === 'adopter') {
+    const labels: Record<string, string> = {
+      already_adopted: '이미 입양을 마쳤어요',
+      no_suitable_pet: '마음에 드는 아이가 없어요',
+      adoption_fee_burden: '입양비가 부담돼요',
+      uncomfortable_ui: '사용하기 불편했어요 (UI/기능 등)',
+      privacy_concern: '개인정보나 보안이 걱정돼요',
+      other: '기타',
+    };
+    return labels[reason] || reason;
+  } else {
+    const labels: Record<string, string> = {
+      no_inquiry: '입양 문의가 잘 오지 않았어요',
+      time_consuming: '운영이 생각보다 번거롭거나 시간이 부족해요',
+      verification_difficult: '브리더 심사나 검증 절차가 어려웠어요',
+      policy_mismatch: '수익 구조나 서비스 정책이 잘 맞지 않아요',
+      uncomfortable_ui: '사용하기 불편했어요 (UI/기능 등)',
+      other: '기타',
+    };
+    return labels[reason] || reason;
+  }
+};
