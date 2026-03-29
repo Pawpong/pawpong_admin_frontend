@@ -183,6 +183,10 @@ export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarPr
           label: '공지사항',
         },
         {
+          key: '/content/announcements',
+          label: '팝업/배너 공지',
+        },
+        {
           key: '/content/questions',
           label: '표준 질문',
         },
@@ -212,6 +216,10 @@ export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarPr
         {
           key: '/settings/alimtalk',
           label: '알림톡 템플릿',
+        },
+        {
+          key: '/settings/app-version',
+          label: '앱 버전 관리',
         },
       ],
     },
