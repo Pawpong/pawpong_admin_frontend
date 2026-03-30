@@ -4,12 +4,12 @@ interface Props {
   totalRejections: number; resubmissions: number; resubmissionRate: number; resubmissionApprovalRate: number;
 }
 
-const ITEMS = [
+const ITEMS: { key: keyof Props; title: string; tooltip: string; color: string; suffix?: string }[] = [
   { key: 'totalRejections', title: '총 반려 건수', tooltip: '인증 심사에서 반려된 총 건수', color: '#ff4d4f' },
   { key: 'resubmissions', title: '재제출 건수', tooltip: '반려 후 서류를 다시 제출한 건수', color: '#1890ff' },
   { key: 'resubmissionRate', title: '재제출 비율', tooltip: '반려 건 중 재제출한 비율', color: '#722ed1', suffix: '%' },
   { key: 'resubmissionApprovalRate', title: '재제출 후 승인율', tooltip: '재제출 후 최종 승인된 비율', color: '#52c41a', suffix: '%' },
-] as const;
+];
 
 export function ResubmissionStats(props: Props) {
   return (
