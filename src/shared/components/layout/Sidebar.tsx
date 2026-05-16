@@ -10,6 +10,7 @@ import {
   WarningOutlined,
   FileTextOutlined,
   SettingOutlined,
+  NotificationOutlined,
 } from '@ant-design/icons';
 
 import { platformApi } from '../../../features/platform/api/platformApi';
@@ -42,7 +43,7 @@ function SidebarContent({ pathname, menuItems, onMenuClick }: SidebarContentProp
       <Menu
         mode="inline"
         selectedKeys={[pathname]}
-        defaultOpenKeys={['users', 'breeders', 'reports', 'content', 'settings']}
+        defaultOpenKeys={['users', 'breeders', 'reports', 'content', 'notifications', 'settings']}
         items={menuItems}
         onClick={onMenuClick}
         style={{ borderRight: 0 }}
@@ -193,6 +194,17 @@ export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarPr
         {
           key: '/content/storage',
           label: '스토리지 관리',
+        },
+      ],
+    },
+    {
+      key: 'notifications',
+      icon: <NotificationOutlined />,
+      label: '알림 발송',
+      children: [
+        {
+          key: '/notifications/push',
+          label: '앱 푸시 발송',
         },
       ],
     },
