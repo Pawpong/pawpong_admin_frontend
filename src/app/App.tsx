@@ -28,6 +28,7 @@ import Districts from '../pages/settings/Districts';
 import PhoneWhitelist from '../pages/settings/PhoneWhitelist';
 import AlimtalkTemplates from '../pages/settings/AlimtalkTemplates';
 import AppVersion from '../pages/settings/AppVersion';
+import PushSend from '../pages/notifications/PushSend';
 import { useAuthStore } from '../features/auth/store/authStore';
 
 // Protected Route 컴포넌트
@@ -182,6 +183,11 @@ function App() {
                 <Route path="phone-whitelist" element={<PhoneWhitelist />} />
                 <Route path="alimtalk" element={<AlimtalkTemplates />} />
                 <Route path="app-version" element={<AppVersion />} />
+              </Route>
+
+              {/* 알림 발송 */}
+              <Route path="notifications">
+                <Route path="push" element={<PushSend />} />
               </Route>
 
               {/* 표준 질문 관리 (deprecated - 위 content/questions로 이동됨) */}
