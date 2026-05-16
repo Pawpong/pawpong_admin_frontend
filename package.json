@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -10,7 +14,7 @@
     "lint": "eslint .",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
     "preview": "vite preview",
-    "prebuild": "npm run typecheck"
+    "prebuild": "pnpm typecheck"
   },
   "dependencies": {
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
