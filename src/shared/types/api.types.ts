@@ -406,6 +406,10 @@ export interface UserManagement {
   userId: string;
   userName: string;
   emailAddress: string;
+  /** 닉네임 (입양자만 보유, 없으면 undefined) */
+  nickname?: string;
+  /** 휴대전화 (없으면 undefined) */
+  phoneNumber?: string;
   userRole: 'adopter' | 'breeder';
   accountStatus: 'active' | 'suspended' | 'deleted';
   lastLoginAt: string;

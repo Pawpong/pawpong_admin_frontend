@@ -1,5 +1,6 @@
-import { Button, Card, Divider, Form, Input, Radio, Select, Space, Statistic, Tag } from 'antd';
-import { SendOutlined } from '@ant-design/icons';
+import { useState } from 'react';
+import { Button, Card, Divider, Form, Input, Radio, Space, Statistic, Tag, Typography } from 'antd';
+import { SearchOutlined, SendOutlined } from '@ant-design/icons';
 
 import { useAdminPushSend } from '../hooks/useAdminPushSend';
 import type {
@@ -7,6 +8,7 @@ import type {
   AdminPushTargetType,
   SendAdminPushRequest,
 } from '../api/notificationAdminApi';
+import { UserPickerModal, type PickedUser } from './UserPickerModal';
 
 interface FormValues {
   targetType: AdminPushTargetType;
@@ -30,7 +32,21 @@ interface FormValues {
 export function AdminPushSendForm() {
   const [form] = Form.useForm<FormValues>();
   const targetType = Form.useWatch('targetType', form);
+  const selectedRole = Form.useWatch('role', form);
   const { submitting, lastResult, send } = useAdminPushSend();
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickedUser, setPickedUser] = useState<PickedUser | null>(null);
+
+  const handlePickUser = (user: PickedUser) => {
+    setPickedUser(user);
+    form.setFieldsValue({ role: user.role, userId: user.userId });
+    setPickerOpen(false);
+  };
+
+  const handleClearPickedUser = () => {
+    setPickedUser(null);
+    form.setFieldsValue({ role: undefined, userId: undefined });
+  };
 
   const handleSubmit = async (values: FormValues) => {
     const payload: SendAdminPushRequest = {
@@ -68,34 +84,57 @@ export function AdminPushSendForm() {
           </Form.Item>
 
           {targetType === 'individual' && (
-            <Space size="middle" style={{ width: '100%' }} wrap>
-              <Form.Item
-                label="대상 역할"
-                name="role"
-                rules={[{ required: true, message: '역할을 선택해주세요.' }]}
-                style={{ minWidth: 180 }}
-              >
-                <Select
-                  placeholder="역할 선택"
-                  options={[
-                    { value: 'adopter', label: '입양자(adopter)' },
-                    { value: 'breeder', label: '브리더(breeder)' },
-                  ]}
-                />
+            <Form.Item
+              label="대상 사용자"
+              required
+              extra="검색 버튼을 눌러 대상 사용자를 닉네임/이메일로 찾아 선택하세요."
+            >
+              {pickedUser ? (
+                <Card size="small" style={{ background: '#fafafa' }}>
+                  <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                    <Space wrap>
+                      <Tag color={pickedUser.role === 'adopter' ? 'blue' : 'purple'}>
+                        {pickedUser.role === 'adopter' ? '입양자' : '브리더'}
+                      </Tag>
+                      <Typography.Text strong>
+                        {pickedUser.nickname || pickedUser.userName || '(이름 없음)'}
+                      </Typography.Text>
+                    </Space>
+                    <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+                      이메일: {pickedUser.emailAddress || '-'}
+                      {pickedUser.phoneNumber ? ` · 휴대전화: ${pickedUser.phoneNumber}` : ''}
+                    </Typography.Text>
+                    <Typography.Text code style={{ fontSize: 11 }}>
+                      userId: {pickedUser.userId}
+                    </Typography.Text>
+                    <Space>
+                      <Button size="small" onClick={() => setPickerOpen(true)}>
+                        다른 사용자 선택
+                      </Button>
+                      <Button size="small" danger onClick={handleClearPickedUser}>
+                        선택 해제
+                      </Button>
+                    </Space>
+                  </Space>
+                </Card>
+              ) : (
+                <Button icon={<SearchOutlined />} onClick={() => setPickerOpen(true)}>
+                  사용자 찾기
+                </Button>
+              )}
+              {/* role / userId 는 hidden field 로 폼에 유지 */}
+              <Form.Item name="role" hidden noStyle>
+                <Input />
               </Form.Item>
-
               <Form.Item
-                label="대상 userId"
                 name="userId"
-                rules={[
-                  { required: true, message: 'userId 를 입력해주세요.' },
-                  { min: 8, message: 'userId 가 너무 짧습니다.' },
-                ]}
-                style={{ minWidth: 320, flex: 1 }}
+                hidden
+                noStyle
+                rules={[{ required: true, message: '대상 사용자를 선택해주세요.' }]}
               >
-                <Input placeholder="MongoDB ObjectId" allowClear />
+                <Input />
               </Form.Item>
-            </Space>
+            </Form.Item>
           )}
 
           <Form.Item
@@ -179,6 +218,13 @@ export function AdminPushSendForm() {
           </div>
         </Card>
       )}
+
+      <UserPickerModal
+        open={pickerOpen}
+        initialRole={selectedRole ?? 'adopter'}
+        onCancel={() => setPickerOpen(false)}
+        onPick={handlePickUser}
+      />
     </Space>
   );
 }
