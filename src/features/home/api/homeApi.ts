@@ -96,7 +96,7 @@ export const homeApi = {
    * PUT /api/home-admin/banner/:bannerId
    */
   updateBanner: async (bannerId: string, data: BannerUpdateRequest): Promise<Banner> => {
-    const response = await apiClient.put<{ data: Banner }>(`/home-admin/banner/${bannerId}`, data);
+    const response = await apiClient.patch<{ data: Banner }>(`/home-admin/banner/${bannerId}`, data);
     return response.data.data;
   },
 
@@ -133,7 +133,7 @@ export const homeApi = {
    * PUT /api/home-admin/faq/:faqId
    */
   updateFaq: async (faqId: string, data: FaqUpdateRequest): Promise<Faq> => {
-    const response = await apiClient.put<{ data: Faq }>(`/home-admin/faq/${faqId}`, data);
+    const response = await apiClient.patch<{ data: Faq }>(`/home-admin/faq/${faqId}`, data);
     return response.data.data;
   },
 

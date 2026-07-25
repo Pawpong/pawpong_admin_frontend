@@ -40,7 +40,7 @@ export const alimtalkApi = {
     templateCode: string,
     updateData: AlimtalkTemplateUpdateRequest,
   ): Promise<AlimtalkTemplate> => {
-    const response = await apiClient.put<ApiResponse<AlimtalkTemplate>>(
+    const response = await apiClient.patch<ApiResponse<AlimtalkTemplate>>(
       `/alimtalk-admin/templates/${templateCode}`,
       updateData,
     );

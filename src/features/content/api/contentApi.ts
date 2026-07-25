@@ -35,7 +35,7 @@ export const contentApi = {
    * 배너 수정
    */
   updateBanner: async (bannerId: string, data: BannerUpdateRequest): Promise<Banner> => {
-    const response = await apiClient.put<ApiResponse<Banner>>(`/home-admin/banner/${bannerId}`, data);
+    const response = await apiClient.patch<ApiResponse<Banner>>(`/home-admin/banner/${bannerId}`, data);
     return response.data.data;
   },
 
@@ -68,7 +68,7 @@ export const contentApi = {
    * FAQ 수정
    */
   updateFaq: async (faqId: string, data: FaqUpdateRequest): Promise<FAQ> => {
-    const response = await apiClient.put<ApiResponse<FAQ>>(`/home-admin/faq/${faqId}`, data);
+    const response = await apiClient.patch<ApiResponse<FAQ>>(`/home-admin/faq/${faqId}`, data);
     return response.data.data;
   },
 

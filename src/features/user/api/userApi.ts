@@ -305,7 +305,7 @@ export const profileBannerApi = {
    * 프로필 배너 수정
    */
   updateBanner: async (bannerId: string, data: Partial<ProfileBannerRequest>): Promise<ProfileBanner> => {
-    const response = await apiClient.put<ApiResponse<ProfileBanner>>(`/breeder-management-admin/profile-banner/${bannerId}`, data);
+    const response = await apiClient.patch<ApiResponse<ProfileBanner>>(`/breeder-management-admin/profile-banner/${bannerId}`, data);
     return response.data.data;
   },
 
@@ -349,7 +349,7 @@ export const counselBannerApi = {
    * 상담 배너 수정
    */
   updateBanner: async (bannerId: string, data: Partial<CounselBannerRequest>): Promise<CounselBanner> => {
-    const response = await apiClient.put<ApiResponse<CounselBanner>>(`/breeder-management-admin/counsel-banner/${bannerId}`, data);
+    const response = await apiClient.patch<ApiResponse<CounselBanner>>(`/breeder-management-admin/counsel-banner/${bannerId}`, data);
     return response.data.data;
   },
 

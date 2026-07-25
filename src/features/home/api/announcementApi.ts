@@ -65,7 +65,7 @@ export const announcementApi = {
    * PUT /api/announcement-admin/announcement/:announcementId
    */
   updateAnnouncement: async (announcementId: string, data: AnnouncementUpdateRequest): Promise<Announcement> => {
-    const response = await apiClient.put(`/announcement-admin/announcement/${announcementId}`, data);
+    const response = await apiClient.patch(`/announcement-admin/announcement/${announcementId}`, data);
     return response.data.data ?? response.data;
   },
 
