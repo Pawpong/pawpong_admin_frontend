@@ -195,6 +195,14 @@ export default function Sidebar({ mobileMenuOpen, onMobileMenuClose }: SidebarPr
           key: '/content/storage',
           label: '스토리지 관리',
         },
+        {
+          key: '/content/ai-filters',
+          label: 'AI 필터 관리',
+        },
+        {
+          key: '/content/ai-jobs',
+          label: 'AI 생성 모니터링',
+        },
       ],
     },
     {

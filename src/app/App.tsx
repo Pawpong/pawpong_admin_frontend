@@ -23,6 +23,8 @@ import Announcements from '../pages/content/Announcements';
 import Notices from '../pages/content/Notices';
 import StandardQuestions from '../pages/content/StandardQuestions';
 import StorageManager from '../pages/content/StorageManager';
+import AiImageFilters from '../pages/content/AiImageFilters';
+import AiImageJobs from '../pages/content/AiImageJobs';
 import Breeds from '../pages/settings/Breeds';
 import Districts from '../pages/settings/Districts';
 import PhoneWhitelist from '../pages/settings/PhoneWhitelist';
@@ -174,6 +176,8 @@ function App() {
                 <Route path="notices" element={<Notices />} />
                 <Route path="questions" element={<StandardQuestions />} />
                 <Route path="storage" element={<StorageManager />} />
+                <Route path="ai-filters" element={<AiImageFilters />} />
+                <Route path="ai-jobs" element={<AiImageJobs />} />
               </Route>
 
               {/* 시스템 설정 */}
