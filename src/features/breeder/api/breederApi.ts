@@ -3,6 +3,7 @@ import type {
   ApiResponse,
   PaginationResponse,
   BreederVerification,
+  BreederVerificationDetailResponse,
   BreederVerificationPaginationResponse,
   VerificationAction,
   BreederReport,
@@ -54,26 +55,6 @@ export const breederApi = {
   },
 
   /**
-   * 레벨 변경 신청 목록 조회
-   * 엔드포인트: GET /api/breeder-verification-admin/verification/level-change-requests
-   */
-  getLevelChangeRequests: async (
-    page: number = 1,
-    limit: number = 10,
-  ): Promise<BreederVerificationPaginationResponse> => {
-    const response = await apiClient.get<ApiResponse<BreederVerificationPaginationResponse>>(
-      '/breeder-verification-admin/verification/level-change-requests',
-      {
-        params: {
-          pageNumber: page,
-          itemsPerPage: limit,
-        },
-      },
-    );
-    return response.data.data;
-  },
-
-  /**
    * 브리더 인증 승인/거절
    * 엔드포인트: PATCH /api/breeder-verification-admin/verification/:breederId
    */
@@ -86,10 +67,20 @@ export const breederApi = {
    * 엔드포인트: GET /api/breeder-verification-admin/verification/:breederId
    */
   getBreederDetail: async (breederId: string): Promise<BreederVerification> => {
-    const response = await apiClient.get<ApiResponse<BreederVerification>>(
+    const response = await apiClient.get<ApiResponse<BreederVerificationDetailResponse>>(
       `/breeder-verification-admin/verification/${breederId}`,
     );
-    return response.data.data;
+    const detail = response.data.data;
+    return {
+      breederId: detail.breederId,
+      breederName: detail.nickname,
+      emailAddress: detail.email,
+      phoneNumber: detail.phone,
+      verificationInfo: detail.verificationInfo,
+      profileInfo: detail.profileInfo,
+      createdAt: detail.createdAt,
+      updatedAt: detail.updatedAt,
+    };
   },
 
   /**
@@ -117,17 +108,6 @@ export const breederApi = {
    */
   handleReport: async (reportId: string, action: ReportAction): Promise<void> => {
     await apiClient.patch(`/breeder-report-admin/reports/${reportId}`, action);
-  },
-
-  /**
-   * 브리더 레벨 변경 (뉴 ↔ 엘리트)
-   * 엔드포인트: PATCH /api/breeder-verification-admin/level/:breederId
-   * 모듈: BreederVerificationAdminModule
-   */
-  changeLevel: async (breederId: string, newLevel: 'new' | 'elite'): Promise<void> => {
-    await apiClient.patch(`/breeder-verification-admin/level/${breederId}`, {
-      newLevel,
-    });
   },
 
   /**

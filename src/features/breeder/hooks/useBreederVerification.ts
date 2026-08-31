@@ -18,17 +18,10 @@ export const COMMON_REJECTION_REASONS = [
   '비윤리적 번식 정황 확인',
 ];
 
-/** 반려 사유 목록 - 엘리트 레벨 한정 */
-export const ELITE_REJECTION_REASONS = [
-  '브리딩 품종이 3종 이상으로 확인되었거나, 프로필에서 3종 이상 선택함',
-  '도그쇼/캣쇼 참가 이력 증빙이 불충분하거나 허위로 확인됨',
-  '혈통서, 협회 등록증 등 전문성 증빙 서류가 기준에 미달',
-];
-
 /** 서류 타입 한국어 매핑 */
 export const DOCUMENT_TYPE_LABELS: Record<string, string> = {
   id_card: '신분증 사본',
-  animal_production_license: '동물생산업 등록증',
+  animal_production_license: '동물생산업 허가증',
   adoption_contract_sample: '표준 입양계약서 샘플',
   recent_pedigree_document: '최근 발급된 혈통서 사본',
   breeder_certification: '고양이 브리더 인증 서류',
@@ -75,7 +68,13 @@ export function useBreederVerification() {
   }, [statusFilter, currentPage, pageSize]);
 
   useEffect(() => {
-    fetchVerifications();
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) void fetchVerifications();
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [fetchVerifications]);
 
   const handleViewDetails = useCallback(async (record: BreederVerification) => {
@@ -101,40 +100,48 @@ export function useBreederVerification() {
     }
   }, []);
 
-  const handleMarkAsReviewing = useCallback(async (breederId: string) => {
-    try {
-      await breederApi.updateVerification(breederId, {
-        verificationStatus: 'reviewing',
-      });
-      message.success('리뷰 완료로 표시되었습니다.');
-      setIsDetailModalOpen(false);
-      fetchVerifications();
-    } catch (error: unknown) {
-      console.error('Mark as reviewing failed:', error);
-      message.error('상태 변경에 실패했습니다.');
-    }
-  }, [fetchVerifications]);
+  const handleMarkAsReviewing = useCallback(
+    async (breederId: string) => {
+      try {
+        await breederApi.updateVerification(breederId, {
+          verificationStatus: 'reviewing',
+        });
+        message.success('리뷰 완료로 표시되었습니다.');
+        setIsDetailModalOpen(false);
+        fetchVerifications();
+      } catch (error: unknown) {
+        console.error('Mark as reviewing failed:', error);
+        message.error('상태 변경에 실패했습니다.');
+      }
+    },
+    [fetchVerifications],
+  );
 
-  const handleApprove = useCallback(async (breederId: string, level: 'new' | 'elite') => {
-    void level; // level is used for UI context only
-    try {
-      await breederApi.updateVerification(breederId, {
-        verificationStatus: 'approved',
-      });
-      message.success('브리더 인증이 승인되었습니다.');
-      setIsDetailModalOpen(false);
-      fetchVerifications();
-    } catch (error: unknown) {
-      console.error('Approve failed:', error);
-      message.error('승인에 실패했습니다.');
-    }
-  }, [fetchVerifications]);
+  const handleApprove = useCallback(
+    async (breederId: string) => {
+      try {
+        await breederApi.updateVerification(breederId, {
+          verificationStatus: 'approved',
+        });
+        message.success('브리더 인증이 승인되었습니다.');
+        setIsDetailModalOpen(false);
+        fetchVerifications();
+      } catch (error: unknown) {
+        console.error('Approve failed:', error);
+        message.error('승인에 실패했습니다.');
+      }
+    },
+    [fetchVerifications],
+  );
 
-  const openRejectModal = useCallback((record: BreederVerification) => {
-    setSelectedBreeder(record);
-    setIsRejectModalOpen(true);
-    rejectForm.resetFields();
-  }, [rejectForm]);
+  const openRejectModal = useCallback(
+    (record: BreederVerification) => {
+      setSelectedBreeder(record);
+      setIsRejectModalOpen(true);
+      rejectForm.resetFields();
+    },
+    [rejectForm],
+  );
 
   const handleRejectSubmit = useCallback(async () => {
     try {

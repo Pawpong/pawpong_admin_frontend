@@ -73,12 +73,11 @@ export interface BreederVerification {
   accountStatus?: 'active' | 'suspended' | 'deleted';
   isTestAccount?: boolean;
   verificationInfo: {
-    verificationStatus: 'pending' | 'approved' | 'rejected';
-    subscriptionPlan: 'basic' | 'premium';
-    level: 'new' | 'elite';
-    previousLevel?: 'new' | 'elite';
+    verificationStatus: 'pending' | 'reviewing' | 'approved' | 'rejected';
+    subscriptionPlan: 'basic' | 'pro';
     submittedAt?: string;
-    documents: Array<{
+    processedAt?: string;
+    documents?: Array<{
       type: string;
       fileName: string;
       fileUrl?: string;
@@ -93,6 +92,19 @@ export interface BreederVerification {
 }
 
 export type BreederVerificationPaginationResponse = PaginationResponse<BreederVerification>;
+
+export interface BreederVerificationDetailResponse {
+  breederId: string;
+  email: string;
+  nickname: string;
+  phone?: string;
+  businessNumber?: string;
+  businessName?: string;
+  verificationInfo: BreederVerification['verificationInfo'];
+  profileInfo?: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface VerificationAction {
   verificationStatus: 'reviewing' | 'approved' | 'rejected';
@@ -309,8 +321,6 @@ export interface BreederResubmissionStats {
  */
 export interface BreederStats {
   totalApproved: number;
-  eliteCount: number;
-  newCount: number;
 }
 
 export interface MvpStats {
@@ -371,7 +381,7 @@ export interface CustomResponse {
   questionId: string;
   questionLabel: string;
   questionType: string;
-  answer: any;
+  answer: unknown;
 }
 
 export interface ApplicationDetailData {
