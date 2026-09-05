@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { message } from 'antd';
 
 import {
@@ -80,18 +80,13 @@ export interface GlobalStats {
 export function useStorageManager() {
   const [allFiles, setAllFiles] = useState<StorageFile[]>([]);
   const [folderStats, setFolderStats] = useState<Record<string, FolderStats>>({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [referenceLoading, setReferenceLoading] = useState(false);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [currentPath, setCurrentPath] = useState<string[]>([]);
   const [totalFiles, setTotalFiles] = useState(0);
   const [referencedFiles, setReferencedFiles] = useState<Set<string>>(new Set());
   const [fileReferences, setFileReferences] = useState<Map<string, FileReference['references']>>(new Map());
-
-  useEffect(() => {
-    fetchFiles();
-    fetchReferencedFiles();
-  }, []);
 
   const fetchFiles = async () => {
     try {
@@ -220,9 +215,25 @@ export function useStorageManager() {
     return { referenced, orphaned: allFiles.length - referenced };
   }, [allFiles, referencedFiles]);
 
-  const handleFolderClick = (folderName: string) => {
-    setCurrentPath([...currentPath, folderName]);
-    setSelectedItems([]);
+  const handleFolderClick = async (folderName: string) => {
+    const nextPath = [...currentPath, folderName];
+    setLoading(true);
+    try {
+      const response = await storageApi.getFilesByFolder(nextPath.join('/'));
+      const prefix = nextPath.join('/') + '/';
+      setAllFiles(previous => [...previous.filter(file => !file.key.startsWith(prefix)), ...response.data.files]);
+      setCurrentPath(nextPath); setSelectedItems([]);
+    } catch { message.error('폴더 조회 실패'); } finally { setLoading(false); }
+  };
+
+  const handleDeleteFolder = async () => {
+    if (!currentPath.length) return;
+    try {
+      const response = await storageApi.deleteFolder(currentPath.join('/'));
+      message.success(`${response.data.deletedCount}개 파일이 삭제되었습니다`);
+      if (response.data.failedFiles.length) message.warning(`${response.data.failedFiles.length}개 파일 삭제 실패`);
+      setCurrentPath([]); setSelectedItems([]); await fetchFiles();
+    } catch { message.error('폴더 삭제 실패'); }
   };
 
   const handleBreadcrumbClick = (index: number) => {
@@ -288,32 +299,28 @@ export function useStorageManager() {
     }
   };
 
-  // 선택된 파일들의 DB 참조 상세 정보 조회
-  const checkSelectedReferences = useCallback(async () => {
-    const fileKeys = currentFiles.map((f) => f.key);
-    if (fileKeys.length === 0) return;
-
-    try {
-      setReferenceLoading(true);
-      const response = await storageApi.checkFileReferences(fileKeys);
-      const newReferences = new Map<string, FileReference['references']>();
-      response.data.files.forEach((file) => {
-        newReferences.set(file.fileKey, file.references);
-      });
-      setFileReferences(newReferences);
-    } catch {
-      console.error('참조 정보 조회 실패');
-    } finally {
-      setReferenceLoading(false);
-    }
-  }, [currentFiles]);
-
-  // 현재 폴더 진입 시 참조 정보 조회
   useEffect(() => {
-    if (currentFiles.length > 0 && currentFiles.length <= 100) {
-      checkSelectedReferences();
-    }
-  }, [currentPath, allFiles.length]);
+    let active = true;
+    storageApi.getFiles().then(response => {
+      if (!active) return;
+      setAllFiles(response.data.files); setFolderStats(response.data.folderStats); setTotalFiles(response.data.totalFiles);
+    }).catch(() => { if (active) message.error('파일 목록 조회 실패'); }).finally(() => { if (active) setLoading(false); });
+    storageApi.getReferencedFiles().then(response => { if (active) setReferencedFiles(new Set(response.data)); })
+      .catch(() => { if (active) message.error('파일 참조 목록 조회 실패'); }).finally(() => { if (active) setReferenceLoading(false); });
+    return () => { active = false; };
+  }, []);
+
+  // 참조 결과가 바뀌어도 동일한 파일들의 재조회가 반복되지 않도록 파일 키만 의존한다.
+  const referenceKeys = JSON.stringify(currentFiles.map(file => file.key));
+  useEffect(() => {
+    const keys: string[] = JSON.parse(referenceKeys);
+    if (!keys.length || keys.length > 100) return;
+    let active = true;
+    storageApi.checkFileReferences(keys).then(response => {
+      if (active) setFileReferences(new Map(response.data.files.map(file => [file.fileKey, file.references])));
+    }).catch(() => { if (active) message.error('참조 정보 조회 실패'); });
+    return () => { active = false; };
+  }, [referenceKeys]);
 
   const handleRefresh = () => {
     fetchFiles();
@@ -321,6 +328,7 @@ export function useStorageManager() {
   };
 
   return {
+    handleDeleteFolder,
     // 데이터
     currentItems,
     currentFiles,

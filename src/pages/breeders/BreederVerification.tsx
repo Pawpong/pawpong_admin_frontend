@@ -1,4 +1,6 @@
-import { Card, Tabs, Button } from 'antd';
+import { useState } from 'react';
+import { operationsApi } from '../../features/operations/api/operationsApi';
+import { App, Card, Tabs, Button, Popconfirm, Segmented } from 'antd';
 import { FileTextOutlined, BellOutlined } from '@ant-design/icons';
 
 import { useBreederVerification } from '../../features/breeder/hooks/useBreederVerification';
@@ -12,7 +14,11 @@ import { VerificationRemindModal } from '../../features/breeder/ui/VerificationR
  * 브리더 입점 신청을 검토하고 승인/반려 처리합니다.
  */
 export default function BreederVerification() {
+  const { message } = App.useApp();
+  const [sendingReminders, setSendingReminders] = useState(false);
   const {
+    accountType,
+    onAccountTypeChange,
     dataSource,
     loading,
     totalCount,
@@ -57,6 +63,18 @@ export default function BreederVerification() {
         </div>
       </Card>
 
+      <div className="filter-bar">
+        <span>계정 구분</span>
+        <Segmented
+          value={accountType}
+          onChange={onAccountTypeChange}
+          options={[
+            { label: '전체', value: 'all' },
+            { label: '일반', value: 'normal', disabled: import.meta.env.VITE_ACCOUNT_TYPE_FILTER_ENABLED !== 'true' },
+            { label: '테스트', value: 'test', disabled: import.meta.env.VITE_ACCOUNT_TYPE_FILTER_ENABLED !== 'true' },
+          ]}
+        />
+      </div>
       <Tabs
         activeKey={statusFilter || 'all'}
         onChange={onStatusFilterChange}
@@ -70,7 +88,26 @@ export default function BreederVerification() {
         ]}
       />
 
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex justify-end gap-3 flex-wrap">
+        <Popconfirm
+          title="서류 미제출 대상자에게 일괄 독촉 알림을 보낼까요?"
+          description="서버가 발송 대상자를 선정합니다."
+          okText="발송"
+          cancelText="취소"
+          onConfirm={async () => {
+            setSendingReminders(true);
+            try {
+              const result = await operationsApi.sendDocumentReminders();
+              message.success(`${result.sentCount}명에게 발송했습니다.`);
+            } catch {
+              message.error('일괄 독촉 발송에 실패했습니다.');
+            } finally {
+              setSendingReminders(false);
+            }
+          }}
+        >
+          <Button loading={sendingReminders}>미제출 대상자 일괄 독촉</Button>
+        </Popconfirm>
         <Button
           icon={<BellOutlined />}
           onClick={remind.handleDocumentRemindClick}

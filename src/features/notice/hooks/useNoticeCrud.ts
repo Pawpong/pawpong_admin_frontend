@@ -61,9 +61,9 @@ export function useNoticeCrud() {
     setModalVisible(true);
   }, [form]);
 
-  const openDetail = useCallback((notice: Notice) => {
-    setViewingNotice(notice);
-    setDetailModalVisible(true);
+  const openDetail = useCallback(async (notice: Notice) => {
+    try { const response = await noticeApi.getNoticeDetail(notice.noticeId); setViewingNotice(response.data); setDetailModalVisible(true); }
+    catch { message.error('공지사항 상세 조회에 실패했습니다.'); }
   }, []);
 
   const closeModal = useCallback(() => {

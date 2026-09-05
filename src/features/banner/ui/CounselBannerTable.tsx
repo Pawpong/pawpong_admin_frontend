@@ -34,7 +34,7 @@ export function CounselBannerTable({ banners, loading, onEdit, onDelete, onToggl
       width: 200,
       render: (imageUrl: string) => (
         <Image
-          src={imageUrl}
+          src={imageUrl || undefined}
           alt="상담 배너"
           width={150}
           height={75}

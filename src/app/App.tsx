@@ -1,5 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider, App as AntdApp } from 'antd';
+import { adminTheme } from '../shared/theme/theme';
+import CommunityReports from '../pages/reports/CommunityReports';
+import PopularKeywords from '../pages/settings/PopularKeywords';
+import SystemHealth from '../pages/settings/SystemHealth';
+import NotificationHistory from '../pages/notifications/NotificationHistory';
+import EmailTemplates from '../pages/notifications/EmailTemplates';
+import ContestModeration from '../pages/contests/ContestModeration';
 import koKR from 'antd/locale/ko_KR';
 
 import AdminLayout from '../shared/components/layout/AdminLayout';
@@ -47,83 +54,7 @@ function App() {
   return (
     <ConfigProvider
       locale={koKR}
-      theme={{
-        token: {
-          // Pawpong 브랜드 컬러 적용
-          colorPrimary: '#4f3b2e', // 따뜻한 브라운
-          colorSuccess: '#005df9', // 블루
-          colorWarning: '#d97706', // 오렌지
-          colorError: '#dc2626', // 레드
-          colorInfo: '#a0c8f4', // 세컨더리 블루
-
-          // Border Radius - 부드러운 느낌
-          borderRadius: 8,
-          borderRadiusLG: 12,
-          borderRadiusSM: 4,
-
-          // 폰트 설정
-          fontSize: 14,
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-
-          // 배경색
-          colorBgContainer: '#ffffff',
-          colorBgLayout: '#f5f5f5',
-
-          // 그레이스케일
-          colorTextBase: '#3c3c3c',
-          colorTextSecondary: '#888',
-          colorBorder: '#e1e1e1',
-          colorBorderSecondary: '#f5f5f5',
-        },
-        components: {
-          Button: {
-            controlHeight: 38,
-            controlHeightLG: 44,
-            fontWeight: 500,
-            primaryShadow: 'none',
-          },
-          Table: {
-            borderRadius: 8,
-            headerBg: '#fafafa',
-            headerColor: '#3c3c3c',
-            headerSplitColor: '#f0f0f0',
-          },
-          Card: {
-            borderRadiusLG: 12,
-            boxShadowTertiary: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
-          },
-          Input: {
-            controlHeight: 38,
-            borderRadius: 8,
-          },
-          Select: {
-            controlHeight: 38,
-            borderRadius: 8,
-          },
-          Menu: {
-            itemBg: 'transparent',
-            itemSelectedBg: '#f6f6ea',
-            itemSelectedColor: '#4f3b2e',
-            itemActiveBg: '#eeebde',
-            itemHoverBg: '#f6f6ea',
-            iconSize: 18,
-            fontSize: 14,
-          },
-          Layout: {
-            siderBg: '#ffffff',
-            headerBg: '#ffffff',
-            bodyBg: '#f5f5f5',
-            triggerBg: '#4f3b2e',
-            triggerColor: '#ffffff',
-          },
-          Tag: {
-            borderRadiusSM: 6,
-          },
-          Modal: {
-            borderRadiusLG: 12,
-          },
-        },
-      }}
+      theme={adminTheme}
     >
       <AntdApp>
         <BrowserRouter>
@@ -140,6 +71,12 @@ function App() {
                 </ProtectedRoute>
               }
             >
+              <Route path="reports/community" element={<CommunityReports />} />
+              <Route path="settings/keywords" element={<PopularKeywords />} />
+              <Route path="settings/health" element={<SystemHealth />} />
+              <Route path="notifications/history" element={<NotificationHistory />} />
+              <Route path="notifications/email" element={<EmailTemplates />} />
+              <Route path="contests/moderation" element={<ContestModeration />} />
               {/* 대시보드 */}
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />

@@ -1,4 +1,5 @@
 import apiClient from '../../../shared/api/axios';
+import { useAuthStore } from '../store/authStore';
 import type { ApiResponse, LoginRequest, AuthResponse } from '../../../shared/types/api.types';
 
 /**
@@ -17,16 +18,18 @@ export const authApi = {
    * 로그아웃
    */
   logout: async (): Promise<void> => {
-    await apiClient.post('/auth/logout');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    try {
+      await apiClient.post('/v2/auth/logout');
+    } finally {
+      useAuthStore.getState().logout();
+    }
   },
 
   /**
    * 토큰 갱신
    */
-  refreshToken: async (refreshToken: string): Promise<AuthResponse> => {
-    const response = await apiClient.post<ApiResponse<AuthResponse>>('/auth/refresh', { refreshToken });
+  refreshToken: async (refreshToken: string): Promise<{ accessToken: string }> => {
+    const response = await apiClient.post<ApiResponse<{ accessToken: string }>>('/auth-admin/refresh', { refreshToken });
     return response.data.data;
   },
 };

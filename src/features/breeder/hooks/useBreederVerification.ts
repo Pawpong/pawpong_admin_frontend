@@ -1,7 +1,7 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Form, message } from 'antd';
 
-import { breederApi } from '../api/breederApi';
+import { breederApi, type BreederAccountType } from '../api/breederApi';
 import type { BreederVerification } from '../../../shared/types/api.types';
 
 /** 반려 사유 목록 - 공통 */
@@ -32,6 +32,8 @@ export const DOCUMENT_TYPE_LABELS: Record<string, string> = {
  * 상태 필터, 서버 페이지네이션, 상세/반려/독촉 모달 지원
  */
 export function useBreederVerification() {
+  const [accountType, setAccountType] = useState<BreederAccountType>('all');
+  const listRequest = useRef(0);
   const [loading, setLoading] = useState(false);
   const [dataSource, setDataSource] = useState<BreederVerification[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -54,18 +56,21 @@ export function useBreederVerification() {
   const [isDocumentRemindModalOpen, setIsDocumentRemindModalOpen] = useState(false);
 
   const fetchVerifications = useCallback(async () => {
+    const requestId = ++listRequest.current;
     setLoading(true);
     try {
-      const response = await breederApi.getBreeders(statusFilter, currentPage, pageSize);
+      const response = await breederApi.getBreeders(statusFilter, currentPage, pageSize, accountType);
+      if (requestId !== listRequest.current) return;
       setDataSource(response.items);
       setTotalCount(response.pagination.totalItems);
     } catch (error: unknown) {
+      if (requestId !== listRequest.current) return;
       console.error('Failed to fetch verifications:', error);
       message.error('브리더 목록을 불러올 수 없습니다.');
     } finally {
-      setLoading(false);
+      if (requestId === listRequest.current) setLoading(false);
     }
-  }, [statusFilter, currentPage, pageSize]);
+  }, [statusFilter, currentPage, pageSize, accountType]);
 
   useEffect(() => {
     let cancelled = false;
@@ -197,7 +202,17 @@ export function useBreederVerification() {
     setPageSize(newPageSize);
   }, []);
 
+  const onAccountTypeChange = (value: BreederAccountType) => {
+    listRequest.current++;
+    setAccountType(value);
+    setCurrentPage(1);
+    setSelectedBreeders([]);
+    setDataSource([]);
+  };
+
   return {
+    accountType,
+    onAccountTypeChange,
     dataSource,
     loading,
     totalCount,

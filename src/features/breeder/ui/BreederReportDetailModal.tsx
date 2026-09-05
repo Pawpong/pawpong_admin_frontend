@@ -1,6 +1,6 @@
 import { Modal, Button, Descriptions } from 'antd';
 import type { BreederReport } from '../../../shared/types/api.types';
-import { getReportTypeText, getStatusTag } from './BreederReportTable';
+import { getReportTypeText, getStatusTag } from './breederReportHelpers';
 
 interface BreederReportDetailModalProps {
   visible: boolean;

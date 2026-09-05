@@ -108,7 +108,7 @@ export const storageApi = {
    * 특정 폴더의 파일 목록 조회
    */
   async getFilesByFolder(folder: string): Promise<StorageListResponse> {
-    const response = await apiClient.get<StorageListResponse>(`/upload-admin/files/folder/${folder}`);
+    const response = await apiClient.get<StorageListResponse>(`/upload-admin/files/folder/${encodeURIComponent(folder)}`);
     return response.data;
   },
 

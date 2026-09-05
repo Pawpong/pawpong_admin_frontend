@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { message } from 'antd';
-import type { RcFile } from 'antd/es/upload/interface';
 
-import { getAdminProfile, uploadProfileImage, profileBannerApi, type ProfileBanner } from '../api/userApi';
+import { getAdminProfile, profileBannerApi, type ProfileBanner } from '../api/userApi';
 
 export interface AdminProfile {
   id: string;
@@ -35,8 +34,6 @@ export const STATUS_MAP: Record<string, { text: string; className: string }> = {
 export function useProfile() {
   const [profile, setProfile] = useState<AdminProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
   const [banners, setBanners] = useState<ProfileBanner[]>([]);
 
   const fetchProfile = useCallback(async () => {
@@ -44,7 +41,6 @@ export function useProfile() {
       setLoading(true);
       const data = await getAdminProfile();
       setProfile(data);
-      setImageUrl(data.profileImage);
     } catch (error: unknown) {
       const err = error as { message?: string };
       message.error(err.message || '프로필 조회에 실패했습니다.');
@@ -64,25 +60,5 @@ export function useProfile() {
 
   useEffect(() => { fetchProfile(); fetchBanners(); }, [fetchProfile, fetchBanners]);
 
-  const handleUpload = useCallback(async (file: RcFile): Promise<boolean> => {
-    if (file.size > 5 * 1024 * 1024) { message.error('파일 크기는 5MB를 초과할 수 없습니다.'); return false; }
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) { message.error('이미지 파일만 업로드 가능합니다.'); return false; }
-
-    try {
-      setUploading(true);
-      const result = await uploadProfileImage(file);
-      message.success('프로필 이미지가 업로드되었습니다.');
-      setImageUrl(result.profileImageUrl);
-      await fetchProfile();
-    } catch (error: unknown) {
-      const err = error as { message?: string };
-      message.error(err.message || '이미지 업로드에 실패했습니다.');
-    } finally {
-      setUploading(false);
-    }
-    return false;
-  }, [fetchProfile]);
-
-  return { profile, loading, uploading, imageUrl, banners, handleUpload };
+  return { profile, loading, banners };
 }

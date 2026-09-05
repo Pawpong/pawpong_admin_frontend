@@ -1,30 +1,25 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Layout } from 'antd';
 import Sidebar from './Sidebar';
 import Header from './Header';
 
-const { Content } = Layout;
-
 export default function AdminLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   return (
-    <Layout className="min-h-screen">
+    <div className="admin-shell">
+      <a className="skip-link" href="#main-content">
+        본문으로 이동
+      </a>
       <Sidebar mobileMenuOpen={mobileMenuOpen} onMobileMenuClose={() => setMobileMenuOpen(false)} />
-      <Layout className="ml-0 md:ml-60 transition-[margin-left] duration-200">
-        <Header onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
-        <Content
-          className="m-3 sm:m-4 md:m-6 p-0"
-          style={{
-            background: '#fff',
-            borderRadius: '8px',
-            minHeight: 'calc(100vh - 112px)',
-          }}
-        >
+      <div className="admin-main">
+        <Header onMobileMenuToggle={() => setMobileMenuOpen((value) => !value)} />
+        <main id="main-content" className="admin-content">
           <Outlet />
-        </Content>
-      </Layout>
-    </Layout>
+        </main>
+        <footer className="workspace-footer">
+          © {new Date().getFullYear()} PAWPONG <span>좋은 만남의 시작, 포퐁</span>
+        </footer>
+      </div>
+    </div>
   );
 }

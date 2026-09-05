@@ -34,7 +34,7 @@ export function ProfileBannerTable({ banners, loading, onEdit, onDelete, onToggl
       width: 200,
       render: (imageUrl: string) => (
         <Image
-          src={imageUrl}
+          src={imageUrl || undefined}
           alt="프로필 배너"
           width={150}
           height={75}

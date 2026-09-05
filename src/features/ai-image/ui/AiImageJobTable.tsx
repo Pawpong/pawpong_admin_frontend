@@ -65,7 +65,7 @@ export function AiImageJobTable({
       render: (_, job) => (
         <Space>
           <Image
-            src={job.inputImageUrl ?? undefined}
+            src={job.inputImageUrl || undefined}
             alt="원본"
             width={64}
             height={64}
@@ -74,7 +74,7 @@ export function AiImageJobTable({
           />
           {job.outputImageUrl ? (
             <Image
-              src={job.outputImageUrl}
+              src={job.outputImageUrl || undefined}
               alt="결과"
               width={64}
               height={64}

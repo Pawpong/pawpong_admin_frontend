@@ -20,14 +20,17 @@ import type {
  * - 파일: breeder/admin/verification/ → API: /breeder-verification-admin (인증 관리)
  * - 파일: breeder/admin/report/ → API: /breeder-report-admin (신고 관리)
  */
+export type BreederAccountType = 'all' | 'normal' | 'test';
+
 export const breederApi = {
   /**
    * 승인 대기 브리더 목록 조회
    * 엔드포인트: GET /api/breeder-verification-admin/verification/pending
    */
-  getPendingVerifications: async (): Promise<BreederVerification[]> => {
+  getPendingVerifications: async (accountType: BreederAccountType = 'all'): Promise<BreederVerification[]> => {
     const response = await apiClient.get<ApiResponse<BreederVerificationPaginationResponse>>(
       '/breeder-verification-admin/verification/pending',
+      { params: accountType === 'all' ? undefined : { accountType } },
     );
     return response.data.data.items;
   },
@@ -40,12 +43,14 @@ export const breederApi = {
     status?: string,
     page: number = 1,
     limit: number = 10,
+    accountType: BreederAccountType = 'all',
   ): Promise<BreederVerificationPaginationResponse> => {
     const response = await apiClient.get<ApiResponse<BreederVerificationPaginationResponse>>(
       '/breeder-verification-admin/breeders',
       {
         params: {
           verificationStatus: status,
+          ...(accountType === 'all' ? {} : { accountType }),
           pageNumber: page,
           itemsPerPage: limit,
         },

@@ -1,6 +1,5 @@
-import { Card, Avatar, Button, Upload, Carousel } from 'antd';
-import { UserOutlined, UploadOutlined, CameraOutlined } from '@ant-design/icons';
-import type { RcFile } from 'antd/es/upload/interface';
+import { Card, Avatar, Carousel } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 
 import type { ProfileBanner } from '../api/userApi';
 import { ADMIN_LEVEL_MAP } from '../hooks/useProfile';
@@ -8,16 +7,13 @@ import { ADMIN_LEVEL_MAP } from '../hooks/useProfile';
 interface ProfileCardProps {
   name: string;
   adminLevel: string;
-  imageUrl?: string;
-  uploading: boolean;
   banners: ProfileBanner[];
-  onUpload: (file: RcFile) => Promise<boolean>;
 }
 
 /**
  * 프로필 이미지 + 배너 카드
  */
-export function ProfileCard({ name, adminLevel, imageUrl, uploading, banners, onUpload }: ProfileCardProps) {
+export function ProfileCard({ name, adminLevel, banners }: ProfileCardProps) {
   return (
     <div className="space-y-4">
       {banners.length > 0 && (
@@ -27,7 +23,7 @@ export function ProfileCard({ name, adminLevel, imageUrl, uploading, banners, on
               <div key={banner.bannerId}>
                 <div
                   style={{ width: '100%', height: '200px', backgroundImage: `url(${banner.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '12px', cursor: banner.linkUrl ? 'pointer' : 'default' }}
-                  onClick={() => { if (banner.linkUrl) { banner.linkType === 'external' ? window.open(banner.linkUrl, '_blank') : (window.location.href = banner.linkUrl); } }}
+                  onClick={() => { if (banner.linkUrl) { if (banner.linkType === 'external') window.open(banner.linkUrl, '_blank'); else window.location.href = banner.linkUrl; } }}
                 />
               </div>
             ))}
@@ -38,16 +34,10 @@ export function ProfileCard({ name, adminLevel, imageUrl, uploading, banners, on
       <Card className="text-center">
         <div className="flex flex-col items-center">
           <div className="relative mb-4">
-            <Avatar size={150} src={imageUrl} icon={!imageUrl && <UserOutlined />} className="border-4 border-gray-100" />
-            <Upload accept="image/*" showUploadList={false} beforeUpload={onUpload} disabled={uploading}>
-              <Button type="primary" shape="circle" icon={<CameraOutlined />} loading={uploading} className="absolute bottom-0 right-0" size="large" />
-            </Upload>
+            <Avatar size={150} icon={<UserOutlined />} className="border-4 border-gray-100" />
           </div>
           <h3 className="text-xl font-semibold mb-2">{name}</h3>
           <p className="text-gray-500 mb-4">{ADMIN_LEVEL_MAP[adminLevel] || adminLevel}</p>
-          <Upload accept="image/*" showUploadList={false} beforeUpload={onUpload} disabled={uploading}>
-            <Button icon={<UploadOutlined />} loading={uploading} block>프로필 이미지 변경</Button>
-          </Upload>
         </div>
       </Card>
     </div>

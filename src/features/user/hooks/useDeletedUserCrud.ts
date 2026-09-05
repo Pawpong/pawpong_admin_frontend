@@ -22,7 +22,7 @@ export function useDeletedUserCrud() {
   });
   const [filters, setFilters] = useState<DeletedUserSearchRequest>({
     page: 1,
-    pageSize: 20,
+    limit: 20,
     role: 'all',
   });
 
@@ -82,7 +82,7 @@ export function useDeletedUserCrud() {
     setFilters((prev) => ({
       ...prev,
       page: newPagination.current,
-      pageSize: newPagination.pageSize,
+      limit: newPagination.pageSize,
     }));
   }, []);
 

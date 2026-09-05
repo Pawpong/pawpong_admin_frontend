@@ -36,7 +36,7 @@ export function BannerTable({ banners, loading, onEdit, onDelete, onToggleActive
           <div>
             <div style={{ fontSize: '11px', color: 'var(--color-grayscale-gray5)', marginBottom: '4px' }}>PC/Pad</div>
             <Image
-              src={record.desktopImageUrl}
+              src={record.desktopImageUrl || undefined}
               alt="PC/Pad 배너"
               width={150}
               height={75}
@@ -48,7 +48,7 @@ export function BannerTable({ banners, loading, onEdit, onDelete, onToggleActive
           <div>
             <div style={{ fontSize: '11px', color: 'var(--color-grayscale-gray5)', marginBottom: '4px' }}>모바일</div>
             <Image
-              src={record.mobileImageUrl}
+              src={record.mobileImageUrl || undefined}
               alt="모바일 배너"
               width={150}
               height={75}

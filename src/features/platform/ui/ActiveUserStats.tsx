@@ -14,7 +14,7 @@ export function ActiveUserStats({ adopters7, adopters14, adopters28, breeders7, 
   return (
     <Row gutter={[16, 16]}>
       <Col xs={24} lg={12}>
-        <Card title={<TitleWithTooltip title="입양자 접속 현황" tooltip="해당 기간 내 로그인한 입양자 수" />} bordered={false} className="shadow-sm hover:shadow-md transition-shadow">
+        <Card title={<TitleWithTooltip title="입양자 접속 현황" tooltip="해당 기간 내 로그인한 입양자 수" />} variant="borderless" className="shadow-sm hover:shadow-md transition-shadow">
           <Row gutter={16}>
             {[{ v: adopters7, c: '#3f8600', t: '최근 7일' }, { v: adopters14, c: '#52c41a', t: '최근 14일' }, { v: adopters28, c: '#73d13d', t: '최근 28일' }].map((i) => (
               <Col span={8} key={i.t}><Statistic title={i.t} value={i.v} prefix={<UserOutlined />} suffix="명" valueStyle={{ color: i.c, fontSize: '24px' }} /></Col>
@@ -23,7 +23,7 @@ export function ActiveUserStats({ adopters7, adopters14, adopters28, breeders7, 
         </Card>
       </Col>
       <Col xs={24} lg={12}>
-        <Card title={<TitleWithTooltip title="브리더 접속 현황" tooltip="해당 기간 내 로그인한 브리더 수" />} bordered={false} className="shadow-sm hover:shadow-md transition-shadow">
+        <Card title={<TitleWithTooltip title="브리더 접속 현황" tooltip="해당 기간 내 로그인한 브리더 수" />} variant="borderless" className="shadow-sm hover:shadow-md transition-shadow">
           <Row gutter={16}>
             {[{ v: breeders7, c: '#1677ff', t: '최근 7일' }, { v: breeders14, c: '#1890ff', t: '최근 14일' }, { v: breeders28, c: '#40a9ff', t: '최근 28일' }].map((i) => (
               <Col span={8} key={i.t}><Statistic title={i.t} value={i.v} prefix={<TeamOutlined />} suffix="명" valueStyle={{ color: i.c, fontSize: '24px' }} /></Col>

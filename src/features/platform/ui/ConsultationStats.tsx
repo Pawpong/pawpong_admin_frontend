@@ -11,7 +11,7 @@ export function ConsultationStats({ days7, days14, days28 }: Props) {
   return (
     <Card
       title={<div className="flex items-center gap-2"><span>상담 신청 현황</span><Tooltip title="입양자가 브리더에게 제출한 상담 신청서 총 건수"><InfoCircleOutlined className="text-gray-400 cursor-help" /></Tooltip></div>}
-      bordered={false} className="shadow-sm hover:shadow-md transition-shadow"
+      variant="borderless" className="shadow-sm hover:shadow-md transition-shadow"
     >
       <div className="mb-3"><Text type="secondary" className="text-xs">포퐁에서 입양자가 제출한 전체 상담 신청 건수입니다.</Text></div>
       <Row gutter={16}>

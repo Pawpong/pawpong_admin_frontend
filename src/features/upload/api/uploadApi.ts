@@ -3,7 +3,9 @@ import apiClient from '../../../shared/api/axios';
 export interface UploadResponse {
   fileName: string;
   cdnUrl: string;
-  storageUrl: string;
+  url: string;
+  filename: string;
+  size: number;
 }
 
 /**
@@ -12,7 +14,7 @@ export interface UploadResponse {
 export const uploadApi = {
   /**
    * 단일 파일 업로드
-   * POST /api/upload/single
+   * POST /api/v2/upload/single
    */
   uploadSingle: async (file: File, folder?: string): Promise<UploadResponse> => {
     const formData = new FormData();
@@ -21,7 +23,7 @@ export const uploadApi = {
       formData.append('folder', folder);
     }
 
-    const response = await apiClient.post<{ data: UploadResponse }>('/upload/single', formData, {
+    const response = await apiClient.post<{ data: UploadResponse }>('/v2/upload/single', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -32,7 +34,7 @@ export const uploadApi = {
 
   /**
    * 다중 파일 업로드
-   * POST /api/upload/multiple
+   * POST /api/v2/upload/multiple
    */
   uploadMultiple: async (files: File[], folder?: string): Promise<UploadResponse[]> => {
     const formData = new FormData();
@@ -43,7 +45,7 @@ export const uploadApi = {
       formData.append('folder', folder);
     }
 
-    const response = await apiClient.post<{ data: UploadResponse[] }>('/upload/multiple', formData, {
+    const response = await apiClient.post<{ data: UploadResponse[] }>('/v2/upload/multiple', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -54,10 +56,10 @@ export const uploadApi = {
 
   /**
    * 파일 삭제
-   * DELETE /api/upload
+   * DELETE /api/v2/upload
    */
   deleteFile: async (fileName: string): Promise<void> => {
-    await apiClient.delete('/upload', {
+    await apiClient.delete('/v2/upload', {
       data: { fileName },
     });
   },

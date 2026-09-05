@@ -1,4 +1,4 @@
-import { Modal, Form, Input, Switch, DatePicker } from 'antd';
+import { Modal, Form, Input, Switch, Select, DatePicker } from 'antd';
 import type { FormInstance } from 'antd';
 
 import type { Notice } from '../api/noticeApi';
@@ -33,11 +33,12 @@ export function NoticeModal({ visible, editingNotice, form, onOk, onCancel }: No
         </Form.Item>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: 24 }}>
           <Form.Item name="status" label="상태" initialValue="published">
-            <Switch
-              checkedChildren="게시"
-              unCheckedChildren="임시저장"
-              onChange={(checked) => form.setFieldValue('status', checked ? 'published' : 'draft')}
-              checked={form.getFieldValue('status') === 'published'}
+            <Select
+              options={[
+                { value: 'published', label: '게시' },
+                { value: 'draft', label: '임시저장' },
+                { value: 'archived', label: '보관' },
+              ]}
             />
           </Form.Item>
           <Form.Item name="isPinned" label="상단 고정" valuePropName="checked" initialValue={false}>

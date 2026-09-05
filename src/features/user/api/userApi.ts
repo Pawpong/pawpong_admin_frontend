@@ -26,16 +26,6 @@ export interface AdminProfile {
 }
 
 /**
- * 프로필 이미지 업로드 응답
- */
-export interface ProfileImageUploadResponse {
-  adminId: string;
-  profileImageUrl: string;
-  message: string;
-  updatedAt: string;
-}
-
-/**
  * 프로필 배너 인터페이스
  */
 export interface ProfileBanner {
@@ -113,7 +103,7 @@ export interface DeletedUser {
  */
 export interface DeletedUserSearchRequest {
   page?: number;
-  pageSize?: number;
+  limit?: number;
   role?: 'all' | 'adopter' | 'breeder';
   deleteReason?: string;
 }
@@ -251,25 +241,6 @@ export const userApi = {
  */
 export const getAdminProfile = async (): Promise<AdminProfile> => {
   const response = await apiClient.get<ApiResponse<AdminProfile>>('/user-admin/profile');
-  return response.data.data;
-};
-
-/**
- * 관리자 프로필 이미지 업로드
- */
-export const uploadProfileImage = async (file: File): Promise<ProfileImageUploadResponse> => {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  const response = await apiClient.post<ApiResponse<ProfileImageUploadResponse>>(
-    '/user-admin/profile/image',
-    formData,
-    {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    },
-  );
   return response.data.data;
 };
 

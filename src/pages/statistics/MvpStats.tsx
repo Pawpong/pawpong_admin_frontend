@@ -10,15 +10,17 @@ import { ResubmissionStats } from '../../features/platform/ui/ResubmissionStats'
 /**
  * MVP 핵심 통계 페이지
  */
+  const SectionTitle = ({ icon, title }: { icon: React.ReactNode; title: string }) => (
+    <div className="flex items-center gap-2 mb-4">{icon}<h2 className="text-lg font-semibold m-0">{title}</h2></div>
+  );
+
 export default function MvpStatsPage() {
   const { stats, loading } = useMvpStats();
 
   if (loading) return <div className="flex items-center justify-center h-96"><Spin size="large" /></div>;
   if (!stats) return <div>데이터를 불러올 수 없습니다.</div>;
 
-  const SectionTitle = ({ icon, title }: { icon: React.ReactNode; title: string }) => (
-    <div className="flex items-center gap-2 mb-4">{icon}<h2 className="text-lg font-semibold m-0">{title}</h2></div>
-  );
+
 
   return (
     <div className="p-3 sm:p-4 md:p-6">

@@ -1,4 +1,5 @@
 import apiClient from '../../../shared/api/axios';
+import type { PaginationResponse } from '../../../shared/types/api.types';
 
 export interface Announcement {
   announcementId: string;
@@ -37,18 +38,18 @@ export const announcementApi = {
    * GET /api/announcement-admin/announcements
    */
   getAnnouncements: async (): Promise<Announcement[]> => {
-    const response = await apiClient.get('/announcement-admin/announcements');
-    const body = response.data;
-
-    // ApiResponseDto 래핑된 경우: {success, data: {items: [...]}}
-    if (body.data?.items) return body.data.items;
-    // PaginationResponseDto 직접 반환: {items: [...]}
-    if (body.items) return body.items;
-    // 배열 직접 반환
-    if (Array.isArray(body.data)) return body.data;
-    if (Array.isArray(body)) return body;
-
-    return [];
+    const items: Announcement[] = [];
+    let page = 1;
+    let hasNextPage: boolean;
+    do {
+      const response = await apiClient.get<PaginationResponse<Announcement>>('/announcement-admin/announcements', {
+        params: { page, limit: 100 },
+      });
+      items.push(...response.data.items);
+      hasNextPage = response.data.pagination.hasNextPage;
+      page += 1;
+    } while (hasNextPage);
+    return items;
   },
 
   /**
@@ -62,7 +63,7 @@ export const announcementApi = {
 
   /**
    * 공지사항 수정
-   * PUT /api/announcement-admin/announcement/:announcementId
+   * PATCH /api/announcement-admin/announcement/:announcementId
    */
   updateAnnouncement: async (announcementId: string, data: AnnouncementUpdateRequest): Promise<Announcement> => {
     const response = await apiClient.patch(`/announcement-admin/announcement/${announcementId}`, data);

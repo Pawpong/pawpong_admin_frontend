@@ -1,86 +1,67 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios';
+import { useAuthStore } from '../../features/auth/store/authStore';
 
-// API 베이스 URL (포트 수정: 8080)
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.DEV
+  ? '/api'
+  : import.meta.env.VITE_API_BASE_URL || 'https://api.pawpong.kr/api';
 
-// Axios 인스턴스 생성
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
 });
 
-// 요청 인터셉터: 액세스 토큰 자동 추가
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('accessToken');
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
+class SessionChangedError extends Error {}
 
-// 응답 인터셉터: 에러 처리 및 토큰 갱신
+let refreshInFlight: Promise<string> | null = null;
+
+function refreshAccessToken(): Promise<string> {
+  if (!refreshInFlight) {
+    refreshInFlight = (async () => {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (!refreshToken) throw new Error('No refresh token');
+      const response = await axios.post(`${API_BASE_URL}/auth-admin/refresh`, { refreshToken }, { timeout: 10000 });
+      if (localStorage.getItem('refreshToken') !== refreshToken) throw new SessionChangedError('Session changed');
+      const accessToken = response.data.data?.accessToken;
+      if (typeof accessToken !== 'string' || !accessToken) throw new Error('Invalid access token');
+      // 관리자 갱신 응답은 accessToken만 반환한다. 기존 refreshToken을 유지한다.
+      useAuthStore.getState().updateTokens(accessToken, refreshToken);
+      return accessToken;
+    })().finally(() => { refreshInFlight = null; });
+  }
+  return refreshInFlight;
+}
+
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('accessToken');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
 apiClient.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   async (error) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-
-    // 401 에러이고 재시도하지 않았다면 토큰 갱신 시도
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        const refreshToken = localStorage.getItem('refreshToken');
-        if (!refreshToken) {
-          throw new Error('No refresh token');
-        }
-
-        // 토큰 갱신 API 호출 (관리자용)
-        const response = await axios.post(`${API_BASE_URL}/auth-admin/refresh`, {
-          refreshToken,
-        });
-
-        const { accessToken, refreshToken: newRefreshToken } = response.data.data;
-
-        // 새 토큰 저장
-        localStorage.setItem('accessToken', accessToken);
-        if (newRefreshToken) {
-          localStorage.setItem('refreshToken', newRefreshToken);
-        }
-
-        // 원래 요청 재시도
-        if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-        }
-        return apiClient(originalRequest);
-      } catch (refreshError) {
-        // 토큰 갱신 실패 시 로그아웃 처리 및 상태 완전 초기화
-        console.error('Token refresh failed:', refreshError);
-
-        // 로컬 스토리지 완전 초기화
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('auth-storage'); // Zustand persist storage
-
-        // 로그인 페이지로 강제 리다이렉트
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
-        }
-
-        return Promise.reject(new Error('세션이 만료되었습니다. 다시 로그인해주세요.'));
-      }
+    const request = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined;
+    // 로그인 실패는 입력 오류로 그대로 전달하고, 갱신 요청 자체는 재시도하지 않는다.
+    if (!request || error.response?.status !== 401 || request._retry ||
+        request.url === '/auth-admin/login' || request.url === '/auth-admin/refresh') {
+      return Promise.reject(error);
     }
-
-    return Promise.reject(error);
+    request._retry = true;
+    try {
+      const currentToken = localStorage.getItem('accessToken');
+      // 다른 요청이 이미 토큰을 갱신했다면 늦게 도착한 401도 새 토큰으로 재시도한다.
+      const token = currentToken && request.headers.Authorization !== `Bearer ${currentToken}`
+        ? currentToken
+        : await refreshAccessToken();
+      request.headers.Authorization = `Bearer ${token}`;
+      return apiClient(request);
+    } catch (refreshError) {
+      if (refreshError instanceof SessionChangedError) return Promise.reject(refreshError);
+      useAuthStore.getState().logout();
+      if (window.location.pathname !== '/login') window.location.href = '/login';
+      return Promise.reject(new Error('세션이 만료되었습니다. 다시 로그인해주세요.'));
+    }
   },
 );
 

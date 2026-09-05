@@ -1,0 +1,53 @@
+import type { ThemeConfig } from 'antd';
+
+/** Figma 2026 pawpong: 139:70 (tokens), 743:70331 (40px primary button). */
+export const adminTheme: ThemeConfig = {
+  token: {
+    colorPrimary: '#AD651D',
+    colorLink: '#8A5117',
+    colorInfo: '#276AEF',
+    colorSuccess: '#238636',
+    colorWarning: '#B77916',
+    colorError: '#D63D4A',
+    colorText: '#3E3E3E',
+    colorTextSecondary: '#717171',
+    colorBorder: '#E4E4E4',
+    colorBorderSecondary: '#EDEDED',
+    colorBgLayout: '#F6F6F6',
+    colorBgContainer: '#FFFFFF',
+    fontFamily: 'Pretendard, -apple-system, BlinkMacSystemFont, sans-serif',
+    fontSize: 14,
+    lineHeight: 1.5,
+    borderRadius: 12,
+    controlHeight: 40,
+    controlHeightLG: 48,
+    controlHeightSM: 32,
+  },
+  components: {
+    Button: {
+      borderRadius: 999,
+      borderRadiusLG: 999,
+      borderRadiusSM: 999,
+      fontWeight: 600,
+      primaryColor: '#3E3E3E',
+      colorPrimary: '#FFFE72',
+      colorPrimaryHover: '#FFFFAA',
+      colorPrimaryActive: '#DBDA5B',
+      primaryShadow: 'none',
+      defaultShadow: 'none',
+    },
+    Table: {
+      headerBg: '#FAFAFA',
+      headerColor: '#717171',
+      headerSplitColor: 'transparent',
+      rowHoverBg: '#FFFFF1',
+      cellPaddingBlock: 18,
+      borderColor: '#EDEDED',
+    },
+    Card: { headerFontSize: 16, headerHeight: 60, paddingLG: 24, boxShadowTertiary: 'none' },
+    Input: { activeShadow: '0 0 0 2px #F5EADF', paddingInline: 14 },
+    Tabs: { inkBarColor: '#AD651D', itemSelectedColor: '#683D11', itemHoverColor: '#AD651D' },
+    Tag: { borderRadiusSM: 6, defaultBg: '#F6F6F6', defaultColor: '#565656' },
+    Modal: { borderRadiusLG: 20 },
+  },
+};

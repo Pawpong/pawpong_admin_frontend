@@ -1,13 +1,15 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Form, message } from 'antd';
 
-import { breederApi } from '../api/breederApi';
+import { breederApi, type BreederAccountType } from '../api/breederApi';
 import type { BreederVerification } from '../../../shared/types/api.types';
 
 /**
  * 브리더 관리(승인된 브리더) 비즈니스 로직 훅
  */
 export function useBreederManagement() {
+  const [accountType, setAccountType] = useState<BreederAccountType>('all');
+  const listRequest = useRef(0);
   const [loading, setLoading] = useState(false);
   const [dataSource, setDataSource] = useState<BreederVerification[]>([]);
   const [total, setTotal] = useState(0);
@@ -25,18 +27,21 @@ export function useBreederManagement() {
   const [suspendForm] = Form.useForm();
 
   const fetchBreeders = useCallback(async () => {
+    const requestId = ++listRequest.current;
     setLoading(true);
     try {
-      const response = await breederApi.getBreeders('approved', currentPage, pageSize);
+      const response = await breederApi.getBreeders('approved', currentPage, pageSize, accountType);
+      if (requestId !== listRequest.current) return;
       setDataSource(response.items);
       setTotal(response.pagination.totalItems);
     } catch (error: unknown) {
+      if (requestId !== listRequest.current) return;
       console.error('Failed to fetch breeders:', error);
       message.error('브리더 목록을 불러올 수 없습니다.');
     } finally {
-      setLoading(false);
+      if (requestId === listRequest.current) setLoading(false);
     }
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, accountType]);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -153,7 +158,17 @@ export function useBreederManagement() {
     [pageSize],
   );
 
+  const onAccountTypeChange = (value: BreederAccountType) => {
+    listRequest.current++;
+    setAccountType(value);
+    setCurrentPage(1);
+    setSelectedBreeders([]);
+    setDataSource([]);
+  };
+
   return {
+    accountType,
+    onAccountTypeChange,
     dataSource,
     loading,
     total,

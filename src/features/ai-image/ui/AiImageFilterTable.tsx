@@ -39,7 +39,7 @@ export function AiImageFilterTable({
       render: (thumbnailUrl?: string) =>
         thumbnailUrl ? (
           <Image
-            src={thumbnailUrl}
+            src={thumbnailUrl || undefined}
             alt="필터 썸네일"
             width={80}
             height={80}

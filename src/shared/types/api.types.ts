@@ -82,7 +82,7 @@ export interface BreederVerification {
       fileName: string;
       fileUrl?: string;
       url?: string; // 호환성을 위해 유지
-      uploadedAt: Date;
+      uploadedAt?: string;
     }>;
     isSubmittedByEmail?: boolean;
   };
@@ -116,13 +116,10 @@ export interface VerificationAction {
  */
 export interface BreederReport {
   reportId: string;
-  reporterId: string;
-  reporterName: string;
   type: string;
   description: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'resolved' | 'dismissed';
   reportedAt: string;
-  targetType: 'breeder';
   targetId: string;
   targetName: string;
   adminNotes?: string;
@@ -151,36 +148,7 @@ export interface ReportAction {
 /**
  * 콘텐츠 관련 타입 (백엔드 API와 일치)
  */
-export interface Banner {
-  bannerId: string;
-  imageUrl: string;
-  linkType: 'internal' | 'external';
-  linkUrl: string;
-  title?: string;
-  description?: string;
-  order: number;
-  isActive?: boolean;
-}
-
-export interface BannerCreateRequest {
-  imageFileName: string;
-  linkType: 'internal' | 'external';
-  linkUrl: string;
-  order?: number;
-  isActive?: boolean;
-  title?: string;
-  description?: string;
-}
-
-export interface BannerUpdateRequest {
-  imageFileName?: string;
-  linkType?: 'internal' | 'external';
-  linkUrl?: string;
-  order?: number;
-  isActive?: boolean;
-  title?: string;
-  description?: string;
-}
+export type { Banner, BannerCreateRequest, BannerUpdateRequest } from '../../features/home/api/homeApi';
 
 export interface FAQ {
   faqId: string;
@@ -441,9 +409,7 @@ export interface UserStatusUpdateRequest {
 }
 
 export interface UserStatusUpdateResponse {
-  userId: string;
-  accountStatus: string;
-  updatedAt: string;
+  message: string;
 }
 
 /**
@@ -583,7 +549,7 @@ export interface PhoneWhitelistUpdateRequest {
 
 export interface PhoneWhitelistListResponse {
   items: PhoneWhitelist[];
-  totalCount: number;
+  total: number;
 }
 
 /**

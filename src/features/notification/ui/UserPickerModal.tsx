@@ -198,7 +198,7 @@ export function UserPickerModal({ open, initialRole = 'adopter', onCancel, onPic
             title="사용자 검색"
             width={900}
             footer={null}
-            destroyOnClose
+            destroyOnHidden
         >
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                 <Alert
