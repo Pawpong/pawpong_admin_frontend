@@ -766,18 +766,25 @@ a:focus-visible {
     padding: 20px 16px;
   }
   .login-page {
-    grid-template-columns: 1fr;
+    /* 자동 grid 행이 남은 화면 높이를 나눠 로고 영역을 늘리지 않도록 한다. */
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
   }
   .login-story {
+    flex: none;
     min-height: 0;
-    padding: 28px;
+    padding: 24px;
   }
   .login-story > div,
   .login-story > small {
     display: none;
   }
   .login-form-panel {
-    padding: 42px 28px;
+    flex: 1;
+    align-items: start;
+    padding: 36px 24px 32px;
+    min-width: 0;
   }
   .login-form-inner h2.ant-typography {
     margin-top: 18px;
