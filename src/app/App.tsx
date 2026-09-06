@@ -8,6 +8,7 @@ import koKR from 'antd/locale/ko_KR';
 import AdminLayout from '../shared/components/layout/AdminLayout';
 import { useAuthStore } from '../features/auth/store/authStore';
 
+const Support = lazy(() => import('../pages/Support'));
 const CommunityReports = lazy(() => import('../pages/reports/CommunityReports'));
 const PopularKeywords = lazy(() => import('../pages/settings/PopularKeywords'));
 const SystemHealth = lazy(() => import('../pages/settings/SystemHealth'));
@@ -72,6 +73,7 @@ function App() {
                   </ProtectedRoute>
                 }
               >
+                <Route path="support" element={<Support />} />
                 <Route path="reports/community" element={<CommunityReports />} />
                 <Route path="settings/keywords" element={<PopularKeywords />} />
                 <Route path="settings/health" element={<SystemHealth />} />
