@@ -832,3 +832,45 @@ a:focus-visible {
   .system-health-page .ant-card-body { padding: 16px; }
   .system-health-page .ant-table-tbody > tr > td { padding: 16px 12px; }
 }
+
+.verification-detail-modal .ant-descriptions-item-label { min-width: 100px; white-space: nowrap; }
+.verification-detail-modal .ant-descriptions-item-content { overflow-wrap: anywhere; }
+.verification-detail-section { margin-top: 28px; }
+.verification-detail-section h3 { margin: 0 0 16px; font-size: 16px; }
+.verification-documents-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.verification-documents-heading h3 { margin: 0; }
+.application-text { white-space: pre-wrap; line-height: 1.8; }
+.verification-document-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+.verification-document { border: 1px solid #ededed; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.verification-document h4, .verification-document p { margin: 0; }
+.verification-document .ant-image-img { height: 180px; object-fit: contain; background: #fafafa; }
+.verification-file-icon { display: grid; place-content: center; gap: 12px; text-align: center; min-height: 180px; background: #fafafa; color: #777; }
+.verification-file-icon .anticon { font-size: 36px; }
+@media (max-width: 767px) { .verification-document-grid { grid-template-columns: 1fr; } .verification-detail-section { margin-top: 24px; } }
+
+.verification-detail-modal .ant-modal-content { padding: 28px; }
+.verification-detail-modal .ant-modal-header { margin-bottom: 24px; }
+.verification-detail-modal .ant-descriptions-bordered .ant-descriptions-item-label,
+.verification-detail-modal .ant-descriptions-bordered .ant-descriptions-item-content { padding: 14px 16px; }
+.verification-detail-section > .muted { margin: 12px 0 16px; line-height: 1.7; }
+.verification-detail-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 28px; padding-top: 20px; border-top: 1px solid #ededed; }
+.verification-detail-actions .ant-btn { width: auto; min-width: 100px; }
+.alimtalk-preview { display: flex; flex-direction: column; gap: 16px; margin-top: 24px; }
+.alimtalk-preview h3, .alimtalk-preview p { margin: 0; }
+.alimtalk-variable { display: grid; grid-template-columns: minmax(100px,1fr) 2fr; align-items: center; gap: 12px; }
+.alimtalk-preview-button { border: 1px solid #eee; border-radius: 10px; padding: 16px; overflow-wrap: anywhere; }
+.alimtalk-preview pre { white-space: pre-wrap; overflow-wrap: anywhere; padding: 16px; background: #fafafa; }
+.approval-preview { padding-top: 12px; }
+@media (max-width: 767px) {
+  .verification-detail-modal .ant-modal-content { padding: 20px 16px; }
+  .verification-detail-modal .ant-descriptions-bordered .ant-descriptions-item-label,
+  .verification-detail-modal .ant-descriptions-bordered .ant-descriptions-item-content { padding: 12px; }
+  .verification-detail-actions { flex-wrap: wrap; gap: 8px; margin-top: 24px; padding-top: 16px; }
+  .verification-detail-actions .ant-btn { flex: 1 1 100px; }
+  .alimtalk-variable { grid-template-columns: 1fr; gap: 8px; }
+}
+
+.verification-pdf-viewer { display: block; width: 100%; height: 72vh; min-height: 320px; border: 1px solid #ddd; border-radius: 8px; background: #f5f5f5; }
+.verification-pdf-modal .ant-modal-body > .muted { margin: 16px 0; line-height: 1.7; }
+.verification-pdf-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+@media (max-width: 767px) { .verification-pdf-modal .ant-modal-content { padding: 16px; } .verification-pdf-viewer { height: 65vh; } }

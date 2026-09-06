@@ -70,6 +70,8 @@ export interface BreederVerification {
   breederName: string;
   emailAddress: string;
   phoneNumber?: string;
+  businessName?: string;
+  businessNumber?: string;
   accountStatus?: 'active' | 'suspended' | 'deleted';
   isTestAccount?: boolean;
   verificationInfo: {
@@ -77,6 +79,7 @@ export interface BreederVerification {
     subscriptionPlan: 'basic' | 'pro';
     submittedAt?: string;
     processedAt?: string;
+    rejectionReason?: string;
     documents?: Array<{
       type: string;
       fileName: string;

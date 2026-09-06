@@ -1,3 +1,4 @@
+import { AlimtalkPreviewByCode } from '../../alimtalk/ui/AlimtalkPreview';
 import { Modal, Form, Checkbox, Input } from 'antd';
 import type { FormInstance } from 'antd';
 
@@ -69,6 +70,7 @@ export function VerificationRejectModal({ visible, processing, form, onOk, onCan
           </p>
         </div>
       </Form>
+      {visible && <AlimtalkPreviewByCode code="BREEDER_REJECTED" />}
     </Modal>
   );
 }

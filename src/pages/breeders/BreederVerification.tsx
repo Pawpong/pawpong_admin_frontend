@@ -1,8 +1,10 @@
+import { AlimtalkPreviewByCode } from '../../features/alimtalk/ui/AlimtalkPreview';
+import type { BreederVerification as BreederRecord } from '../../shared/types/api.types';
 import { BreederSearchBar } from '../../features/breeder/ui/BreederSearchBar';
 import { LoadError } from '../../shared/components/admin/PageHeading';
 import { useState } from 'react';
 import { operationsApi } from '../../features/operations/api/operationsApi';
-import { App, Card, Tabs, Button, Popconfirm } from 'antd';
+import { App, Card, Tabs, Button, Popconfirm, Modal, Alert } from 'antd';
 import { FileTextOutlined, BellOutlined } from '@ant-design/icons';
 
 import { useBreederVerification } from '../../features/breeder/hooks/useBreederVerification';
@@ -17,6 +19,7 @@ import { VerificationRemindModal } from '../../features/breeder/ui/VerificationR
  */
 export default function BreederVerification() {
   const { message } = App.useApp();
+  const [approvalTarget, setApprovalTarget] = useState<BreederRecord | null>(null);
   const [sendingReminders, setSendingReminders] = useState(false);
   const {
     processing,
@@ -139,7 +142,13 @@ export default function BreederVerification() {
         onPageChange={onPageChange}
         onViewDetails={handleViewDetails}
         onMarkAsReviewing={handleMarkAsReviewing}
-        onApprove={handleApprove}
+        onApprove={(id) => {
+          const record =
+            detail.selectedBreeder?.breederId === id
+              ? detail.selectedBreeder
+              : dataSource.find((row) => row.breederId === id);
+          if (record) setApprovalTarget(record);
+        }}
         onReject={reject.openRejectModal}
       />
 
@@ -148,10 +157,53 @@ export default function BreederVerification() {
         visible={detail.isDetailModalOpen}
         breeder={detail.selectedBreeder}
         onClose={detail.closeDetail}
+        onRefresh={() => {
+          if (detail.selectedBreeder) void handleViewDetails(detail.selectedBreeder);
+        }}
         onMarkAsReviewing={handleMarkAsReviewing}
-        onApprove={handleApprove}
+        onApprove={(id) => {
+          const record =
+            detail.selectedBreeder?.breederId === id
+              ? detail.selectedBreeder
+              : dataSource.find((row) => row.breederId === id);
+          if (record) setApprovalTarget(record);
+        }}
         onReject={reject.openRejectModal}
       />
+
+      <Modal
+        title="승인 전 알림 확인"
+        open={!!approvalTarget}
+        width={720}
+        confirmLoading={processing}
+        okText="확인 후 승인"
+        cancelText="취소"
+        closable={!processing}
+        maskClosable={!processing}
+        cancelButtonProps={{ disabled: processing }}
+        onCancel={() => setApprovalTarget(null)}
+        onOk={async () => {
+          if (approvalTarget) {
+            await handleApprove(approvalTarget.breederId);
+            setApprovalTarget(null);
+          }
+        }}
+      >
+        {approvalTarget && (
+          <div className="approval-preview">
+            <p>
+              <strong>{approvalTarget.breederName}</strong> · {approvalTarget.emailAddress}
+            </p>
+            <Alert
+              type="info"
+              showIcon
+              message="승인 시 서비스 알림·이메일·푸시 처리 흐름이 실행됩니다."
+              description="알림톡 템플릿 등록 여부만으로 실제 발송 연동을 보장하지 않습니다. 아래 미리보기 값은 승인 요청에 포함되지 않습니다."
+            />
+            <AlimtalkPreviewByCode code="BREEDER_APPROVED" />
+          </div>
+        )}
+      </Modal>
 
       <VerificationRejectModal
         processing={processing}

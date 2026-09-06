@@ -84,6 +84,8 @@ export const breederApi = {
       breederName: detail.nickname,
       emailAddress: detail.email,
       phoneNumber: detail.phone,
+      businessName: detail.businessName,
+      businessNumber: detail.businessNumber,
       verificationInfo: detail.verificationInfo,
       profileInfo: detail.profileInfo,
       createdAt: detail.createdAt,

@@ -1,3 +1,4 @@
+import { AlimtalkPreview } from './AlimtalkPreview';
 import { Modal, Button, Tag, Descriptions, Card } from 'antd';
 
 import type { AlimtalkTemplate, AlimtalkButtonType } from '../../../shared/types/api.types';
@@ -12,8 +13,14 @@ const REVIEW_STATUS: Record<string, { color: string; text: string }> = {
 
 /** 버튼 타입 텍스트 */
 const BUTTON_TYPE_TEXT: Record<AlimtalkButtonType, string> = {
-  WL: '웹링크', AL: '앱링크', BK: '봇키워드', MD: '메시지전달',
-  DS: '배송조회', BC: '상담톡전환', BT: '봇전환', AC: '채널추가',
+  WL: '웹링크',
+  AL: '앱링크',
+  BK: '봇키워드',
+  MD: '메시지전달',
+  DS: '배송조회',
+  BC: '상담톡전환',
+  BT: '봇전환',
+  AC: '채널추가',
 };
 
 interface AlimtalkDetailModalProps {
@@ -28,7 +35,11 @@ export function AlimtalkDetailModal({ visible, template, onClose }: AlimtalkDeta
       title="알림톡 템플릿 상세"
       open={visible}
       onCancel={onClose}
-      footer={[<Button key="close" onClick={onClose}>닫기</Button>]}
+      footer={[
+        <Button key="close" onClick={onClose}>
+          닫기
+        </Button>,
+      ]}
       width={800}
     >
       {template && (
@@ -43,7 +54,9 @@ export function AlimtalkDetailModal({ visible, template, onClose }: AlimtalkDeta
               <span style={{ fontFamily: 'monospace', fontSize: '12px' }}>{template.templateId}</span>
             </Descriptions.Item>
             <Descriptions.Item label="검수 상태">
-              <Tag color={REVIEW_STATUS[template.reviewStatus]?.color}>{REVIEW_STATUS[template.reviewStatus]?.text}</Tag>
+              <Tag color={REVIEW_STATUS[template.reviewStatus]?.color}>
+                {REVIEW_STATUS[template.reviewStatus]?.text}
+              </Tag>
             </Descriptions.Item>
             <Descriptions.Item label="활성화">
               <Tag color={template.isActive ? 'success' : 'default'}>{template.isActive ? 'ON' : 'OFF'}</Tag>
@@ -55,14 +68,35 @@ export function AlimtalkDetailModal({ visible, template, onClose }: AlimtalkDeta
             <Descriptions.Item label="수정일">{template.updatedAt}</Descriptions.Item>
           </Descriptions>
 
+          <AlimtalkPreview key={template.templateCode} template={template} />
           {template.buttons.length > 0 && (
             <Card title="알림톡 버튼" style={{ marginTop: '16px' }} size="small">
               {template.buttons.map((button, index) => (
-                <Card key={index} type="inner" title={`버튼 ${index + 1}: ${button.buttonName}`} size="small" style={{ marginBottom: index < template.buttons.length - 1 ? '8px' : 0 }}>
+                <Card
+                  key={index}
+                  type="inner"
+                  title={`버튼 ${index + 1}: ${button.buttonName}`}
+                  size="small"
+                  style={{ marginBottom: index < template.buttons.length - 1 ? '8px' : 0 }}
+                >
                   <Descriptions column={1} size="small">
-                    <Descriptions.Item label="버튼 타입"><Tag>{BUTTON_TYPE_TEXT[button.buttonType]}</Tag></Descriptions.Item>
-                    {button.linkMo && <Descriptions.Item label="모바일 링크"><a href={button.linkMo} target="_blank" rel="noopener noreferrer">{button.linkMo}</a></Descriptions.Item>}
-                    {button.linkPc && <Descriptions.Item label="PC 링크"><a href={button.linkPc} target="_blank" rel="noopener noreferrer">{button.linkPc}</a></Descriptions.Item>}
+                    <Descriptions.Item label="버튼 타입">
+                      <Tag>{BUTTON_TYPE_TEXT[button.buttonType]}</Tag>
+                    </Descriptions.Item>
+                    {button.linkMo && (
+                      <Descriptions.Item label="모바일 링크">
+                        <a href={button.linkMo} target="_blank" rel="noopener noreferrer">
+                          {button.linkMo}
+                        </a>
+                      </Descriptions.Item>
+                    )}
+                    {button.linkPc && (
+                      <Descriptions.Item label="PC 링크">
+                        <a href={button.linkPc} target="_blank" rel="noopener noreferrer">
+                          {button.linkPc}
+                        </a>
+                      </Descriptions.Item>
+                    )}
                     {button.linkAnd && <Descriptions.Item label="Android 스킴">{button.linkAnd}</Descriptions.Item>}
                     {button.linkIos && <Descriptions.Item label="iOS 스킴">{button.linkIos}</Descriptions.Item>}
                   </Descriptions>

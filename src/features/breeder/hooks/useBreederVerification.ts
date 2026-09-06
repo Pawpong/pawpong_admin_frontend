@@ -70,6 +70,7 @@ export function useBreederVerification() {
       const detailData = await breederApi.getBreederDetail(record.breederId);
       setSelectedBreeder({
         ...record,
+        ...detailData,
         verificationInfo: {
           ...record.verificationInfo,
           ...detailData.verificationInfo,

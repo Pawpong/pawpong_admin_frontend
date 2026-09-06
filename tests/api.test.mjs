@@ -135,9 +135,11 @@ test('empty announcement page terminates', async () => {
 
 test('breeder detail maps backend identity fields and retains document URLs', async () => {
   const verificationInfo = { verificationStatus: 'pending', documents: [{ fileUrl: 'https://cdn.test/doc.pdf' }] };
-  client.defaults.adapter = async (config) => response(config, { data: { breederId: 'breeder', nickname: 'name', email: 'test@example.test', phone: '010', verificationInfo } });
+  client.defaults.adapter = async (config) => response(config, { data: { breederId: 'breeder', nickname: 'name', email: 'test@example.test', phone: '010', businessName: '상호', businessNumber: '123', verificationInfo } });
   const detail = await breederApi.getBreederDetail('breeder');
   assert.equal(detail.breederName, 'name');
+  assert.equal(detail.businessName, '상호');
+  assert.equal(detail.businessNumber, '123');
   assert.equal(detail.emailAddress, 'test@example.test');
   assert.deepEqual(detail.verificationInfo, verificationInfo);
 });
