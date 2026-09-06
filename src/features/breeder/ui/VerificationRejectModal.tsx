@@ -7,16 +7,21 @@ const { TextArea } = Input;
 
 interface Props {
   visible: boolean;
+  processing: boolean;
   form: FormInstance;
   onOk: () => void;
   onCancel: () => void;
 }
 
-export function VerificationRejectModal({ visible, form, onOk, onCancel }: Props) {
+export function VerificationRejectModal({ visible, processing, form, onOk, onCancel }: Props) {
   return (
     <Modal
       title="브리더 인증 반려"
       open={visible}
+      confirmLoading={processing}
+      cancelButtonProps={{ disabled: processing }}
+      closable={!processing}
+      maskClosable={!processing}
       onOk={onOk}
       onCancel={onCancel}
       okText="반려 처리"

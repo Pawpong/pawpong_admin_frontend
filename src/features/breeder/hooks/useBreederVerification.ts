@@ -1,6 +1,7 @@
+import { canChangeVerification } from '../model/verificationActions';
 import { useRemoteData } from '../../../shared/hooks/useRemoteData';
 import { useBreederFilters } from './useBreederFilters';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import { Form, message } from 'antd';
 
 import { breederApi, type BreederAccountType } from '../api/breederApi';
@@ -39,6 +40,8 @@ export function useBreederVerification() {
   const [selection, setSelection] = useState<{ key: string; ids: string[] }>({ key: '', ids: [] });
   const selectedBreeders = useMemo(() => (selection.key === filterKey ? selection.ids : []), [selection, filterKey]);
   const setSelectedBreeders = useCallback((ids: string[]) => setSelection({ key: filterKey, ids }), [filterKey]);
+  const mutationLock = useRef(false);
+  const [processing, setProcessing] = useState(false);
   const [loading, setLoading] = useState(false);
   /* 상세 보기 모달 */
   const [selectedBreeder, setSelectedBreeder] = useState<BreederVerification | null>(null);
@@ -84,42 +87,63 @@ export function useBreederVerification() {
     }
   }, []);
 
-  const handleMarkAsReviewing = useCallback(
-    async (breederId: string) => {
+  const changeVerification = useCallback(
+    async (breederId: string, next: 'reviewing' | 'approved' | 'rejected', rejectionReason?: string) => {
+      if (mutationLock.current) return false;
+      mutationLock.current = true;
+      setProcessing(true);
       try {
+        const latest = await breederApi.getBreederDetail(breederId);
+        if (!canChangeVerification(latest.verificationInfo?.verificationStatus, next)) {
+          message.warning('현재 상태에서는 처리할 수 없습니다. 최신 목록을 확인해주세요.');
+          setIsDetailModalOpen(false);
+          setIsRejectModalOpen(false);
+          fetchVerifications();
+          return false;
+        }
         await breederApi.updateVerification(breederId, {
-          verificationStatus: 'reviewing',
+          verificationStatus: next,
+          ...(rejectionReason ? { rejectionReason } : {}),
         });
-        message.success('리뷰 완료로 표시되었습니다.');
         setIsDetailModalOpen(false);
+        setIsRejectModalOpen(false);
+        setSelectedBreeder(null);
         fetchVerifications();
-      } catch (error: unknown) {
-        console.error('Mark as reviewing failed:', error);
-        message.error('상태 변경에 실패했습니다.');
+        return true;
+      } finally {
+        mutationLock.current = false;
+        setProcessing(false);
       }
     },
     [fetchVerifications],
+  );
+
+  const handleMarkAsReviewing = useCallback(
+    async (breederId: string) => {
+      try {
+        if (await changeVerification(breederId, 'reviewing')) message.success('검토 중으로 변경되었습니다.');
+      } catch {
+        message.error('상태 변경에 실패했습니다.');
+      }
+    },
+    [changeVerification],
   );
 
   const handleApprove = useCallback(
     async (breederId: string) => {
       try {
-        await breederApi.updateVerification(breederId, {
-          verificationStatus: 'approved',
-        });
-        message.success('브리더 인증이 승인되었습니다.');
-        setIsDetailModalOpen(false);
-        fetchVerifications();
-      } catch (error: unknown) {
-        console.error('Approve failed:', error);
+        if (await changeVerification(breederId, 'approved')) message.success('브리더 인증이 승인되었습니다.');
+      } catch {
         message.error('승인에 실패했습니다.');
       }
     },
-    [fetchVerifications],
+    [changeVerification],
   );
 
   const openRejectModal = useCallback(
     (record: BreederVerification) => {
+      if (mutationLock.current || !canChangeVerification(record.verificationInfo?.verificationStatus, 'rejected'))
+        return;
       setSelectedBreeder(record);
       setIsRejectModalOpen(true);
       rejectForm.resetFields();
@@ -137,19 +161,14 @@ export function useBreederVerification() {
 
       if (!selectedBreeder) return;
 
-      await breederApi.updateVerification(selectedBreeder.breederId, {
-        verificationStatus: 'rejected',
-        rejectionReason,
-      });
-
-      message.success('브리더 인증이 반려되었습니다. 반려 사유가 이메일로 발송됩니다.');
-      setIsRejectModalOpen(false);
-      fetchVerifications();
+      if (await changeVerification(selectedBreeder.breederId, 'rejected', rejectionReason)) {
+        message.success('브리더 인증이 반려되었습니다. 반려 사유가 이메일로 발송됩니다.');
+      }
     } catch (error: unknown) {
       console.error('Rejection failed:', error);
       message.error('반려 처리에 실패했습니다.');
     }
-  }, [rejectForm, selectedBreeder, fetchVerifications]);
+  }, [rejectForm, selectedBreeder, changeVerification]);
 
   const handleDocumentRemindClick = useCallback(() => {
     if (selectedBreeders.length === 0) {
@@ -179,6 +198,7 @@ export function useBreederVerification() {
   const onReset = () => update({ q: undefined, city: undefined, accountType: undefined, status: undefined, page: 1 });
 
   return {
+    processing,
     searchKeyword,
     cityName,
     onSearch,

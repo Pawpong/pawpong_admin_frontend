@@ -810,3 +810,25 @@ a:focus-visible {
   .breeder-search-bar .ant-form-item { flex: 1 1 100%; width: 100%; }
   .breeder-search-options { width: 100%; flex-wrap: wrap; }
 }
+
+/* Explicit section spacing: independent of utility CSS generation. */
+.system-health-page { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.system-health-page > .page-heading,
+.system-health-page > .metric-grid,
+.system-health-page > .ant-alert { margin-bottom: 0; }
+.system-health-page .service-grid { gap: 24px; }
+.system-health-page .ant-card-head { padding-inline: 24px; min-height: 60px; }
+.system-health-page .ant-card-body { padding: 24px; }
+.system-health-page .service-last-error { margin: 12px 0 0; line-height: 1.6; }
+.health-issues-context { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.health-issues-context p { margin: 0; line-height: 1.7; }
+.health-issue-description strong { display: block; line-height: 1.6; }
+.health-issue-description p { margin: 8px 0 0; line-height: 1.7; }
+.system-health-page .ant-table-tbody > tr > td { padding: 20px 16px; vertical-align: top; }
+@media (max-width: 767px) {
+  .system-health-page { gap: 20px; }
+  .system-health-page .service-grid { gap: 16px; }
+  .system-health-page .ant-card-head { padding-inline: 16px; min-height: 52px; }
+  .system-health-page .ant-card-body { padding: 16px; }
+  .system-health-page .ant-table-tbody > tr > td { padding: 16px 12px; }
+}

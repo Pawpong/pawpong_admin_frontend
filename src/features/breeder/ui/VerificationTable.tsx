@@ -1,3 +1,4 @@
+import { canChangeVerification } from '../model/verificationActions';
 import { Table, Tag, Space, Button } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -14,6 +15,7 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
 interface VerificationTableProps {
   dataSource: BreederVerification[];
   loading: boolean;
+  processing: boolean;
   currentPage: number;
   pageSize: number;
   totalCount: number;
@@ -29,6 +31,7 @@ interface VerificationTableProps {
 export function VerificationTable({
   dataSource,
   loading,
+  processing,
   currentPage,
   pageSize,
   totalCount,
@@ -79,20 +82,33 @@ export function VerificationTable({
           <Button type="link" icon={<EyeOutlined />} onClick={() => onViewDetails(record)}>
             상세 보기
           </Button>
-          <Button onClick={() => onMarkAsReviewing(record.breederId)} size="small">
-            검토 시작
-          </Button>
-          <Button
-            type="primary"
-            icon={<CheckCircleOutlined />}
-            onClick={() => onApprove(record.breederId)}
-            size="small"
-          >
-            승인
-          </Button>
-          <Button danger icon={<CloseCircleOutlined />} onClick={() => onReject(record)} size="small">
-            반려
-          </Button>
+          {canChangeVerification(record.verificationInfo?.verificationStatus, 'reviewing') && (
+            <Button disabled={processing} onClick={() => onMarkAsReviewing(record.breederId)} size="small">
+              검토 시작
+            </Button>
+          )}
+          {canChangeVerification(record.verificationInfo?.verificationStatus, 'approved') && (
+            <Button
+              disabled={processing}
+              type="primary"
+              icon={<CheckCircleOutlined />}
+              onClick={() => onApprove(record.breederId)}
+              size="small"
+            >
+              승인
+            </Button>
+          )}
+          {canChangeVerification(record.verificationInfo?.verificationStatus, 'rejected') && (
+            <Button
+              disabled={processing}
+              danger
+              icon={<CloseCircleOutlined />}
+              onClick={() => onReject(record)}
+              size="small"
+            >
+              반려
+            </Button>
+          )}
         </Space>
       ),
     },
@@ -106,7 +122,13 @@ export function VerificationTable({
         rowKey="breederId"
         loading={loading}
         scroll={{ x: 800 }}
-        rowSelection={{ selectedRowKeys: selectedBreeders, onChange: (keys) => onSelectChange(keys as string[]) }}
+        rowSelection={{
+          getCheckboxProps: (record) => ({
+            disabled: processing || record.verificationInfo?.verificationStatus !== 'pending',
+          }),
+          selectedRowKeys: selectedBreeders,
+          onChange: (keys) => onSelectChange(keys as string[]),
+        }}
         pagination={{
           current: currentPage,
           pageSize,

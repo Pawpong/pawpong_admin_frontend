@@ -1,3 +1,4 @@
+import { canChangeVerification } from '../model/verificationActions';
 import { Modal, Descriptions, Tag, Image, Button } from 'antd';
 import { EyeOutlined, FileTextOutlined } from '@ant-design/icons';
 
@@ -13,6 +14,7 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
 
 interface Props {
   visible: boolean;
+  processing: boolean;
   breeder: BreederVerification | null;
   onClose: () => void;
   onMarkAsReviewing: (id: string) => void;
@@ -20,7 +22,15 @@ interface Props {
   onReject: (record: BreederVerification) => void;
 }
 
-export function VerificationDetailModal({ visible, breeder, onClose, onMarkAsReviewing, onApprove, onReject }: Props) {
+export function VerificationDetailModal({
+  visible,
+  processing,
+  breeder,
+  onClose,
+  onMarkAsReviewing,
+  onApprove,
+  onReject,
+}: Props) {
   if (!breeder) return null;
   const status = breeder.verificationInfo?.verificationStatus;
   const statusInfo = STATUS_MAP[status] || { label: status, color: 'default' };
@@ -143,23 +153,41 @@ export function VerificationDetailModal({ visible, breeder, onClose, onMarkAsRev
         <Button onClick={onClose} block className="sm:w-auto">
           닫기
         </Button>
-        <Button block className="sm:w-auto" onClick={() => onMarkAsReviewing(breeder.breederId)}>
-          검토 시작
-        </Button>
-        <Button type="primary" block className="sm:w-auto" onClick={() => onApprove(breeder.breederId)}>
-          승인
-        </Button>
-        <Button
-          danger
-          block
-          className="sm:w-auto"
-          onClick={() => {
-            onClose();
-            onReject(breeder);
-          }}
-        >
-          반려
-        </Button>
+        {canChangeVerification(breeder.verificationInfo?.verificationStatus, 'reviewing') && (
+          <Button
+            disabled={processing}
+            block
+            className="sm:w-auto"
+            onClick={() => onMarkAsReviewing(breeder.breederId)}
+          >
+            검토 시작
+          </Button>
+        )}
+        {canChangeVerification(breeder.verificationInfo?.verificationStatus, 'approved') && (
+          <Button
+            disabled={processing}
+            type="primary"
+            block
+            className="sm:w-auto"
+            onClick={() => onApprove(breeder.breederId)}
+          >
+            승인
+          </Button>
+        )}
+        {canChangeVerification(breeder.verificationInfo?.verificationStatus, 'rejected') && (
+          <Button
+            disabled={processing}
+            danger
+            block
+            className="sm:w-auto"
+            onClick={() => {
+              onClose();
+              onReject(breeder);
+            }}
+          >
+            반려
+          </Button>
+        )}
       </div>
     </Modal>
   );

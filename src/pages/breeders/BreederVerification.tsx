@@ -19,6 +19,7 @@ export default function BreederVerification() {
   const { message } = App.useApp();
   const [sendingReminders, setSendingReminders] = useState(false);
   const {
+    processing,
     searchKeyword,
     cityName,
     onSearch,
@@ -127,6 +128,7 @@ export default function BreederVerification() {
       </div>
 
       <VerificationTable
+        processing={processing}
         dataSource={dataSource}
         loading={loading}
         currentPage={currentPage}
@@ -142,6 +144,7 @@ export default function BreederVerification() {
       />
 
       <VerificationDetailModal
+        processing={processing}
         visible={detail.isDetailModalOpen}
         breeder={detail.selectedBreeder}
         onClose={detail.closeDetail}
@@ -151,6 +154,7 @@ export default function BreederVerification() {
       />
 
       <VerificationRejectModal
+        processing={processing}
         visible={reject.isRejectModalOpen}
         form={reject.rejectForm}
         onOk={reject.handleRejectSubmit}
