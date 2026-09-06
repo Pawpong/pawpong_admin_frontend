@@ -11,6 +11,7 @@ import { useAuthStore } from '../features/auth/store/authStore';
 const CommunityReports = lazy(() => import('../pages/reports/CommunityReports'));
 const PopularKeywords = lazy(() => import('../pages/settings/PopularKeywords'));
 const SystemHealth = lazy(() => import('../pages/settings/SystemHealth'));
+const ProductionBackups = lazy(() => import('../pages/settings/ProductionBackups'));
 const NotificationHistory = lazy(() => import('../pages/notifications/NotificationHistory'));
 const EmailTemplates = lazy(() => import('../pages/notifications/EmailTemplates'));
 const ContestModeration = lazy(() => import('../pages/contests/ContestModeration'));
@@ -75,6 +76,7 @@ function App() {
                 <Route path="reports/community" element={<CommunityReports />} />
                 <Route path="settings/keywords" element={<PopularKeywords />} />
                 <Route path="settings/health" element={<SystemHealth />} />
+                <Route path="settings/backups" element={<ProductionBackups />} />
                 <Route path="notifications/history" element={<NotificationHistory />} />
                 <Route path="notifications/email" element={<EmailTemplates />} />
                 <Route path="contests/moderation" element={<ContestModeration />} />

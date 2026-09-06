@@ -69,6 +69,7 @@ export const navigation = [
       { path: '/settings/phone-whitelist', label: '전화번호 화이트리스트', icon: <SettingOutlined /> },
       { path: '/settings/app-version', label: '앱 버전', icon: <SettingOutlined /> },
       { path: '/settings/health', label: '시스템 상태', icon: <SettingOutlined /> },
+      { path: '/settings/backups', label: '운영 DB 백업', icon: <SettingOutlined /> },
     ],
   },
 ];
