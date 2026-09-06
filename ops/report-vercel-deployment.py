@@ -1,16 +1,16 @@
 import os
 import urllib.parse
 import urllib.request
-from notify import send, deployment_payload
+from notify import send, deployment_payload, enrich_deployment
 
 def report(env):
-    env = dict(env)
+    env = enrich_deployment(env)
     env['APP_ENV'] = 'production' if env.get('DEPLOY_ENVIRONMENT', '').lower() == 'production' else 'preview'
     env['DEPLOY_HEALTH'] = 'not verified; deployment failed'
     if env['DEPLOY_STATUS'] == 'success':
         url = env.get('DEPLOY_URL', '')
         parsed = urllib.parse.urlparse(url)
-        allowed = parsed.scheme == 'https' and (parsed.hostname in ('pawpong.kr', 'www.pawpong.kr', 'admin.pawpong.kr') or (parsed.hostname or '').endswith('.vercel.app'))
+        allowed = parsed.scheme == 'https' and (parsed.hostname in ('pawpong.kr', 'www.pawpong.kr', 'admin.pawpong.kr', 'dev.pawpong.kr') or (parsed.hostname or '').endswith('.vercel.app'))
         env['DEPLOY_HEALTH'] = 'not verified; deployment URL unavailable'
         if allowed:
             try:

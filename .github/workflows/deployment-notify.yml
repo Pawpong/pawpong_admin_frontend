@@ -12,6 +12,12 @@ jobs:
       - name: Report service, environment, commit and health
         env:
           DEPLOY_SERVICE: admin
+          GH_TOKEN: ${{ github.token }}
+          DEPLOY_REPOSITORY: ${{ github.repository }}
+          DEPLOY_BRANCH: ${{ github.event.deployment.ref }}
+          DEPLOY_ACTOR: ${{ github.event.deployment.creator.login }} (Vercel 자동 배포)
+          DEPLOY_METHOD: Vercel Git 자동 배포
+          DEPLOY_TARGET: Vercel · ${{ github.repository }}
           DEPLOY_COMMIT: ${{ github.event.deployment.sha }}
           DEPLOY_STATUS: ${{ github.event.deployment_status.state }}
           DEPLOY_ENVIRONMENT: ${{ github.event.deployment.environment }}
