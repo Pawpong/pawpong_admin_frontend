@@ -801,3 +801,12 @@ a:focus-visible {
     animation-duration: 0.01ms !important;
   }
 }
+
+.breeder-search-bar { align-items: flex-start; justify-content: space-between; }
+.breeder-search-bar .ant-form { gap: 10px; flex-wrap: wrap; }
+.breeder-search-options { display: flex; align-items: center; gap: 10px; }
+.breeder-search-options > span { font-size: 12px; color: #717171; }
+@media (max-width: 767px) {
+  .breeder-search-bar .ant-form-item { flex: 1 1 100%; width: 100%; }
+  .breeder-search-options { width: 100%; flex-wrap: wrap; }
+}

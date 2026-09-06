@@ -1,128 +1,54 @@
 import { useState, useEffect, useCallback } from 'react';
-import { message } from 'antd';
+import { App } from 'antd';
+import { useRemoteData } from './useRemoteData';
 
-/**
- * 페이지네이션 상태
- */
 export interface PaginationState {
   currentPage: number;
   pageSize: number;
   totalItems: number;
 }
-
-/**
- * 페이지네이션 API 응답 표준 구조
- */
 interface PaginatedResponse<T> {
   success: boolean;
-  data: {
-    items: T[];
-    pagination: {
-      currentPage: number;
-      pageSize: number;
-      totalItems: number;
-      totalPages: number;
-      hasNextPage: boolean;
-      hasPrevPage: boolean;
-    };
-  };
+  data: { items: T[]; pagination: PaginationState };
 }
 
-/**
- * 서버 사이드 페이지네이션 데이터 관리 훅
- *
- * @example
- * const { data, loading, pagination, onPageChange, refetch } = usePaginatedData(
- *   (page, pageSize) => noticeApi.getNotices(page, pageSize),
- *   '공지사항',
- * );
- */
+/** 페이지·검색 조건 변경 시 이전 응답을 버려 현재 목록에 오래된 데이터가 섞이지 않게 한다. */
 export function usePaginatedData<T>(
   fetchFn: (page: number, pageSize: number) => Promise<PaginatedResponse<T>>,
   entityName: string,
-  defaultPageSize: number = 10,
+  defaultPageSize = 10,
 ) {
-  const [data, setData] = useState<T[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [pagination, setPagination] = useState<PaginationState>({
-    currentPage: 1,
-    pageSize: defaultPageSize,
-    totalItems: 0,
-  });
-
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await fetchFn(pagination.currentPage, pagination.pageSize);
-      setData(response.data.items);
-      setPagination((prev) => ({
-        ...prev,
-        totalItems: response.data.pagination.totalItems,
-      }));
-    } catch (error: unknown) {
-      console.error(`Failed to fetch ${entityName}:`, error);
-      setData([]);
-      message.error(`${entityName} 목록을 불러올 수 없습니다.`);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchFn, pagination.currentPage, pagination.pageSize, entityName]);
-
+  const { message } = App.useApp();
+  const [page, setPage] = useState({ currentPage: 1, pageSize: defaultPageSize });
+  const request = useRemoteData(
+    useCallback(() => fetchFn(page.currentPage, page.pageSize), [fetchFn, page.currentPage, page.pageSize]),
+  );
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const onPageChange = useCallback((page: number, pageSize: number) => {
-    setPagination((prev) => ({ ...prev, currentPage: page, pageSize }));
-  }, []);
-
+    if (request.error) void message.error(`${entityName} 목록을 불러올 수 없습니다.`);
+  }, [request.error, entityName, message]);
+  const onPageChange = useCallback((currentPage: number, pageSize: number) => setPage({ currentPage, pageSize }), []);
   return {
-    data,
-    loading,
-    pagination,
+    data: request.data?.data.items || [],
+    loading: request.loading,
+    error: request.error,
+    pagination: { ...page, totalItems: request.data?.data.pagination.totalItems || 0 },
     onPageChange,
-    refetch: fetchData,
+    refetch: request.reload,
   };
 }
 
-/**
- * 클라이언트 사이드 데이터 (전체 조회) 관리 훅
- *
- * @example
- * const { data, loading, refetch } = useListData(
- *   () => breedApi.getAllBreeds(),
- *   '품종',
- * );
- */
-export function useListData<T>(
-  fetchFn: () => Promise<T[]>,
-  entityName: string,
-) {
-  const [data, setData] = useState<T[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const result = await fetchFn();
-      if (Array.isArray(result)) {
-        setData(result);
-      } else {
-        setData([]);
-        message.warning(`${entityName} 데이터 형식이 올바르지 않습니다.`);
-      }
-    } catch (error: unknown) {
-      console.error(`Failed to fetch ${entityName}:`, error);
-      setData([]);
-      message.error(`${entityName} 목록을 불러올 수 없습니다.`);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchFn, entityName]);
-
+/** 전체 조회도 동일한 요청 수명 관리와 오류 처리를 사용한다. */
+export function useListData<T>(fetchFn: () => Promise<T[]>, entityName: string) {
+  const { message } = App.useApp();
+  const request = useRemoteData(
+    useCallback(async () => {
+      const data = await fetchFn();
+      if (!Array.isArray(data)) throw new Error('목록 응답 형식이 올바르지 않습니다.');
+      return data;
+    }, [fetchFn]),
+  );
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  return { data, loading, refetch: fetchData };
+    if (request.error) void message.error(`${entityName} 목록을 불러올 수 없습니다.`);
+  }, [request.error, entityName, message]);
+  return { data: request.data || [], loading: request.loading, error: request.error, refetch: request.reload };
 }

@@ -220,3 +220,11 @@ test('pending verification supports the same account type filter', async () => {
   };
   assert.deepEqual(await breederApi.getPendingVerifications('test'), []);
 });
+
+test('breeder search sends trimmed server-side filters alongside pagination', async () => {
+  client.defaults.adapter = async config => {
+    assert.deepEqual(config.params, { verificationStatus: 'approved', searchKeyword: '브리더', cityName: '서울', pageNumber: 2, itemsPerPage: 20 });
+    return response(config, { data: { items: [], pagination: { totalItems: 0 } } });
+  };
+  await breederApi.getBreeders('approved', 2, 20, 'all', { searchKeyword: ' 브리더 ', cityName: ' 서울 ' });
+});

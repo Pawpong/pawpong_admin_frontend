@@ -1,9 +1,11 @@
+import { PageBoundary } from '../admin/PageBoundary';
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 
 export default function AdminLayout() {
+  const { pathname } = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   return (
     <div className="admin-shell">
@@ -14,7 +16,9 @@ export default function AdminLayout() {
       <div className="admin-main">
         <Header onMobileMenuToggle={() => setMobileMenuOpen((value) => !value)} />
         <main id="main-content" className="admin-content">
-          <Outlet />
+          <PageBoundary key={pathname}>
+            <Outlet />
+          </PageBoundary>
         </main>
         <footer className="workspace-footer">
           © {new Date().getFullYear()} PAWPONG <span>좋은 만남의 시작, 포퐁</span>

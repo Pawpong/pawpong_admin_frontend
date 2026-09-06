@@ -44,12 +44,15 @@ export const breederApi = {
     page: number = 1,
     limit: number = 10,
     accountType: BreederAccountType = 'all',
+    search: { searchKeyword?: string; cityName?: string } = {},
   ): Promise<BreederVerificationPaginationResponse> => {
     const response = await apiClient.get<ApiResponse<BreederVerificationPaginationResponse>>(
       '/breeder-verification-admin/breeders',
       {
         params: {
           verificationStatus: status,
+          ...(search.searchKeyword?.trim() ? { searchKeyword: search.searchKeyword.trim() } : {}),
+          ...(search.cityName?.trim() ? { cityName: search.cityName.trim() } : {}),
           ...(accountType === 'all' ? {} : { accountType }),
           pageNumber: page,
           itemsPerPage: limit,

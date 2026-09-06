@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 /** Ignore late responses after changing filters or leaving a page. */
 export function useRemoteData<T>(fetcher: () => Promise<T>) {
@@ -19,10 +19,11 @@ export function useRemoteData<T>(fetcher: () => Promise<T>) {
       active = false;
     };
   }, [fetcher, key]);
+  const reload = useCallback(() => setRevision((value) => value + 1), []);
   return {
     data: result?.key === key ? result.data : undefined,
     error: result?.key === key ? result.error : undefined,
     loading: result?.key !== key,
-    reload: () => setRevision((value) => value + 1),
+    reload,
   };
 }

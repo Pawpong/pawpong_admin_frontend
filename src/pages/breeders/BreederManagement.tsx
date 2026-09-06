@@ -1,4 +1,6 @@
-import { Button, Segmented } from 'antd';
+import { BreederSearchBar } from '../../features/breeder/ui/BreederSearchBar';
+import { LoadError } from '../../shared/components/admin/PageHeading';
+import { Button } from 'antd';
 import { BellOutlined } from '@ant-design/icons';
 
 import { useBreederManagement } from '../../features/breeder/hooks/useBreederManagement';
@@ -17,6 +19,12 @@ import {
  */
 export default function BreederManagement() {
   const {
+    searchKeyword,
+    cityName,
+    onSearch,
+    onReset,
+    error,
+    refetch,
     accountType,
     onAccountTypeChange,
     dataSource,
@@ -50,19 +58,17 @@ export default function BreederManagement() {
         </p>
       </div>
 
-      <div className="filter-bar">
-        <span>계정 구분</span>
-        <Segmented
-          value={accountType}
-          onChange={onAccountTypeChange}
-          options={[
-            { label: '전체', value: 'all' },
-            { label: '일반', value: 'normal', disabled: import.meta.env.VITE_ACCOUNT_TYPE_FILTER_ENABLED !== 'true' },
-            { label: '테스트', value: 'test', disabled: import.meta.env.VITE_ACCOUNT_TYPE_FILTER_ENABLED !== 'true' },
-          ]}
-        />
-      </div>
-      <ManagementStats stats={stats} />
+      <BreederSearchBar
+        searchKeyword={searchKeyword}
+        cityName={cityName}
+        accountType={accountType}
+        onSearch={onSearch}
+        onReset={onReset}
+        onAccountTypeChange={onAccountTypeChange}
+        onRefresh={refetch}
+      />
+      <LoadError error={error} retry={refetch} />
+      {stats && <ManagementStats stats={stats} />}
 
       <div className="mb-4 flex justify-end">
         <Button

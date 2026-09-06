@@ -1,4 +1,6 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useRemoteData } from '../../../shared/hooks/useRemoteData';
+import { useBreederFilters } from './useBreederFilters';
+import { useState, useCallback, useMemo } from 'react';
 import { Form, message } from 'antd';
 
 import { breederApi, type BreederAccountType } from '../api/breederApi';
@@ -32,18 +34,12 @@ export const DOCUMENT_TYPE_LABELS: Record<string, string> = {
  * 상태 필터, 서버 페이지네이션, 상세/반려/독촉 모달 지원
  */
 export function useBreederVerification() {
-  const [accountType, setAccountType] = useState<BreederAccountType>('all');
-  const listRequest = useRef(0);
+  const { accountType, currentPage, pageSize, statusFilter, searchKeyword, cityName, update } = useBreederFilters();
+  const filterKey = JSON.stringify([accountType, currentPage, pageSize, statusFilter, searchKeyword, cityName]);
+  const [selection, setSelection] = useState<{ key: string; ids: string[] }>({ key: '', ids: [] });
+  const selectedBreeders = useMemo(() => (selection.key === filterKey ? selection.ids : []), [selection, filterKey]);
+  const setSelectedBreeders = useCallback((ids: string[]) => setSelection({ key: filterKey, ids }), [filterKey]);
   const [loading, setLoading] = useState(false);
-  const [dataSource, setDataSource] = useState<BreederVerification[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
-
-  /* 선택된 브리더 (독촉 알림용) */
-  const [selectedBreeders, setSelectedBreeders] = useState<string[]>([]);
-
   /* 상세 보기 모달 */
   const [selectedBreeder, setSelectedBreeder] = useState<BreederVerification | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -55,32 +51,15 @@ export function useBreederVerification() {
   /* 독촉 알림 모달 */
   const [isDocumentRemindModalOpen, setIsDocumentRemindModalOpen] = useState(false);
 
-  const fetchVerifications = useCallback(async () => {
-    const requestId = ++listRequest.current;
-    setLoading(true);
-    try {
-      const response = await breederApi.getBreeders(statusFilter, currentPage, pageSize, accountType);
-      if (requestId !== listRequest.current) return;
-      setDataSource(response.items);
-      setTotalCount(response.pagination.totalItems);
-    } catch (error: unknown) {
-      if (requestId !== listRequest.current) return;
-      console.error('Failed to fetch verifications:', error);
-      message.error('브리더 목록을 불러올 수 없습니다.');
-    } finally {
-      if (requestId === listRequest.current) setLoading(false);
-    }
-  }, [statusFilter, currentPage, pageSize, accountType]);
-
-  useEffect(() => {
-    let cancelled = false;
-    queueMicrotask(() => {
-      if (!cancelled) void fetchVerifications();
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [fetchVerifications]);
+  const list = useRemoteData(
+    useCallback(
+      () => breederApi.getBreeders(statusFilter, currentPage, pageSize, accountType, { searchKeyword, cityName }),
+      [statusFilter, currentPage, pageSize, accountType, searchKeyword, cityName],
+    ),
+  );
+  const fetchVerifications = list.reload;
+  const dataSource = list.data?.items || [];
+  const totalCount = list.data?.pagination.totalItems || 0;
 
   const handleViewDetails = useCallback(async (record: BreederVerification) => {
     try {
@@ -190,31 +169,26 @@ export function useBreederVerification() {
       console.error('Document remind failed:', error);
       message.error('입점 심사 독촉 알림 발송에 실패했습니다.');
     }
-  }, [selectedBreeders]);
+  }, [selectedBreeders, setSelectedBreeders]);
 
-  const onStatusFilterChange = useCallback((key: string) => {
-    setStatusFilter(key === 'all' ? undefined : key);
-    setCurrentPage(1);
-  }, []);
-
-  const onPageChange = useCallback((page: number, newPageSize: number) => {
-    setCurrentPage(page);
-    setPageSize(newPageSize);
-  }, []);
-
-  const onAccountTypeChange = (value: BreederAccountType) => {
-    listRequest.current++;
-    setAccountType(value);
-    setCurrentPage(1);
-    setSelectedBreeders([]);
-    setDataSource([]);
-  };
+  const onPageChange = (page: number, size: number) => update({ page: size === pageSize ? page : 1, pageSize: size });
+  const onAccountTypeChange = (value: BreederAccountType) => update({ accountType: value, page: 1 });
+  const onStatusFilterChange = (value: string) => update({ status: value, page: 1 });
+  const onSearch = (values: { searchKeyword: string; cityName: string }) =>
+    update({ q: values.searchKeyword?.trim(), city: values.cityName?.trim(), page: 1 });
+  const onReset = () => update({ q: undefined, city: undefined, accountType: undefined, status: undefined, page: 1 });
 
   return {
+    searchKeyword,
+    cityName,
+    onSearch,
+    onReset,
+    error: list.error,
+    refetch: list.reload,
     accountType,
     onAccountTypeChange,
     dataSource,
-    loading,
+    loading: loading || list.loading,
     totalCount,
     currentPage,
     pageSize,

@@ -1,6 +1,8 @@
+import { BreederSearchBar } from '../../features/breeder/ui/BreederSearchBar';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { useState } from 'react';
 import { operationsApi } from '../../features/operations/api/operationsApi';
-import { App, Card, Tabs, Button, Popconfirm, Segmented } from 'antd';
+import { App, Card, Tabs, Button, Popconfirm } from 'antd';
 import { FileTextOutlined, BellOutlined } from '@ant-design/icons';
 
 import { useBreederVerification } from '../../features/breeder/hooks/useBreederVerification';
@@ -17,6 +19,12 @@ export default function BreederVerification() {
   const { message } = App.useApp();
   const [sendingReminders, setSendingReminders] = useState(false);
   const {
+    searchKeyword,
+    cityName,
+    onSearch,
+    onReset,
+    error,
+    refetch,
     accountType,
     onAccountTypeChange,
     dataSource,
@@ -63,18 +71,16 @@ export default function BreederVerification() {
         </div>
       </Card>
 
-      <div className="filter-bar">
-        <span>계정 구분</span>
-        <Segmented
-          value={accountType}
-          onChange={onAccountTypeChange}
-          options={[
-            { label: '전체', value: 'all' },
-            { label: '일반', value: 'normal', disabled: import.meta.env.VITE_ACCOUNT_TYPE_FILTER_ENABLED !== 'true' },
-            { label: '테스트', value: 'test', disabled: import.meta.env.VITE_ACCOUNT_TYPE_FILTER_ENABLED !== 'true' },
-          ]}
-        />
-      </div>
+      <BreederSearchBar
+        searchKeyword={searchKeyword}
+        cityName={cityName}
+        accountType={accountType}
+        onSearch={onSearch}
+        onReset={onReset}
+        onAccountTypeChange={onAccountTypeChange}
+        onRefresh={refetch}
+      />
+      <LoadError error={error} retry={refetch} />
       <Tabs
         activeKey={statusFilter || 'all'}
         onChange={onStatusFilterChange}
