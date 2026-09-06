@@ -63,7 +63,7 @@ def deployment_payload(env):
               ('실행자', env.get('DEPLOY_ACTOR', '미확인')), ('커밋 작성자', env.get('DEPLOY_AUTHOR', '미확인')),
               ('커밋 SHA', env.get('DEPLOY_COMMIT', '미확인')[:12]), ('커밋 메시지', env.get('DEPLOY_MESSAGE', '미확인')),
               ('결과', labels.get(status, status)), ('헬스체크', env.get('DEPLOY_HEALTH', '미확인'))]
-    for key, label in [('DEPLOY_CONTAINER', '활성 컨테이너'), ('DEPLOY_URL', '배포 주소'),
+    for key, label in [('DEPLOY_SERVICE_URL', '서비스 주소'), ('DEPLOY_CONTAINER', '활성 컨테이너'), ('DEPLOY_URL', '배포 주소'),
                        ('DEPLOY_COMMIT_URL', '커밋 보기'), ('DEPLOY_RUN_URL', '실행 로그')]:
         if env.get(key): fields.append((label, env[key]))
     # Discord embed 총 6000자 한도 안에서 사용자 작성 커밋 메시지를 안전하게 표시함.

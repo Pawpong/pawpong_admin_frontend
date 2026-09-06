@@ -6,6 +6,10 @@ from notify import send, deployment_payload, enrich_deployment
 def report(env):
     env = enrich_deployment(env)
     env['APP_ENV'] = 'production' if env.get('DEPLOY_ENVIRONMENT', '').lower() == 'production' else 'preview'
+    if env['APP_ENV'] == 'production':
+        env['DEPLOY_SERVICE_URL'] = 'https://admin.pawpong.kr' if env.get('DEPLOY_SERVICE') == 'admin' else 'https://pawpong.kr'
+    elif env.get('DEPLOY_SERVICE') == 'web' and env.get('DEPLOY_BRANCH') == 'dev':
+        env['DEPLOY_SERVICE_URL'] = 'https://dev.pawpong.kr'
     env['DEPLOY_HEALTH'] = 'not verified; deployment failed'
     if env['DEPLOY_STATUS'] == 'success':
         url = env.get('DEPLOY_URL', '')

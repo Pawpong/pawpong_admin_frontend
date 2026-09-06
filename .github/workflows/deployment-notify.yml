@@ -22,7 +22,7 @@ jobs:
           DEPLOY_STATUS: ${{ github.event.deployment_status.state }}
           DEPLOY_ENVIRONMENT: ${{ github.event.deployment.environment }}
           DEPLOY_URL: ${{ github.event.deployment_status.environment_url }}
-          DEPLOY_RUN_URL: ${{ github.event.deployment_status.log_url }}
+          DEPLOY_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           DISCORD_DEPLOY_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
           DISCORD_DEV_DEPLOY_WEBHOOK_URL: ${{ secrets.DISCORD_DEV_DEPLOY_WEBHOOK_URL }}
         run: python3 ops/report-vercel-deployment.py
