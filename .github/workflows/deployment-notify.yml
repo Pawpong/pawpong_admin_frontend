@@ -1,0 +1,22 @@
+name: Notify Vercel deployment
+on:
+  deployment_status:
+permissions:
+  contents: read
+jobs:
+  notify:
+    if: contains(fromJSON('["success","failure","error"]'), github.event.deployment_status.state)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Report service, environment, commit and health
+        env:
+          DEPLOY_SERVICE: admin
+          DEPLOY_COMMIT: ${{ github.event.deployment.sha }}
+          DEPLOY_STATUS: ${{ github.event.deployment_status.state }}
+          DEPLOY_ENVIRONMENT: ${{ github.event.deployment.environment }}
+          DEPLOY_URL: ${{ github.event.deployment_status.environment_url }}
+          DEPLOY_RUN_URL: ${{ github.event.deployment_status.log_url }}
+          DISCORD_DEPLOY_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
+          DISCORD_DEV_DEPLOY_WEBHOOK_URL: ${{ secrets.DISCORD_DEV_DEPLOY_WEBHOOK_URL }}
+        run: python3 ops/report-vercel-deployment.py
