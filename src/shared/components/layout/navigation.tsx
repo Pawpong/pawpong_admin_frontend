@@ -30,6 +30,7 @@ export const navigation = [
   {
     label: '신고와 심사',
     items: [
+      { path: '/support', label: '고객지원 접수', icon: <FileTextOutlined /> },
       { path: '/reports/breeders', label: '브리더 신고', icon: <SafetyCertificateOutlined /> },
       { path: '/reports/reviews', label: '후기 신고', icon: <SafetyCertificateOutlined /> },
       { path: '/reports/community', label: '커뮤니티 신고', icon: <SafetyCertificateOutlined /> },
