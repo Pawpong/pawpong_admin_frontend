@@ -14,7 +14,7 @@ export function useAppVersionCrud() {
     [],
   );
 
-  const { data: versions, loading, pagination, onPageChange, refetch } = usePaginatedData<AppVersion>(
+  const { data: versions, loading, error, pagination, onPageChange, refetch } = usePaginatedData<AppVersion>(
     fetchVersions,
     '앱 버전',
   );
@@ -80,5 +80,5 @@ export function useAppVersionCrud() {
     [refetch],
   );
 
-  return { versions, loading, pagination, onPageChange, modal, handleDelete, handleToggleActive };
+  return { versions, loading, error, refetch, pagination, onPageChange, modal, handleDelete, handleToggleActive };
 }

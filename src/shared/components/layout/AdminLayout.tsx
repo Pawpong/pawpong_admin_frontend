@@ -1,4 +1,5 @@
 import { PageBoundary } from '../admin/PageBoundary';
+import { RequirePermission } from '../admin/RequirePermission';
 import { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
@@ -17,7 +18,9 @@ export default function AdminLayout() {
         <Header onMobileMenuToggle={() => setMobileMenuOpen((value) => !value)} />
         <main id="main-content" className="admin-content">
           <PageBoundary key={pathname}>
-            <Outlet />
+            <RequirePermission>
+              <Outlet />
+            </RequirePermission>
           </PageBoundary>
         </main>
         <footer className="workspace-footer">

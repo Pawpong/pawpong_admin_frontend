@@ -1,4 +1,5 @@
 import React from 'react';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { Card, Button, Space, Tag } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
@@ -11,7 +12,7 @@ import { AppVersionModal } from '../../features/app-version/ui/AppVersionModal';
  * iOS/Android 앱 강제/권장 업데이트 버전 정보를 관리합니다.
  */
 const AppVersion: React.FC = () => {
-  const { versions, loading, pagination, onPageChange, modal, handleDelete, handleToggleActive } = useAppVersionCrud();
+  const { versions, loading, error, refetch, pagination, onPageChange, modal, handleDelete, handleToggleActive } = useAppVersionCrud();
 
   return (
     <div style={{ padding: '24px' }}>
@@ -28,6 +29,7 @@ const AppVersion: React.FC = () => {
           </Button>
         }
       >
+        <LoadError error={error} retry={refetch} />
         <AppVersionTable
           versions={versions}
           loading={loading}

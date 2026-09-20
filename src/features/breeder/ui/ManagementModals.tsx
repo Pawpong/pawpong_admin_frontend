@@ -1,9 +1,22 @@
-import { Modal, Descriptions, Form, Input, Button } from 'antd';
+import { Modal, Descriptions, Form, Input, Button, Tag } from 'antd';
 import type { FormInstance } from 'antd';
 
 import type { BreederVerification } from '../../../shared/types/api.types';
 
 const { TextArea } = Input;
+
+const VERIFICATION_STATUS: Record<string, { label: string; color: string }> = {
+  pending: { label: '대기 중', color: 'default' },
+  reviewing: { label: '검토 중', color: 'processing' },
+  approved: { label: '승인됨', color: 'success' },
+  rejected: { label: '반려됨', color: 'error' },
+};
+const ACCOUNT_STATUS: Record<string, { label: string; color: string }> = {
+  active: { label: '정상', color: 'success' },
+  suspended: { label: '정지됨', color: 'error' },
+  deleted: { label: '탈퇴', color: 'default' },
+};
+const formatDate = (value?: string) => (value ? new Date(value).toLocaleString('ko-KR') : '-');
 
 const modalStyle = {
   width: '100%',
@@ -21,6 +34,8 @@ export function ManagementDetailModal({
   breeder: BreederVerification | null;
   onClose: () => void;
 }) {
+  // 목록은 승인된 브리더만 담지만, 정지·반려로 상태가 바뀐 건도 그대로 드러나야 한다.
+  const verification = breeder?.verificationInfo?.verificationStatus;
   return (
     <Modal
       title="브리더 상세 정보"
@@ -38,14 +53,27 @@ export function ManagementDetailModal({
         <Descriptions bordered column={{ xs: 1, sm: 2 }}>
           <Descriptions.Item label="브리더명" span={2}>
             <strong>{breeder.breederName}</strong>
+            {breeder.isTestAccount && <Tag style={{ marginLeft: 8 }}>테스트 계정</Tag>}
           </Descriptions.Item>
           <Descriptions.Item label="이메일">{breeder.emailAddress}</Descriptions.Item>
           <Descriptions.Item label="전화번호">{breeder.phoneNumber || '-'}</Descriptions.Item>
-          <Descriptions.Item label="인증 상태">승인됨</Descriptions.Item>
-          <Descriptions.Item label="신청일" span={2}>
-            {breeder.verificationInfo.submittedAt
-              ? new Date(breeder.verificationInfo.submittedAt).toLocaleString('ko-KR')
-              : '-'}
+          <Descriptions.Item label="상호명">{breeder.businessName || '-'}</Descriptions.Item>
+          <Descriptions.Item label="사업자번호">{breeder.businessNumber || '-'}</Descriptions.Item>
+          <Descriptions.Item label="인증 상태">{renderStatus(VERIFICATION_STATUS, verification)}</Descriptions.Item>
+          <Descriptions.Item label="계정 상태">{renderStatus(ACCOUNT_STATUS, breeder.accountStatus)}</Descriptions.Item>
+          <Descriptions.Item label="요금제">
+            {breeder.verificationInfo?.subscriptionPlan === 'pro' ? 'Pro' : 'Basic'}
+          </Descriptions.Item>
+          <Descriptions.Item label="가입일">{formatDate(breeder.createdAt)}</Descriptions.Item>
+          <Descriptions.Item label="신청일">{formatDate(breeder.verificationInfo?.submittedAt)}</Descriptions.Item>
+          <Descriptions.Item label="심사일">{formatDate(breeder.verificationInfo?.processedAt)}</Descriptions.Item>
+          {verification === 'rejected' && (
+            <Descriptions.Item label="반려 사유" span={2}>
+              {breeder.verificationInfo?.rejectionReason || '사유 미기재'}
+            </Descriptions.Item>
+          )}
+          <Descriptions.Item label="최종 수정일" span={2}>
+            {formatDate(breeder.updatedAt)}
           </Descriptions.Item>
         </Descriptions>
       )}
@@ -57,11 +85,13 @@ export function ManagementDetailModal({
 export function SuspendModal({
   visible,
   form,
+  submitting,
   onOk,
   onCancel,
 }: {
   visible: boolean;
   form: FormInstance;
+  submitting?: boolean;
   onOk: () => void;
   onCancel: () => void;
 }) {
@@ -72,7 +102,10 @@ export function SuspendModal({
       onOk={onOk}
       onCancel={onCancel}
       okText="정지"
+      confirmLoading={submitting}
       okButtonProps={{ danger: true }}
+      cancelButtonProps={{ disabled: submitting }}
+      maskClosable={!submitting}
       cancelText="취소"
       {...modalStyle}
     >
@@ -99,11 +132,13 @@ export function SuspendModal({
 export function UnsuspendModal({
   visible,
   breeder,
+  submitting,
   onOk,
   onCancel,
 }: {
   visible: boolean;
   breeder: BreederVerification | null;
+  submitting?: boolean;
   onOk: () => void;
   onCancel: () => void;
 }) {
@@ -114,6 +149,9 @@ export function UnsuspendModal({
       onOk={onOk}
       onCancel={onCancel}
       okText="해제"
+      confirmLoading={submitting}
+      cancelButtonProps={{ disabled: submitting }}
+      maskClosable={!submitting}
       cancelText="취소"
       {...modalStyle}
     >
@@ -135,11 +173,13 @@ export function UnsuspendModal({
 export function ProfileRemindModal({
   visible,
   count,
+  submitting,
   onOk,
   onCancel,
 }: {
   visible: boolean;
   count: number;
+  submitting?: boolean;
   onOk: () => void;
   onCancel: () => void;
 }) {
@@ -150,6 +190,9 @@ export function ProfileRemindModal({
       onOk={onOk}
       onCancel={onCancel}
       okText="발송"
+      confirmLoading={submitting}
+      cancelButtonProps={{ disabled: submitting }}
+      maskClosable={!submitting}
       cancelText="취소"
       {...modalStyle}
     >
@@ -173,4 +216,11 @@ export function ProfileRemindModal({
       </div>
     </Modal>
   );
+}
+
+/** 알 수 없는 상태 값도 숨기지 않고 원문 그대로 보여준다. */
+function renderStatus(map: Record<string, { label: string; color: string }>, value?: string) {
+  if (!value) return <Tag>정보 없음</Tag>;
+  const known = map[value];
+  return <Tag color={known?.color}>{known?.label || value}</Tag>;
 }

@@ -9,7 +9,7 @@ import { useListData, useCrudModal, useDeleteConfirm } from '../../../shared/hoo
  */
 export function useDistrictCrud() {
   const fetchDistricts = useCallback(() => districtApi.getAllDistricts(), []);
-  const { data: districts, loading, refetch } = useListData<District>(fetchDistricts, '지역');
+  const { data: districts, loading, error, refetch } = useListData<District>(fetchDistricts, '지역');
 
   const modal = useCrudModal<District>({
     entityName: '지역',
@@ -40,7 +40,7 @@ export function useDistrictCrud() {
     onSuccess: refetch,
   });
 
-  return { districts, loading, modal, handleDelete };
+  return { districts, loading, error, refetch, modal, handleDelete };
 }
 
 function parseCommaSeparated(str: string): string[] {

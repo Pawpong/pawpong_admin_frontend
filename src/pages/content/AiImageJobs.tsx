@@ -1,4 +1,5 @@
 import { Button, Card, Select, Space } from 'antd';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { ReloadOutlined } from '@ant-design/icons';
 
 import { useAiImageJobs } from '../../features/ai-image/hooks/useAiImageJobs';
@@ -20,7 +21,7 @@ const STATUS_OPTIONS: { value: AiImageJobStatus; label: string }[] = [
  * 그래서 실패한 작업을 운영자가 확인할 수 있는 경로가 이 화면뿐이다.
  */
 const AiImageJobs = () => {
-  const { jobs, loading, pagination, statusFilter, onPageChange, handleStatusChange, refetch } = useAiImageJobs();
+  const { jobs, loading, error, pagination, statusFilter, onPageChange, handleStatusChange, refetch } = useAiImageJobs();
 
   return (
     <Card
@@ -41,6 +42,7 @@ const AiImageJobs = () => {
         </Space>
       }
     >
+      <LoadError error={error} retry={refetch} />
       <AiImageJobTable
         jobs={jobs}
         loading={loading}

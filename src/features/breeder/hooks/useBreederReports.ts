@@ -11,6 +11,8 @@ import type { BreederReport } from '../../../shared/types/api.types';
 export function useBreederReports() {
   const [reports, setReports] = useState<BreederReport[]>([]);
   const [loading, setLoading] = useState(false);
+  /** 조회 실패를 빈 목록과 구분해 화면에 남긴다. 토스트는 사라지지만 이 값은 남는다. */
+  const [loadError, setLoadError] = useState<string | undefined>();
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0 });
 
   /* 상세 보기 모달 */
@@ -26,10 +28,12 @@ export function useBreederReports() {
     setLoading(true);
     try {
       const response = await breederApi.getReports(pagination.page, pagination.limit);
+      setLoadError(undefined);
       setReports(response.items);
       setPagination((prev) => ({ ...prev, total: response.pagination.totalItems }));
     } catch (error: unknown) {
       console.error('Failed to fetch reports:', error);
+      setLoadError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.');
       message.error('신고 목록을 불러올 수 없습니다.');
     } finally {
       setLoading(false);
@@ -87,6 +91,7 @@ export function useBreederReports() {
   return {
     reports,
     loading,
+    loadError,
     pagination,
     pendingCount,
     onPageChange,

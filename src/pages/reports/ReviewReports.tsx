@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { Card } from 'antd';
 import { WarningOutlined } from '@ant-design/icons';
 
@@ -11,7 +12,7 @@ import { ReviewReportDetailModal } from '../../features/review/ui/ReviewReportDe
  * 신고된 후기들을 조회하고 부적절한 후기를 삭제할 수 있습니다.
  */
 const ReviewReports: React.FC = () => {
-  const { reports, loading, pagination, onPageChange, fetchReports, handleDelete, detail } = useReviewReports();
+  const { reports, loading, loadError, pagination, onPageChange, fetchReports, handleDelete, detail } = useReviewReports();
 
   useEffect(() => { fetchReports(); }, [fetchReports]);
 
@@ -36,6 +37,7 @@ const ReviewReports: React.FC = () => {
         </div>
       </Card>
 
+      <LoadError error={loadError} retry={fetchReports} />
       <ReviewReportTable
         reports={reports} loading={loading} pagination={pagination}
         onPageChange={onPageChange} onView={detail.openDetail} onDelete={handleDelete}

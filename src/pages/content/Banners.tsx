@@ -1,4 +1,5 @@
 import { Button, Card } from 'antd';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { PlusOutlined } from '@ant-design/icons';
 
 import { useBannerCrud } from '../../features/home/hooks/useBannerCrud';
@@ -10,7 +11,7 @@ import { BannerModal } from '../../features/home/ui/BannerModal';
  * 메인 화면에 표시될 배너를 관리합니다.
  */
 const Banners = () => {
-  const { banners, loading, modal, upload, handleDelete, handleToggleActive } = useBannerCrud();
+  const { banners, loading, error, refetch, modal, upload, handleDelete, handleToggleActive } = useBannerCrud();
 
   return (
     <div className="p-3 sm:p-4 md:p-6">
@@ -34,6 +35,7 @@ const Banners = () => {
 
       <div className="overflow-x-auto -mx-3 sm:mx-0 mb-6">
         <Card style={{ borderRadius: '12px', boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)' }}>
+          <LoadError error={error} retry={refetch} />
           <BannerTable
             banners={banners}
             loading={loading}

@@ -12,6 +12,8 @@ import type { UserManagement, UserSearchRequest } from '../../../shared/types/ap
 export function useUserCrud() {
   const [dataSource, setDataSource] = useState<UserManagement[]>([]);
   const [loading, setLoading] = useState(false);
+  /** 조회 실패를 빈 목록과 구분해 화면에 남긴다. 토스트는 사라지지만 이 값은 남는다. */
+  const [loadError, setLoadError] = useState<string | undefined>();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserManagement | null>(null);
   const [form] = Form.useForm();
@@ -30,10 +32,12 @@ export function useUserCrud() {
         page: current,
         limit: pageSize,
       });
+      setLoadError(undefined);
       setDataSource(response.items);
       setTotal(response.pagination.totalItems);
     } catch (error: unknown) {
       console.error('Failed to fetch users:', error);
+      setLoadError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.');
       setDataSource([]);
       setTotal(0);
       message.error('사용자 목록을 불러올 수 없습니다.');
@@ -123,6 +127,7 @@ export function useUserCrud() {
   return {
     dataSource,
     loading,
+    loadError,
     current,
     pageSize,
     total,

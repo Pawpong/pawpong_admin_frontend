@@ -16,7 +16,7 @@ import { useListData } from '../../../shared/hooks';
  */
 export function useBannerCrud() {
   const fetchBanners = useCallback(() => homeApi.getBanners(), []);
-  const { data: rawBanners, loading, refetch } = useListData<Banner>(fetchBanners, '배너');
+  const { data: rawBanners, loading, error, refetch } = useListData<Banner>(fetchBanners, '배너');
 
   // order 기준 정렬
   const banners = [...rawBanners].sort((a, b) => a.order - b.order);
@@ -190,6 +190,8 @@ export function useBannerCrud() {
   return {
     banners,
     loading,
+    error,
+    refetch,
     modal: {
       modalVisible,
       editingBanner,

@@ -14,6 +14,8 @@ export function useDeletedUserCrud() {
   const { message, modal } = App.useApp();
   const [dataSource, setDataSource] = useState<DeletedUser[]>([]);
   const [loading, setLoading] = useState(false);
+  /** 조회 실패를 빈 목록과 구분해 화면에 남긴다. 토스트는 사라지지만 이 값은 남는다. */
+  const [loadError, setLoadError] = useState<string | undefined>();
   const [stats, setStats] = useState<DeletedUserStats | null>(null);
   const [pagination, setPagination] = useState({
     current: 1,
@@ -36,6 +38,7 @@ export function useDeletedUserCrud() {
   const fetchDeletedUsers = useCallback(async () => {
     setLoading(true);
     try {
+      setLoadError(undefined);
       const response = await userApi.getDeletedUsers(filters);
       setDataSource(response.items);
       setPagination({
@@ -45,6 +48,7 @@ export function useDeletedUserCrud() {
       });
     } catch (error: unknown) {
       console.error('Failed to fetch deleted users:', error);
+      setLoadError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.');
       setDataSource([]);
       message.error('탈퇴 사용자 목록을 불러올 수 없습니다.');
     } finally {
@@ -169,6 +173,7 @@ export function useDeletedUserCrud() {
   return {
     dataSource,
     loading,
+    loadError,
     stats,
     pagination,
     filters,

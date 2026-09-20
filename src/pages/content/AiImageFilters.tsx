@@ -1,4 +1,5 @@
 import { Button, Card, Space } from 'antd';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { PlusOutlined } from '@ant-design/icons';
 
 import { useAiImageAgentHealth } from '../../features/ai-image/hooks/useAiImageAgentHealth';
@@ -15,7 +16,7 @@ import { AiImageFilterTable } from '../../features/ai-image/ui/AiImageFilterTabl
  * 에이전트 상태를 화면 위에 함께 띄운다.
  */
 const AiImageFilters = () => {
-  const { filters, loading, modal, assets, preview, handleDelete, handleToggleActive } = useAiImageFilterCrud();
+  const { filters, loading, error, refetch, modal, assets, preview, handleDelete, handleToggleActive } = useAiImageFilterCrud();
   const { health, loading: healthLoading, refetch: refetchHealth } = useAiImageAgentHealth();
 
   return (
@@ -30,6 +31,7 @@ const AiImageFilters = () => {
           </Button>
         }
       >
+        <LoadError error={error} retry={refetch} />
         <AiImageFilterTable
           filters={filters}
           loading={loading}

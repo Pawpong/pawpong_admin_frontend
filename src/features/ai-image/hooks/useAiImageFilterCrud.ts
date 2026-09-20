@@ -22,7 +22,7 @@ const DEFAULT_OUTPUT_SIZE = '1024x1024';
  */
 export function useAiImageFilterCrud() {
   const fetchFilters = useCallback(() => aiImageApi.getFilters(), []);
-  const { data: rawFilters, loading, refetch } = useListData<AiImageFilter>(fetchFilters, 'AI 필터');
+  const { data: rawFilters, loading, error, refetch } = useListData<AiImageFilter>(fetchFilters, 'AI 필터');
 
   const filters = [...rawFilters].sort((a, b) => a.sortOrder - b.sortOrder);
 
@@ -272,6 +272,7 @@ export function useAiImageFilterCrud() {
   return {
     filters,
     loading,
+    error,
     refetch,
     modal: {
       modalVisible,

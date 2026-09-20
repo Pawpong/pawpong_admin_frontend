@@ -11,6 +11,8 @@ import type { ApplicationData, ApplicationMonitoringRequest, ApplicationDetailDa
 export function useApplicationMonitoring() {
   const [dataSource, setDataSource] = useState<ApplicationData[]>([]);
   const [loading, setLoading] = useState(false);
+  /** 조회 실패를 빈 목록과 구분해 화면에 남긴다. 토스트는 사라지지만 이 값은 남는다. */
+  const [loadError, setLoadError] = useState<string | undefined>();
   const [stats, setStats] = useState({ totalCount: 0, pendingCount: 0, approvedCount: 0, rejectedCount: 0, completedCount: 0 });
   const [filters, setFilters] = useState<ApplicationMonitoringRequest>({ page: 1, limit: 10 });
 
@@ -21,6 +23,7 @@ export function useApplicationMonitoring() {
   const fetchApplications = useCallback(async () => {
     setLoading(true);
     try {
+      setLoadError(undefined);
       const data = await adopterApi.getApplicationList(filters);
       if (data && Array.isArray(data.applications)) {
         setDataSource(data.applications);
@@ -31,6 +34,7 @@ export function useApplicationMonitoring() {
       }
     } catch (error: unknown) {
       console.error('Failed to fetch applications:', error);
+      setLoadError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.');
       setDataSource([]);
       message.error('입양 신청 목록을 불러올 수 없습니다.');
     } finally {
@@ -77,7 +81,7 @@ export function useApplicationMonitoring() {
   }, []);
 
   return {
-    dataSource, loading, stats, filters,
+    dataSource, loading, loadError, stats, filters,
     fetchApplications, handleDateRangeChange, handleBreederSearch, handleStatusChange, handlePageChange,
     detail: { isOpen: isDetailModalOpen, loading: detailLoading, application: selectedApplication, close: () => setIsDetailModalOpen(false) },
     handleRowClick,

@@ -13,6 +13,8 @@ import { useDeleteConfirm } from '../../../shared/hooks';
 export function useNoticeCrud() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(false);
+  /** 조회 실패를 빈 목록과 구분해 화면에 남긴다. 토스트는 사라지지만 이 값은 남는다. */
+  const [loadError, setLoadError] = useState<string | undefined>();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [statusFilter, setStatusFilter] = useState<'published' | 'draft' | 'archived' | undefined>(undefined);
@@ -30,11 +32,13 @@ export function useNoticeCrud() {
   const fetchNotices = useCallback(async () => {
     setLoading(true);
     try {
+      setLoadError(undefined);
       const response = await noticeApi.getNotices(currentPage, limit, statusFilter);
       setNotices(response.data.items);
       setTotalItems(response.data.pagination.totalItems);
     } catch (error) {
       message.error('공지사항 목록 조회 실패');
+      setLoadError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.');
       console.error(error);
     } finally {
       setLoading(false);
@@ -119,6 +123,7 @@ export function useNoticeCrud() {
   return {
     notices,
     loading,
+    loadError,
     currentPage,
     totalItems,
     limit,

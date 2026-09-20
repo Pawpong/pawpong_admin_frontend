@@ -101,16 +101,24 @@ export default function BreederManagement() {
       />
 
       <ManagementDetailModal visible={detail.isDetailModalOpen} breeder={selectedBreeder} onClose={detail.close} />
-      <SuspendModal visible={suspend.isOpen} form={suspend.form} onOk={suspend.submit} onCancel={suspend.close} />
+      <SuspendModal
+        visible={suspend.isOpen}
+        form={suspend.form}
+        submitting={suspend.submitting}
+        onOk={suspend.submit}
+        onCancel={suspend.close}
+      />
       <UnsuspendModal
         visible={unsuspend.isOpen}
         breeder={selectedBreeder}
+        submitting={unsuspend.submitting}
         onOk={unsuspend.submit}
         onCancel={unsuspend.close}
       />
       <ProfileRemindModal
         visible={remind.isOpen}
         count={selectedBreeders.length}
+        submitting={remind.submitting}
         onOk={remind.submit}
         onCancel={remind.close}
       />

@@ -11,6 +11,8 @@ import type { ReviewReportItem } from '../../../shared/types/api.types';
 export function useReviewReports() {
   const [reports, setReports] = useState<ReviewReportItem[]>([]);
   const [loading, setLoading] = useState(false);
+  /** 조회 실패를 빈 목록과 구분해 화면에 남긴다. 토스트는 사라지지만 이 값은 남는다. */
+  const [loadError, setLoadError] = useState<string | undefined>();
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
 
   /* 상세 보기 모달 */
@@ -20,6 +22,7 @@ export function useReviewReports() {
   const fetchReports = useCallback(async () => {
     setLoading(true);
     try {
+      setLoadError(undefined);
       const data = await reviewReportApi.getReviewReports(pagination.current, pagination.pageSize);
       if (data && Array.isArray(data.items)) {
         setReports(data.items);
@@ -35,6 +38,7 @@ export function useReviewReports() {
       }
     } catch (error: unknown) {
       console.error('Failed to fetch review reports:', error);
+      setLoadError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.');
       setReports([]);
       message.error('후기 신고 목록을 불러올 수 없습니다.');
     } finally {
@@ -69,6 +73,7 @@ export function useReviewReports() {
   return {
     reports,
     loading,
+    loadError,
     pagination,
     onPageChange,
     fetchReports,

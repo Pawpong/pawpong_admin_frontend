@@ -1,4 +1,5 @@
 import React from 'react';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { Card, Select } from 'antd';
 
 import { useDeletedUserCrud } from '../../features/user/hooks/useDeletedUserCrud';
@@ -38,6 +39,7 @@ const DeletedUsers: React.FC = () => {
 
       {/* 탈퇴 사용자 목록 테이블 */}
       <Card>
+        <LoadError error={crud.loadError} retry={crud.fetchDeletedUsers} />
         <DeletedUserTable
           dataSource={crud.dataSource}
           loading={crud.loading}

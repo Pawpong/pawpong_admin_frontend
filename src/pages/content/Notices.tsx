@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { Card, Button, Space, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
@@ -12,7 +13,7 @@ import { NoticeDetailModal } from '../../features/notice/ui/NoticeDetailModal';
  */
 const Notices = () => {
   const {
-    notices, loading, currentPage, totalItems, limit, statusFilter,
+    notices, loading, loadError, currentPage, totalItems, limit, statusFilter,
     setCurrentPage, handleFilterChange, fetchNotices,
     modal, detail, handleDelete,
   } = useNoticeCrud();
@@ -42,6 +43,7 @@ const Notices = () => {
         </Space>
       }
     >
+      <LoadError error={loadError} retry={fetchNotices} />
       <NoticeTable
         notices={notices}
         loading={loading}

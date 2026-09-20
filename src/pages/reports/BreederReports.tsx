@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { Card } from 'antd';
 import { WarningOutlined } from '@ant-design/icons';
 
@@ -11,7 +12,7 @@ import { BreederReportActionModal } from '../../features/breeder/ui/BreederRepor
  * 브리더 신고 관리 페이지
  */
 export default function BreederReports() {
-  const { reports, loading, pagination, pendingCount, onPageChange, fetchReports, detail, action } = useBreederReports();
+  const { reports, loading, loadError, pagination, pendingCount, onPageChange, fetchReports, detail, action } = useBreederReports();
 
   useEffect(() => { fetchReports(); }, [fetchReports]);
 
@@ -36,6 +37,7 @@ export default function BreederReports() {
         </div>
       </Card>
 
+      <LoadError error={loadError} retry={fetchReports} />
       <BreederReportTable
         reports={reports} loading={loading} pagination={pagination}
         onPageChange={onPageChange} onView={detail.openDetail} onAction={action.openAction}

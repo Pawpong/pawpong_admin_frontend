@@ -1,4 +1,5 @@
 import React from 'react';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { Card, Select, Input, Button } from 'antd';
 
 import { useUserCrud } from '../../features/user/hooks/useUserCrud';
@@ -38,6 +39,7 @@ const Users: React.FC = () => {
 
       {/* 사용자 목록 테이블 */}
       <Card>
+        <LoadError error={crud.loadError} retry={crud.fetchUsers} />
         <UserTable
           dataSource={crud.dataSource}
           loading={crud.loading}

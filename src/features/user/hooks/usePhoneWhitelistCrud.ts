@@ -11,10 +11,13 @@ import { useCrudModal, useDeleteConfirm } from '../../../shared/hooks';
 export function usePhoneWhitelistCrud() {
   const [whitelist, setWhitelist] = useState<PhoneWhitelist[]>([]);
   const [loading, setLoading] = useState(false);
+  /** 조회 실패를 빈 목록과 구분해 화면에 남긴다. 토스트는 사라지지만 이 값은 남는다. */
+  const [loadError, setLoadError] = useState<string | undefined>();
 
   const fetchWhitelist = useCallback(async () => {
     setLoading(true);
     try {
+      setLoadError(undefined);
       const data = await userApi.getPhoneWhitelist();
       if (data && Array.isArray(data.items)) {
         setWhitelist(data.items);
@@ -24,6 +27,7 @@ export function usePhoneWhitelistCrud() {
       }
     } catch (error: unknown) {
       console.error('Failed to fetch phone whitelist:', error);
+      setLoadError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.');
       setWhitelist([]);
       message.error('화이트리스트를 불러올 수 없습니다.');
     } finally {
@@ -74,7 +78,7 @@ export function usePhoneWhitelistCrud() {
     }
   }, [fetchWhitelist]);
 
-  return { whitelist, loading, modal, handleDelete, handleToggleActive };
+  return { whitelist, loading, loadError, refetch: fetchWhitelist, modal, handleDelete, handleToggleActive };
 }
 
 /** 전화번호 포맷팅 (010-1234-5678 형식) */

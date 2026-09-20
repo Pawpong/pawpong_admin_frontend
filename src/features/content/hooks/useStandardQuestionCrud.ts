@@ -14,7 +14,7 @@ import { useListData } from '../../../shared/hooks';
  */
 export function useStandardQuestionCrud() {
   const fetchQuestions = useCallback(() => standardQuestionApi.getAllQuestions(), []);
-  const { data: rawQuestions, loading, refetch } = useListData<StandardQuestion>(fetchQuestions, '표준 질문');
+  const { data: rawQuestions, loading, error, refetch } = useListData<StandardQuestion>(fetchQuestions, '표준 질문');
 
   // order 기준 정렬
   const questions = [...rawQuestions].sort((a, b) => a.order - b.order);
@@ -154,6 +154,8 @@ export function useStandardQuestionCrud() {
   return {
     questions,
     loading,
+    error,
+    refetch,
     // 수정 모달
     modal: {
       modalVisible,

@@ -11,7 +11,7 @@ import type { Breed } from '../../../shared/types/api.types';
  */
 export function useBreedCrud() {
   const fetchBreeds = useCallback(() => breedApi.getAllBreeds(), []);
-  const { data: breeds, loading, refetch } = useListData<Breed>(fetchBreeds, '품종');
+  const { data: breeds, loading, error, refetch } = useListData<Breed>(fetchBreeds, '품종');
 
   const modal = useCrudModal<Breed>({
     entityName: '품종',
@@ -50,7 +50,7 @@ export function useBreedCrud() {
     onSuccess: refetch,
   });
 
-  return { breeds, loading, modal, handleDelete };
+  return { breeds, loading, error, refetch, modal, handleDelete };
 }
 
 /** 쉼표로 구분된 문자열을 배열로 변환 */

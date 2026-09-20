@@ -1,4 +1,5 @@
 import React from 'react';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { Card, Button, Space, Tag } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
@@ -11,7 +12,7 @@ import { BreedModal } from '../../features/breed/ui/BreedModal';
  * 강아지/고양이 품종 카테고리를 관리합니다.
  */
 const Breeds: React.FC = () => {
-  const { breeds, loading, modal, handleDelete } = useBreedCrud();
+  const { breeds, loading, error, refetch, modal, handleDelete } = useBreedCrud();
 
   return (
     <div style={{ padding: '24px' }}>
@@ -28,6 +29,7 @@ const Breeds: React.FC = () => {
           </Button>
         }
       >
+        <LoadError error={error} retry={refetch} />
         <BreedTable breeds={breeds} loading={loading} onEdit={modal.openEdit} onDelete={handleDelete} />
       </Card>
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { Card, Button, Space, Tag } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
@@ -11,7 +12,7 @@ import { DistrictModal } from '../../features/district/ui/DistrictModal';
  * 시/도 및 시/군/구 지역 데이터를 관리합니다.
  */
 const Districts: React.FC = () => {
-  const { districts, loading, modal, handleDelete } = useDistrictCrud();
+  const { districts, loading, error, refetch, modal, handleDelete } = useDistrictCrud();
 
   return (
     <div style={{ padding: '24px' }}>
@@ -28,6 +29,7 @@ const Districts: React.FC = () => {
           </Button>
         }
       >
+        <LoadError error={error} retry={refetch} />
         <DistrictTable districts={districts} loading={loading} onEdit={modal.openEdit} onDelete={handleDelete} />
       </Card>
 

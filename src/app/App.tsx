@@ -7,6 +7,7 @@ import koKR from 'antd/locale/ko_KR';
 
 import AdminLayout from '../shared/components/layout/AdminLayout';
 import { useAuthStore } from '../features/auth/store/authStore';
+import { useLandingPath } from '../features/auth/model/permissions';
 
 const Support = lazy(() => import('../pages/Support'));
 const CommunityReports = lazy(() => import('../pages/reports/CommunityReports'));
@@ -55,6 +56,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+/** 통계 권한이 없는 관리자를 대시보드로 보내면 바로 403 이 된다. 볼 수 있는 첫 화면으로 보낸다. */
+function LandingRedirect() {
+  return <Navigate to={useLandingPath()} replace />;
+}
+
 function App() {
   return (
     <ConfigProvider locale={koKR} theme={adminTheme}>
@@ -83,7 +89,7 @@ function App() {
                 <Route path="notifications/email" element={<EmailTemplates />} />
                 <Route path="contests/moderation" element={<ContestModeration />} />
                 {/* 대시보드 */}
-                <Route index element={<Navigate to="/dashboard" replace />} />
+                <Route index element={<LandingRedirect />} />
                 <Route path="dashboard" element={<Dashboard />} />
 
                 {/* MVP 통계 */}
@@ -142,7 +148,7 @@ function App() {
               </Route>
 
               {/* 404 */}
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              <Route path="*" element={<LandingRedirect />} />
             </Routes>
           </PageBoundary>
         </BrowserRouter>

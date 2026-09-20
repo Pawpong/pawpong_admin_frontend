@@ -1,4 +1,5 @@
 import { Button, Card } from 'antd';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { PlusOutlined } from '@ant-design/icons';
 
 import { useProfileBannerCrud } from '../../features/banner/hooks/useProfileBannerCrud';
@@ -10,7 +11,7 @@ import { ProfileBannerModal } from '../../features/banner/ui/ProfileBannerModal'
  * 로그인/회원가입 페이지에 표시될 배너를 관리합니다.
  */
 const ProfileBanners = () => {
-  const { banners, loading, modal, upload, handleDelete, handleToggleActive } = useProfileBannerCrud();
+  const { banners, loading, error, refetch, modal, upload, handleDelete, handleToggleActive } = useProfileBannerCrud();
 
   return (
     <div className="p-3 sm:p-4 md:p-6">
@@ -34,6 +35,7 @@ const ProfileBanners = () => {
 
       <div className="overflow-x-auto -mx-3 sm:mx-0 mb-6">
         <Card style={{ borderRadius: '12px', boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)' }}>
+          <LoadError error={error} retry={refetch} />
           <ProfileBannerTable
             banners={banners}
             loading={loading}

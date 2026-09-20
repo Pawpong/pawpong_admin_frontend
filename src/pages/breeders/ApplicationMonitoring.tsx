@@ -1,4 +1,5 @@
 import React from 'react';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { Card, DatePicker, Input, Select, Button } from 'antd';
 import { FileTextOutlined, ReloadOutlined } from '@ant-design/icons';
 import type { Dayjs } from 'dayjs';
@@ -15,7 +16,7 @@ const { Search } = Input;
  * 상담 신청 모니터링 페이지
  */
 const ApplicationMonitoring: React.FC = () => {
-  const { dataSource, loading, stats, filters, fetchApplications, handleDateRangeChange, handleBreederSearch, handleStatusChange, handlePageChange, detail, handleRowClick } = useApplicationMonitoring();
+  const { dataSource, loading, loadError, stats, filters, fetchApplications, handleDateRangeChange, handleBreederSearch, handleStatusChange, handlePageChange, detail, handleRowClick } = useApplicationMonitoring();
 
   return (
     <div className="p-3 sm:p-4 md:p-6">
@@ -49,6 +50,7 @@ const ApplicationMonitoring: React.FC = () => {
       <section>
         <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--color-gray-700)' }}>상담 신청 목록</h2>
         <Card style={{ borderRadius: '8px', border: '1px solid var(--color-gray-200)' }}>
+          <LoadError error={loadError} retry={fetchApplications} />
           <ApplicationTable dataSource={dataSource} loading={loading} currentPage={filters.page || 1} pageSize={filters.limit || 10} totalCount={stats.totalCount} onPageChange={handlePageChange} onRowClick={handleRowClick} />
         </Card>
       </section>

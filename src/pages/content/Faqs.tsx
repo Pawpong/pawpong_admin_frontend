@@ -1,4 +1,5 @@
 import React from 'react';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { Card, Button } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
@@ -11,7 +12,7 @@ import { FaqModal } from '../../features/content/ui/FaqModal';
  * 자주 묻는 질문을 관리합니다.
  */
 const Faqs: React.FC = () => {
-  const { faqs, loading, modal, handleDelete } = useFaqCrud();
+  const { faqs, loading, error, refetch, modal, handleDelete } = useFaqCrud();
 
   return (
     <div style={{ padding: '24px' }}>
@@ -23,6 +24,7 @@ const Faqs: React.FC = () => {
       </div>
 
       <Card>
+        <LoadError error={error} retry={refetch} />
         <FaqTable faqs={faqs} loading={loading} onEdit={modal.openEdit} onDelete={handleDelete} />
       </Card>
 

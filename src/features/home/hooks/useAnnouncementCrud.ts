@@ -13,7 +13,7 @@ export function useAnnouncementCrud() {
     return data.sort((a: Announcement, b: Announcement) => a.order - b.order);
   }, []);
 
-  const { data: announcements, loading, refetch } = useListData<Announcement>(fetchAnnouncements, '공지사항');
+  const { data: announcements, loading, error, refetch } = useListData<Announcement>(fetchAnnouncements, '공지사항');
 
   const modal = useCrudModal<Announcement>({
     entityName: '공지사항',
@@ -51,5 +51,5 @@ export function useAnnouncementCrud() {
     onSuccess: refetch,
   });
 
-  return { announcements, loading, modal, handleDelete };
+  return { announcements, loading, error, refetch, modal, handleDelete };
 }

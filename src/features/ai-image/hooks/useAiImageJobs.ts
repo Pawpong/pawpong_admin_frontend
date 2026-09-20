@@ -19,7 +19,7 @@ export function useAiImageJobs() {
     [statusFilter, filterIdFilter],
   );
 
-  const { data, loading, pagination, onPageChange, refetch } = usePaginatedData<AiImageJob>(
+  const { data, loading, error, pagination, onPageChange, refetch } = usePaginatedData<AiImageJob>(
     fetchJobs,
     'AI 생성 작업',
     20,
@@ -45,12 +45,13 @@ export function useAiImageJobs() {
   return {
     jobs: data,
     loading,
+    error,
+    refetch,
     pagination,
     statusFilter,
     filterIdFilter,
     onPageChange,
     handleStatusChange,
     handleFilterIdChange,
-    refetch,
   };
 }

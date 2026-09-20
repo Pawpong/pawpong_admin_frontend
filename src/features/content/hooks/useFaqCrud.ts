@@ -13,7 +13,7 @@ export function useFaqCrud() {
     return data.sort((a: FAQ, b: FAQ) => a.order - b.order);
   }, []);
 
-  const { data: faqs, loading, refetch } = useListData<FAQ>(fetchFaqs, 'FAQ');
+  const { data: faqs, loading, error, refetch } = useListData<FAQ>(fetchFaqs, 'FAQ');
 
   const modal = useCrudModal<FAQ>({
     entityName: 'FAQ',
@@ -57,5 +57,5 @@ export function useFaqCrud() {
     onSuccess: refetch,
   });
 
-  return { faqs, loading, modal, handleDelete };
+  return { faqs, loading, error, refetch, modal, handleDelete };
 }

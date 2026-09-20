@@ -1,4 +1,5 @@
 import { Card, Button } from 'antd';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { PlusOutlined } from '@ant-design/icons';
 
 import { useAnnouncementCrud } from '../../features/home/hooks/useAnnouncementCrud';
@@ -9,7 +10,7 @@ import { AnnouncementModal } from '../../features/home/ui/AnnouncementModal';
  * 팝업/배너 공지 관리 페이지
  */
 const Announcements = () => {
-  const { announcements, loading, modal, handleDelete } = useAnnouncementCrud();
+  const { announcements, loading, error, refetch, modal, handleDelete } = useAnnouncementCrud();
 
   return (
     <div style={{ padding: '24px' }}>
@@ -21,6 +22,7 @@ const Announcements = () => {
       </div>
 
       <Card>
+        <LoadError error={error} retry={refetch} />
         <AnnouncementTable announcements={announcements} loading={loading} onEdit={modal.openEdit} onDelete={handleDelete} />
       </Card>
 

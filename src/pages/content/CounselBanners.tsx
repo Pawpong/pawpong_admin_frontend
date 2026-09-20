@@ -1,4 +1,5 @@
 import { Button, Card } from 'antd';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { PlusOutlined } from '@ant-design/icons';
 
 import { useCounselBannerCrud } from '../../features/banner/hooks/useCounselBannerCrud';
@@ -10,7 +11,7 @@ import { CounselBannerModal } from '../../features/banner/ui/CounselBannerModal'
  * 상담 신청 페이지에 표시될 배너를 관리합니다.
  */
 const CounselBanners = () => {
-  const { banners, loading, modal, upload, handleDelete, handleToggleActive } = useCounselBannerCrud();
+  const { banners, loading, error, refetch, modal, upload, handleDelete, handleToggleActive } = useCounselBannerCrud();
 
   return (
     <div className="p-3 sm:p-4 md:p-6">
@@ -34,6 +35,7 @@ const CounselBanners = () => {
 
       <div className="overflow-x-auto -mx-3 sm:mx-0 mb-6">
         <Card style={{ borderRadius: '12px', boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)' }}>
+          <LoadError error={error} retry={refetch} />
           <CounselBannerTable
             banners={banners}
             loading={loading}

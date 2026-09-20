@@ -1,4 +1,5 @@
 import React from 'react';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { Card, Button, Space, Tag } from 'antd';
 import { PlusOutlined, PhoneOutlined } from '@ant-design/icons';
 
@@ -10,7 +11,7 @@ import { PhoneWhitelistModal } from '../../features/user/ui/PhoneWhitelistModal'
  * 전화번호 화이트리스트 관리 페이지
  */
 const PhoneWhitelistPage: React.FC = () => {
-  const { whitelist, loading, modal, handleDelete, handleToggleActive } = usePhoneWhitelistCrud();
+  const { whitelist, loading, loadError, refetch, modal, handleDelete, handleToggleActive } = usePhoneWhitelistCrud();
 
   return (
     <div className="p-3 sm:p-4 md:p-6">
@@ -36,6 +37,7 @@ const PhoneWhitelistPage: React.FC = () => {
         </div>
 
         <div className="overflow-x-auto -mx-3 sm:mx-0">
+          <LoadError error={loadError} retry={refetch} />
           <PhoneWhitelistTable
             whitelist={whitelist}
             loading={loading}

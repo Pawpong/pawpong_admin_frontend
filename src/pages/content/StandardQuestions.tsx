@@ -1,4 +1,5 @@
 import React from 'react';
+import { LoadError } from '../../shared/components/admin/PageHeading';
 import { Card, Button, Space, Tag, Popconfirm } from 'antd';
 import { SortAscendingOutlined, ReloadOutlined } from '@ant-design/icons';
 
@@ -12,7 +13,7 @@ import { StandardQuestionReorderModal } from '../../features/content/ui/Standard
  * 입양 신청서의 17가지 표준 질문을 관리합니다.
  */
 const StandardQuestions: React.FC = () => {
-  const { questions, loading, modal, reorder, handleToggleStatus, handleReseed } = useStandardQuestionCrud();
+  const { questions, loading, error, refetch, modal, reorder, handleToggleStatus, handleReseed } = useStandardQuestionCrud();
 
   return (
     <div style={{ padding: '24px' }}>
@@ -43,6 +44,7 @@ const StandardQuestions: React.FC = () => {
           </Space>
         }
       >
+        <LoadError error={error} retry={refetch} />
         <StandardQuestionTable
           questions={questions}
           loading={loading}
