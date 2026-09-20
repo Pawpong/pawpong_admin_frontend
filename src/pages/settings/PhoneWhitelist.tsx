@@ -1,7 +1,7 @@
 import React from 'react';
-import { LoadError } from '../../shared/components/admin/PageHeading';
-import { Card, Button, Space, Tag } from 'antd';
-import { PlusOutlined, PhoneOutlined } from '@ant-design/icons';
+import { LoadError, Metric, PageHeading } from '../../shared/components/admin/PageHeading';
+import { Alert, Button } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 
 import { usePhoneWhitelistCrud } from '../../features/user/hooks/usePhoneWhitelistCrud';
 import { PhoneWhitelistTable } from '../../features/user/ui/PhoneWhitelistTable';
@@ -14,39 +14,32 @@ const PhoneWhitelistPage: React.FC = () => {
   const { whitelist, loading, loadError, refetch, modal, handleDelete, handleToggleActive } = usePhoneWhitelistCrud();
 
   return (
-    <div className="p-3 sm:p-4 md:p-6">
-      <Card
-        title={
-          <Space wrap>
-            <PhoneOutlined style={{ fontSize: '18px' }} />
-            <span className="text-base sm:text-lg font-semibold">전화번호 화이트리스트</span>
-            <Tag color="blue">{whitelist.length}개</Tag>
-          </Space>
-        }
-        extra={
-          <Button type="primary" icon={<PlusOutlined />} onClick={modal.openCreate} className="text-xs sm:text-sm">
+    <div>
+      <PageHeading
+        title="전화번호 화이트리스트"
+        description="중복 가입을 허용할 전화번호와 등록 사유, 활성 상태를 관리합니다."
+        action={
+          <Button type="primary" icon={<PlusOutlined />} onClick={modal.openCreate}>
             새 번호 추가
           </Button>
         }
-        styles={{ header: { flexWrap: 'wrap', gap: '8px' } }}
-      >
-        <div className="mb-4 p-3 rounded-lg" style={{ backgroundColor: '#f6f8fa' }}>
-          <p className="m-0 text-xs sm:text-sm text-gray-600">
-            화이트리스트에 등록된 전화번호는 <strong>중복 가입이 허용</strong>됩니다. 테스트 계정이나 개발 목적으로 사용됩니다.
-          </p>
-        </div>
-
-        <div className="overflow-x-auto -mx-3 sm:mx-0">
-          <LoadError error={loadError} retry={refetch} />
-          <PhoneWhitelistTable
-            whitelist={whitelist}
-            loading={loading}
-            onEdit={modal.openEdit}
-            onDelete={handleDelete}
-            onToggleActive={handleToggleActive}
-          />
-        </div>
-      </Card>
+      />
+      <LoadError error={loadError} retry={refetch} />
+      <Alert
+        type="info"
+        showIcon
+        message="화이트리스트에 등록된 전화번호는 중복 가입이 허용됩니다. 테스트 계정이나 개발 목적으로 사용됩니다."
+      />
+      <div className="metric-grid metric-grid-single">
+        <Metric label="등록된 번호" value={`${whitelist.length.toLocaleString()}개`} />
+      </div>
+      <PhoneWhitelistTable
+        whitelist={whitelist}
+        loading={loading}
+        onEdit={modal.openEdit}
+        onDelete={handleDelete}
+        onToggleActive={handleToggleActive}
+      />
 
       <PhoneWhitelistModal
         visible={modal.modalVisible}

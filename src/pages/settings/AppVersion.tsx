@@ -1,6 +1,6 @@
 import React from 'react';
-import { LoadError } from '../../shared/components/admin/PageHeading';
-import { Card, Button, Space, Tag } from 'antd';
+import { LoadError, Metric, PageHeading } from '../../shared/components/admin/PageHeading';
+import { Button } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 import { useAppVersionCrud } from '../../features/app-version/hooks/useAppVersionCrud';
@@ -15,31 +15,29 @@ const AppVersion: React.FC = () => {
   const { versions, loading, error, refetch, pagination, onPageChange, modal, handleDelete, handleToggleActive } = useAppVersionCrud();
 
   return (
-    <div style={{ padding: '24px' }}>
-      <Card
-        title={
-          <Space>
-            <span style={{ fontSize: '18px', fontWeight: 600 }}>앱 버전 관리</span>
-            <Tag color="blue">{pagination.totalItems}개</Tag>
-          </Space>
-        }
-        extra={
+    <div>
+      <PageHeading
+        title="앱 버전 관리"
+        description="iOS·Android 플랫폼별 최신 버전과 최소 요구 버전, 활성 상태를 관리합니다."
+        action={
           <Button type="primary" icon={<PlusOutlined />} onClick={modal.openCreate}>
             새 버전 추가
           </Button>
         }
-      >
-        <LoadError error={error} retry={refetch} />
-        <AppVersionTable
-          versions={versions}
-          loading={loading}
-          pagination={pagination}
-          onPageChange={onPageChange}
-          onEdit={modal.openEdit}
-          onDelete={handleDelete}
-          onToggleActive={handleToggleActive}
-        />
-      </Card>
+      />
+      <LoadError error={error} retry={refetch} />
+      <div className="metric-grid metric-grid-single">
+        <Metric label="등록된 버전" value={`${pagination.totalItems.toLocaleString()}개`} />
+      </div>
+      <AppVersionTable
+        versions={versions}
+        loading={loading}
+        pagination={pagination}
+        onPageChange={onPageChange}
+        onEdit={modal.openEdit}
+        onDelete={handleDelete}
+        onToggleActive={handleToggleActive}
+      />
 
       <AppVersionModal
         visible={modal.modalVisible}

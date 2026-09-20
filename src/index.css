@@ -351,11 +351,21 @@ a:focus-visible {
 .filter-bar .ant-form-item {
   margin: 0;
 }
+.filter-bar .filter-control {
+  width: 170px;
+}
+.filter-bar .filter-control-wide {
+  width: 240px;
+}
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
   margin-bottom: 28px;
+}
+/* 타일이 하나뿐인 화면은 어느 폭에서나 한 칸만 쓴다. */
+.metric-grid.metric-grid-single {
+  grid-template-columns: minmax(0, 320px);
 }
 .metric-card {
   padding: 24px;
@@ -662,6 +672,11 @@ a:focus-visible {
     padding: 40px 48px;
   }
 }
+@media (min-width: 1101px) {
+  .metric-grid.metric-grid-five {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
 @media (max-width: 1100px) {
   .metric-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -761,6 +776,10 @@ a:focus-visible {
   }
   .filter-bar .ant-form-item {
     max-width: 100%;
+  }
+  .filter-bar .filter-control,
+  .filter-bar .filter-control-wide {
+    width: 100%;
   }
   .workspace-footer {
     padding: 20px 16px;

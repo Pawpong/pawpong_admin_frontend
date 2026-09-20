@@ -1,5 +1,6 @@
 import { Button, Space } from 'antd';
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { PageHeading } from '../../shared/components/admin/PageHeading';
 
 import { useAlimtalkCrud } from '../../features/alimtalk/hooks/useAlimtalkCrud';
 import { AlimtalkTable } from '../../features/alimtalk/ui/AlimtalkTable';
@@ -14,17 +15,19 @@ export default function AlimtalkTemplates() {
   const { templates, loading, refreshing, selectedTemplate, create, edit, detail, handleDelete, handleToggleActive, handleRefreshCache } = useAlimtalkCrud();
 
   return (
-    <div style={{ padding: '24px' }}>
-      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>알림톡 템플릿 관리</h1>
-          <p style={{ color: '#666', marginTop: '8px' }}>CoolSMS에서 검수 받은 알림톡 템플릿을 등록하고 관리합니다.</p>
-        </div>
-        <Space>
-          <Button icon={<PlusOutlined />} onClick={create.open}>템플릿 등록</Button>
-          <Button type="primary" icon={<ReloadOutlined />} onClick={handleRefreshCache} loading={refreshing}>새로고침</Button>
-        </Space>
-      </div>
+    <div>
+      <PageHeading
+        title="알림톡 템플릿 관리"
+        description="알림톡 템플릿의 코드, 솔라피 ID, 검수 상태와 활성 여부를 관리합니다."
+        action={
+          <Space>
+            <Button icon={<PlusOutlined />} onClick={create.open}>템플릿 등록</Button>
+            <Button type="primary" icon={<ReloadOutlined />} onClick={handleRefreshCache} loading={refreshing}>
+              새로고침
+            </Button>
+          </Space>
+        }
+      />
 
       <AlimtalkTable
         templates={templates}

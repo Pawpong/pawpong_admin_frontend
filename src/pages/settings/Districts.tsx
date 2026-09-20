@@ -1,6 +1,6 @@
 import React from 'react';
-import { LoadError } from '../../shared/components/admin/PageHeading';
-import { Card, Button, Space, Tag } from 'antd';
+import { LoadError, Metric, PageHeading } from '../../shared/components/admin/PageHeading';
+import { Button } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 import { useDistrictCrud } from '../../features/district/hooks/useDistrictCrud';
@@ -15,23 +15,21 @@ const Districts: React.FC = () => {
   const { districts, loading, error, refetch, modal, handleDelete } = useDistrictCrud();
 
   return (
-    <div style={{ padding: '24px' }}>
-      <Card
-        title={
-          <Space>
-            <span style={{ fontSize: '18px', fontWeight: 600 }}>지역 관리</span>
-            <Tag color="blue">{districts.length}개</Tag>
-          </Space>
-        }
-        extra={
+    <div>
+      <PageHeading
+        title="지역 관리"
+        description="브리더 검색에 쓰는 시·도와 그 아래 시·군·구 목록을 관리합니다."
+        action={
           <Button type="primary" icon={<PlusOutlined />} onClick={modal.openCreate}>
             새 지역 추가
           </Button>
         }
-      >
-        <LoadError error={error} retry={refetch} />
-        <DistrictTable districts={districts} loading={loading} onEdit={modal.openEdit} onDelete={handleDelete} />
-      </Card>
+      />
+      <LoadError error={error} retry={refetch} />
+      <div className="metric-grid metric-grid-single">
+        <Metric label="등록된 시·도" value={`${districts.length.toLocaleString()}개`} />
+      </div>
+      <DistrictTable districts={districts} loading={loading} onEdit={modal.openEdit} onDelete={handleDelete} />
 
       <DistrictModal
         visible={modal.modalVisible}
