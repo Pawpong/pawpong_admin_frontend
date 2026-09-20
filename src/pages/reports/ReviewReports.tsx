@@ -1,7 +1,5 @@
 import { useEffect } from 'react';
-import { LoadError } from '../../shared/components/admin/PageHeading';
-import { Card } from 'antd';
-import { WarningOutlined } from '@ant-design/icons';
+import { LoadError, Metric, PageHeading } from '../../shared/components/admin/PageHeading';
 
 import { useReviewReports } from '../../features/review/hooks/useReviewReports';
 import { ReviewReportTable } from '../../features/review/ui/ReviewReportTable';
@@ -17,27 +15,15 @@ const ReviewReports: React.FC = () => {
   useEffect(() => { fetchReports(); }, [fetchReports]);
 
   return (
-    <div className="p-3 sm:p-4 md:p-6">
-      <div className="mb-4 sm:mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: 'var(--color-primary-500)' }}>
-          후기 신고 관리
-        </h1>
-        <p className="text-sm sm:text-base text-gray-500">신고된 후기를 검토하고 관리합니다</p>
-      </div>
-
-      <Card className="mb-6" style={{ borderRadius: '12px', boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)' }}>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-12 h-12 rounded-lg" style={{ backgroundColor: 'var(--color-status-error-100)' }}>
-            <WarningOutlined style={{ fontSize: '24px', color: 'var(--color-status-error-500)' }} />
-          </div>
-          <div>
-            <p className="text-xs sm:text-sm text-gray-500">신고된 후기</p>
-            <p className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--color-status-error-500)' }}>{reports.length}건</p>
-          </div>
-        </div>
-      </Card>
-
+    <div>
+      <PageHeading
+        title="후기 신고 관리"
+        description="신고된 후기의 작성자, 신고자, 신고 사유를 확인하고 후기 공개 여부를 결정합니다."
+      />
       <LoadError error={loadError} retry={fetchReports} />
+      <div className="metric-grid metric-grid-single">
+        <Metric label="조회된 신고" value={`${reports.length.toLocaleString()}건`} />
+      </div>
       <ReviewReportTable
         reports={reports} loading={loading} pagination={pagination}
         onPageChange={onPageChange} onView={detail.openDetail} onDelete={handleDelete}
