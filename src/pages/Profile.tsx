@@ -1,5 +1,6 @@
 import { Spin } from 'antd';
 
+import { PageHeading } from '../shared/components/admin/PageHeading';
 import { useProfile } from '../features/user/hooks/useProfile';
 import { ProfileCard } from '../features/user/ui/ProfileCard';
 import { ProfileInfo } from '../features/user/ui/ProfileInfo';
@@ -10,19 +11,18 @@ import { ProfileInfo } from '../features/user/ui/ProfileInfo';
 export default function Profile() {
   const { profile, loading, banners } = useProfile();
 
-  if (loading) return <div className="flex items-center justify-center h-96"><Spin size="large" /></div>;
-  if (!profile) return <div className="p-6">프로필을 불러올 수 없습니다.</div>;
+  if (loading) return <div className="page-loading"><Spin size="large" /></div>;
+  if (!profile) return <div>프로필을 불러올 수 없습니다.</div>;
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-semibold mb-6">관리자 프로필</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-1">
-          <ProfileCard name={profile.name} adminLevel={profile.adminLevel} banners={banners} />
-        </div>
-        <div className="md:col-span-2">
-          <ProfileInfo profile={profile} />
-        </div>
+    <div>
+      <PageHeading
+        title="관리자 프로필"
+        description="로그인한 관리자 계정의 이메일, 관리자 등급, 계정 상태와 가입일을 확인합니다."
+      />
+      <div className="profile-columns">
+        <ProfileCard name={profile.name} adminLevel={profile.adminLevel} banners={banners} />
+        <ProfileInfo profile={profile} />
       </div>
     </div>
   );

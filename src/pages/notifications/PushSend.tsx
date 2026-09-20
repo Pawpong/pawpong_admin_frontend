@@ -1,3 +1,4 @@
+import { PageHeading } from '../../shared/components/admin/PageHeading';
 import { AdminPushSendForm } from '../../features/notification/ui/AdminPushSendForm';
 
 /**
@@ -6,7 +7,11 @@ import { AdminPushSendForm } from '../../features/notification/ui/AdminPushSendF
  */
 export default function PushSend() {
   return (
-    <div style={{ padding: 24 }}>
+    <div>
+      <PageHeading
+        title="푸시 발송"
+        description="입양자·브리더 전체 또는 개별 사용자에게 푸시 알림을 보내고 발송 결과를 확인합니다."
+      />
       <AdminPushSendForm />
     </div>
   );

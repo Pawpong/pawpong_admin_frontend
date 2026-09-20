@@ -449,6 +449,19 @@ a:focus-visible {
   color: #8a5117;
   letter-spacing: 1px;
 }
+/* 화면 전체가 로딩 중일 때 쓰는 자리. 각 페이지가 h-96 flex 조합을 따로 쓰던 것을 모았다. */
+.page-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+}
+.profile-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 20px;
+  align-items: start;
+}
 .section-heading {
   display: flex;
   align-items: center;
@@ -684,6 +697,9 @@ a:focus-visible {
   }
 }
 @media (min-width: 1101px) {
+  .metric-grid.metric-grid-three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
   .metric-grid.metric-grid-five {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
@@ -692,7 +708,8 @@ a:focus-visible {
   .metric-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .dashboard-columns {
+  .dashboard-columns,
+  .profile-columns {
     grid-template-columns: 1fr;
   }
   .welcome-art {
