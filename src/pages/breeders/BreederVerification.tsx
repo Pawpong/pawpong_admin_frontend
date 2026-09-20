@@ -1,11 +1,11 @@
 import { AlimtalkPreviewByCode } from '../../features/alimtalk/ui/AlimtalkPreview';
 import type { BreederVerification as BreederRecord } from '../../shared/types/api.types';
 import { BreederSearchBar } from '../../features/breeder/ui/BreederSearchBar';
-import { LoadError } from '../../shared/components/admin/PageHeading';
+import { LoadError, Metric, PageHeading } from '../../shared/components/admin/PageHeading';
 import { useState } from 'react';
 import { operationsApi } from '../../features/operations/api/operationsApi';
-import { App, Card, Tabs, Button, Popconfirm, Modal, Alert } from 'antd';
-import { FileTextOutlined, BellOutlined } from '@ant-design/icons';
+import { App, Tabs, Button, Popconfirm, Modal, Alert } from 'antd';
+import { BellOutlined } from '@ant-design/icons';
 
 import { useBreederVerification } from '../../features/breeder/hooks/useBreederVerification';
 import { VerificationTable } from '../../features/breeder/ui/VerificationTable';
@@ -50,30 +50,15 @@ export default function BreederVerification() {
   } = useBreederVerification();
 
   return (
-    <div className="p-3 sm:p-4 md:p-6">
-      <div className="mb-4 sm:mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: 'var(--color-primary-500)' }}>
-          브리더 신청 관리
-        </h1>
-        <p className="text-sm sm:text-base text-gray-500">브리더 입점 신청을 검토하고 승인/반려 처리합니다</p>
+    <div>
+      <PageHeading
+        title="브리더 신청 관리"
+        description="브리더 입점 신청의 연락처, 요금제, 신청일과 심사 상태를 확인하고 승인·반려를 처리합니다."
+      />
+      <LoadError error={error} retry={refetch} />
+      <div className="metric-grid metric-grid-single">
+        <Metric label="전체 신청 브리더" value={`${totalCount.toLocaleString()}명`} />
       </div>
-
-      <Card className="mb-4 sm:mb-6" style={{ borderRadius: '12px', boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)' }}>
-        <div className="flex items-center gap-3">
-          <div
-            className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-lg"
-            style={{ backgroundColor: 'var(--color-tertiary-500)' }}
-          >
-            <FileTextOutlined style={{ fontSize: '20px', color: 'var(--color-primary-500)' }} />
-          </div>
-          <div>
-            <p className="text-xs sm:text-sm text-gray-500">총 브리더</p>
-            <p className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--color-primary-500)' }}>
-              {totalCount}명
-            </p>
-          </div>
-        </div>
-      </Card>
 
       <BreederSearchBar
         searchKeyword={searchKeyword}
@@ -84,7 +69,6 @@ export default function BreederVerification() {
         onAccountTypeChange={onAccountTypeChange}
         onRefresh={refetch}
       />
-      <LoadError error={error} retry={refetch} />
       <Tabs
         activeKey={statusFilter || 'all'}
         onChange={onStatusFilterChange}
@@ -98,7 +82,7 @@ export default function BreederVerification() {
         ]}
       />
 
-      <div className="mb-4 flex justify-end gap-3 flex-wrap">
+      <div className="bulk-action-bar">
         <Popconfirm
           title="서류 미제출 대상자에게 일괄 독촉 알림을 보낼까요?"
           description="서버가 발송 대상자를 선정합니다."
@@ -122,9 +106,7 @@ export default function BreederVerification() {
           icon={<BellOutlined />}
           onClick={remind.handleDocumentRemindClick}
           disabled={selectedBreeders.length === 0}
-          style={
-            selectedBreeders.length > 0 ? { backgroundColor: '#f59e0b', color: '#fff', borderColor: '#f59e0b' } : {}
-          }
+          type={selectedBreeders.length > 0 ? 'primary' : 'default'}
         >
           입점 심사 독촉 알림 ({selectedBreeders.length})
         </Button>

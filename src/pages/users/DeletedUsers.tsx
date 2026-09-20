@@ -1,6 +1,6 @@
 import React from 'react';
-import { LoadError } from '../../shared/components/admin/PageHeading';
-import { Card, Select } from 'antd';
+import { LoadError, PageHeading } from '../../shared/components/admin/PageHeading';
+import { Select } from 'antd';
 
 import { useDeletedUserCrud } from '../../features/user/hooks/useDeletedUserCrud';
 import { DeletedUserTable } from '../../features/user/ui/DeletedUserTable';
@@ -18,38 +18,39 @@ const DeletedUsers: React.FC = () => {
   const crud = useDeletedUserCrud();
 
   return (
-    <div className="p-3 sm:p-4 md:p-6">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-2">탈퇴 사용자 관리</h1>
-      <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-        입양자와 브리더의 탈퇴 내역을 조회하고 통계를 확인합니다.
-      </p>
+    <div>
+      <PageHeading
+        title="탈퇴 사용자 관리"
+        description="입양자와 브리더의 탈퇴 사유와 탈퇴일을 확인하고 계정 복구 또는 영구 삭제를 처리합니다."
+      />
+      <LoadError error={crud.loadError} retry={crud.fetchDeletedUsers} />
 
       <DeletedUserStatsSection stats={crud.stats} />
 
-      {/* 필터 */}
-      <Card className="mb-6 sm:mb-8" style={{ borderRadius: '12px', marginBottom: '2rem' }}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <Select placeholder="역할 선택" value={crud.filters.role} onChange={crud.handleRoleFilterChange} allowClear className="w-full">
-            <Option value="all">전체</Option>
-            <Option value="adopter">입양자</Option>
-            <Option value="breeder">브리더</Option>
-          </Select>
-        </div>
-      </Card>
+      <div className="filter-bar">
+        <span>역할</span>
+        <Select
+          placeholder="전체 역할"
+          value={crud.filters.role}
+          onChange={crud.handleRoleFilterChange}
+          allowClear
+          className="filter-control"
+        >
+          <Option value="all">전체</Option>
+          <Option value="adopter">입양자</Option>
+          <Option value="breeder">브리더</Option>
+        </Select>
+      </div>
 
-      {/* 탈퇴 사용자 목록 테이블 */}
-      <Card>
-        <LoadError error={crud.loadError} retry={crud.fetchDeletedUsers} />
-        <DeletedUserTable
-          dataSource={crud.dataSource}
-          loading={crud.loading}
-          pagination={crud.pagination}
-          onTableChange={crud.handleTableChange}
-          onShowDetail={crud.showDetail}
-          onRestore={crud.handleRestoreUser}
-          onHardDelete={crud.openHardDeleteModal}
-        />
-      </Card>
+      <DeletedUserTable
+        dataSource={crud.dataSource}
+        loading={crud.loading}
+        pagination={crud.pagination}
+        onTableChange={crud.handleTableChange}
+        onShowDetail={crud.showDetail}
+        onRestore={crud.handleRestoreUser}
+        onHardDelete={crud.openHardDeleteModal}
+      />
 
       <DeletedUserDetailModal visible={crud.detailModalVisible} user={crud.selectedUser} onCancel={crud.closeDetailModal} />
 

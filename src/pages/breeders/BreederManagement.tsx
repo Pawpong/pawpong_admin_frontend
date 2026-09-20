@@ -1,5 +1,5 @@
 import { BreederSearchBar } from '../../features/breeder/ui/BreederSearchBar';
-import { LoadError } from '../../shared/components/admin/PageHeading';
+import { LoadError, PageHeading } from '../../shared/components/admin/PageHeading';
 import { Button } from 'antd';
 import { BellOutlined } from '@ant-design/icons';
 
@@ -48,16 +48,12 @@ export default function BreederManagement() {
   } = useBreederManagement();
 
   return (
-    <div className="p-3 sm:p-4 md:p-6">
-      <div className="mb-4 sm:mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: 'var(--color-primary-500)' }}>
-          브리더 관리
-        </h1>
-        <p className="text-sm sm:text-base text-gray-500">
-          인증이 승인된 브리더의 계정과 서비스 노출 상태를 관리합니다
-        </p>
-      </div>
-
+    <div>
+      <PageHeading
+        title="브리더 관리"
+        description="승인된 브리더의 연락처, 승인일, 계정 상태를 조회하고 정지·해제와 프로필 완성 독려를 처리합니다."
+      />
+      <LoadError error={error} retry={refetch} />
       <BreederSearchBar
         searchKeyword={searchKeyword}
         cityName={cityName}
@@ -67,19 +63,14 @@ export default function BreederManagement() {
         onAccountTypeChange={onAccountTypeChange}
         onRefresh={refetch}
       />
-      <LoadError error={error} retry={refetch} />
       {stats && <ManagementStats stats={stats} />}
 
-      <div className="mb-4 flex justify-end">
+      <div className="bulk-action-bar">
         <Button
+          type={selectedBreeders.length > 0 ? 'primary' : 'default'}
           icon={<BellOutlined />}
           onClick={remind.click}
           disabled={selectedBreeders.length === 0}
-          style={
-            selectedBreeders.length > 0
-              ? { backgroundColor: 'var(--color-primary-500)', color: '#fff', borderColor: 'var(--color-primary-500)' }
-              : {}
-          }
         >
           프로필 완성 독려 알림 ({selectedBreeders.length})
         </Button>

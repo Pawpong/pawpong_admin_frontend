@@ -1,6 +1,7 @@
 import React from 'react';
-import { Card, Statistic, Row, Col, Tag } from 'antd';
+import { Card, Tag } from 'antd';
 import dayjs from 'dayjs';
+import { Metric } from '../../../shared/components/admin/PageHeading';
 
 import type { DeletedUserStats as DeletedUserStatsType } from '../api/userApi';
 
@@ -15,28 +16,12 @@ export function DeletedUserStatsSection({ stats }: DeletedUserStatsProps) {
   return (
     <>
       {/* 통계 카드 */}
-      <Row gutter={[16, 16]} className="mb-6 sm:mb-8">
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic title="전체 탈퇴 사용자" value={stats.totalDeletedUsers} suffix="명" valueStyle={{ color: '#3c3c3c' }} />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic title="탈퇴한 입양자" value={stats.totalDeletedAdopters} suffix="명" valueStyle={{ color: '#005df9' }} />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic title="탈퇴한 브리더" value={stats.totalDeletedBreeders} suffix="명" valueStyle={{ color: '#4f3b2e' }} />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic title="최근 7일 탈퇴" value={stats.last7DaysCount} suffix="명" valueStyle={{ color: '#d97706' }} />
-          </Card>
-        </Col>
-      </Row>
+      <div className="metric-grid">
+        <Metric label="전체 탈퇴 사용자" value={`${stats.totalDeletedUsers.toLocaleString()}명`} />
+        <Metric label="탈퇴한 입양자" value={`${stats.totalDeletedAdopters.toLocaleString()}명`} />
+        <Metric label="탈퇴한 브리더" value={`${stats.totalDeletedBreeders.toLocaleString()}명`} />
+        <Metric label="최근 7일 탈퇴" value={`${stats.last7DaysCount.toLocaleString()}명`} />
+      </div>
 
       {/* 입양자 탈퇴 사유 통계 */}
       {stats.adopterReasonStats.length > 0 && (

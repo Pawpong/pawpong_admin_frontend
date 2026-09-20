@@ -357,6 +357,17 @@ a:focus-visible {
 .filter-bar .filter-control-wide {
   width: 240px;
 }
+.filter-bar .filter-control-range {
+  width: 280px;
+}
+/* 표에서 고른 행에 거는 일괄 작업 줄. 표 바로 위에 오른쪽 정렬로 둔다. */
+.bulk-action-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -778,7 +789,11 @@ a:focus-visible {
     max-width: 100%;
   }
   .filter-bar .filter-control,
-  .filter-bar .filter-control-wide {
+  .filter-bar .filter-control-wide,
+  .filter-bar .filter-control-range {
+    width: 100%;
+  }
+  .bulk-action-bar .ant-btn {
     width: 100%;
   }
   .workspace-footer {
