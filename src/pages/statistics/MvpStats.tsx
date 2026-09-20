@@ -25,6 +25,7 @@ export default function MvpStatsPage() {
 
       <div className="section-heading">
         <h2>활성 사용자 현황</h2>
+        <span>해당 기간 안에 로그인한 사람 수</span>
       </div>
       <ActiveUserStats
         adopters7={stats.activeUserStats.adopters7Days} adopters14={stats.activeUserStats.adopters14Days} adopters28={stats.activeUserStats.adopters28Days}
@@ -33,11 +34,13 @@ export default function MvpStatsPage() {
 
       <div className="section-heading">
         <h2>상담 신청 현황</h2>
+        <span>입양자가 브리더에게 제출한 상담 신청 건수</span>
       </div>
       <ConsultationStats days7={stats.consultationStats.consultations7Days} days14={stats.consultationStats.consultations14Days} days28={stats.consultationStats.consultations28Days} />
 
       <div className="section-heading">
         <h2>브리더 분포 현황</h2>
+        <span>승인된 브리더의 지역·품종 분포</span>
       </div>
       <FilterUsageStats topLocations={stats.filterUsageStats.topLocations} topBreeds={stats.filterUsageStats.topBreeds} />
 

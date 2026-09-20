@@ -79,3 +79,17 @@
 - 정적 `message` 대신 `App.useApp()` 을 쓰도록 브리더 관리 훅을 고쳤다(antd 경고 해소).
 - 검증: 테스트 28개·타입체크·빌드 통과. lint 는 기존과 동일한 18 errors / 1 warning 으로, 새로 늘어난 항목은 없다. 390px 기준 10개 화면에서 페이지 가로 스크롤이 없고 표만 자체 스크롤하는 것을 확인했다.
 - 남은 gap: 알림톡 본문·실제 변수 바인딩과 승인 발송 연동, 서버의 동시 승인 방지, 일반/테스트 필터 운영 명세 반영, 콘테스트 목록·상세 API, 관리자 권한의 서버 측 검증. 화면 스타일은 `PageHeading` 을 쓰는 화면과 `Card` 만 쓰는 화면이 섞여 있어 정리가 필요하다.
+
+## 2026-09-20 화면 껍데기 통일
+
+앞 절에서 남긴 "PageHeading 을 쓰는 화면과 Card 만 쓰는 화면이 섞여 있다" 를 정리했다. 로컬(localhost:5175 → 로컬 백엔드 8080 → dev DB)에 로그인해 바꾼 화면을 데스크톱과 390px 두 폭에서 모두 열어 확인했다.
+
+- **한 가지 틀로 모았다.** 모든 화면이 `<div>` → `PageHeading` → `LoadError` → 통계 타일 → `filter-bar` → 표 순서를 쓴다. 표를 감싸던 antd `Card` 를 걷어냈다. `admin-content .ant-table-wrapper` 가 이미 카드 껍데기(배경·라운드·테두리)를 주므로 Card 는 이중 테두리였다. 기준은 이미 이 형태를 쓰던 `PopularKeywords`·`CommunityReports`·`NotificationHistory` 다.
+- **인라인 일회성 스타일을 공용 클래스로 뺐다.** 바깥 래퍼의 `padding: 24px` / `p-3 sm:p-4 md:p-6` 은 `admin-content` 가 이미 주는 여백과 겹쳐 이중 여백이었으므로 지웠다. 제목의 인라인 `fontSize`/`fontWeight` 는 `PageHeading` 이 대신한다. 새로 뺀 공용 클래스는 `filter-control`(170px, CommunityReports 값) · `filter-control-wide`(240px) · `filter-control-range`(280px) · `bulk-action-bar` · `page-loading` · `profile-columns` · `metric-grid-three` 이고, 390px 에서는 필터 컨트롤과 일괄 작업 버튼이 100% 폭이 된다.
+- **통계 타일을 `Metric` + `metric-grid` 로 통일했다.** `Row`/`Col` + `Statistic` + 항목별 인라인 색상, 아이콘 박스 카드가 화면마다 달랐다. `metric-grid-single`/`-three`/`-five` 는 미디어쿼리 선언 순서에 기대지 않도록 특이도와 `min-width: 1101px` 로 명시했다. 좁아지면 공통 2열 규칙을 따른다.
+- **사이드바 라벨과 화면 제목이 어긋난 곳을 맞췄다.** `/content/notices`(메뉴 '공지사항')와 `/content/announcements`(메뉴 '팝업 공지')의 제목이 서로 바뀌어 있었고, `/content/storage` 는 메뉴가 '파일 보관함'인데 제목이 '스토리지 관리'였다.
+- **설명 문구를 표 컬럼 기준으로 다시 적었다.** 없는 항목을 설명하던 문구를 고쳤다. 품종·지역의 '노출 순서'와 '코드', 팝업 공지·공지사항의 '게시 기간', AI 생성 작업의 '필터', 브리더 신고의 '증빙' 컬럼은 실제로 없다. 후기 신고의 조치도 삭제가 아니라 공개 여부 전환이다.
+- **디자인 토큰에 없는 색을 걷어냈다.** 브리더 신청의 일괄 독촉 버튼이 쓰던 `#f59e0b`, 브리더 관리가 쓰던 `var(--color-primary-500)` 인라인 배경을 antd `type="primary"`(테마의 `colorPrimary` 가 `#AD651D` 로 같은 값) 로 합쳤다.
+- **390px 에서 페이지 가로 스크롤이 생기지 않게 했다.** Card 를 걷어내면서 가로 스크롤 컨테이너가 사라진 표 6개(품종·지역·앱 버전·FAQ·표준 질문·팝업 공지)에 `scroll.x` 를 줬다. 30개 화면을 390px 로 열어 `documentElement` 가로 넘침이 0 인 것을 확인했다. 브리더 신청의 탭 줄은 antd `Tabs` 가 `overflow: hidden` 과 화살표로 스스로 스크롤하므로 페이지는 넘치지 않는다.
+- 검증: 타입체크·빌드·단위 테스트 28개 통과. lint 는 기존과 같은 18 errors / 1 warning. `pnpm test` 의 `test:contract` 는 3건 불일치로 여전히 실패하는데, 백업 엔드포인트 2개가 OpenAPI 에 없고 브리더 조회의 `accountType` 이 스키마에 없는 기존 문제다. 이번 변경은 API 파일을 건드리지 않았다.
+- 남은 gap: 앞 절의 목록은 그대로다. 덧붙여 `Support` 화면은 목록 훅이 `LoadError` 규약을 쓰지 않아 자체 `Alert` 를 쓰고, 탈퇴 사유·기타 사유 상세 패널은 아직 tailwind 색상 클래스를 쓴다.
