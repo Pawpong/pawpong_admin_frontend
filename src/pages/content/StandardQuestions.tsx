@@ -1,6 +1,6 @@
 import React from 'react';
-import { LoadError } from '../../shared/components/admin/PageHeading';
-import { Card, Button, Space, Tag, Popconfirm } from 'antd';
+import { LoadError, Metric, PageHeading } from '../../shared/components/admin/PageHeading';
+import { Button, Space, Popconfirm } from 'antd';
 import { SortAscendingOutlined, ReloadOutlined } from '@ant-design/icons';
 
 import { useStandardQuestionCrud } from '../../features/content/hooks/useStandardQuestionCrud';
@@ -16,15 +16,11 @@ const StandardQuestions: React.FC = () => {
   const { questions, loading, error, refetch, modal, reorder, handleToggleStatus, handleReseed } = useStandardQuestionCrud();
 
   return (
-    <div style={{ padding: '24px' }}>
-      <Card
-        title={
-          <Space>
-            <span style={{ fontSize: '18px', fontWeight: 600 }}>표준 질문 관리</span>
-            <Tag color="blue">{questions.length}개 질문</Tag>
-          </Space>
-        }
-        extra={
+    <div>
+      <PageHeading
+        title="표준 질문 관리"
+        description="입양 신청서에 쓰는 표준 질문의 내용, 응답 타입, 필수 여부와 노출 순서를 관리합니다."
+        action={
           <Space>
             <Button icon={<SortAscendingOutlined />} onClick={reorder.openReorder}>
               순서 변경
@@ -43,15 +39,17 @@ const StandardQuestions: React.FC = () => {
             </Popconfirm>
           </Space>
         }
-      >
-        <LoadError error={error} retry={refetch} />
-        <StandardQuestionTable
-          questions={questions}
-          loading={loading}
-          onEdit={modal.openEdit}
-          onToggleStatus={handleToggleStatus}
-        />
-      </Card>
+      />
+      <LoadError error={error} retry={refetch} />
+      <div className="metric-grid metric-grid-single">
+        <Metric label="등록된 질문" value={`${questions.length.toLocaleString()}개`} />
+      </div>
+      <StandardQuestionTable
+        questions={questions}
+        loading={loading}
+        onEdit={modal.openEdit}
+        onToggleStatus={handleToggleStatus}
+      />
 
       <StandardQuestionModal
         visible={modal.modalVisible}

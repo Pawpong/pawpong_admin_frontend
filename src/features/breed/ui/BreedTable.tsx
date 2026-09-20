@@ -95,6 +95,7 @@ export function BreedTable({ breeds, loading, onEdit, onDelete }: BreedTableProp
       dataSource={breeds}
       rowKey="id"
       loading={loading}
+      scroll={{ x: 900 }}
       pagination={{
         pageSize: 10,
         showTotal: (total) => `총 ${total}개`,

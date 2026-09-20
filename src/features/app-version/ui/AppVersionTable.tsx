@@ -110,6 +110,7 @@ export function AppVersionTable({
       dataSource={versions}
       rowKey="appVersionId"
       loading={loading}
+      scroll={{ x: 900 }}
       pagination={{
         current: pagination.currentPage,
         pageSize: pagination.pageSize,

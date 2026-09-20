@@ -1,5 +1,5 @@
-import { Card, Button } from 'antd';
-import { LoadError } from '../../shared/components/admin/PageHeading';
+import { Button } from 'antd';
+import { LoadError, PageHeading } from '../../shared/components/admin/PageHeading';
 import { PlusOutlined } from '@ant-design/icons';
 
 import { useAnnouncementCrud } from '../../features/home/hooks/useAnnouncementCrud';
@@ -13,18 +13,18 @@ const Announcements = () => {
   const { announcements, loading, error, refetch, modal, handleDelete } = useAnnouncementCrud();
 
   return (
-    <div style={{ padding: '24px' }}>
-      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 600, margin: 0 }}>공지사항 관리</h1>
-        <Button type="primary" icon={<PlusOutlined />} onClick={modal.openCreate}>
-          공지사항 추가
-        </Button>
-      </div>
-
-      <Card>
-        <LoadError error={error} retry={refetch} />
-        <AnnouncementTable announcements={announcements} loading={loading} onEdit={modal.openEdit} onDelete={handleDelete} />
-      </Card>
+    <div>
+      <PageHeading
+        title="팝업 공지 관리"
+        description="서비스 홈 팝업으로 띄울 공지의 제목, 내용, 노출 순서와 활성 상태를 관리합니다."
+        action={
+          <Button type="primary" icon={<PlusOutlined />} onClick={modal.openCreate}>
+            팝업 공지 추가
+          </Button>
+        }
+      />
+      <LoadError error={error} retry={refetch} />
+      <AnnouncementTable announcements={announcements} loading={loading} onEdit={modal.openEdit} onDelete={handleDelete} />
 
       <AnnouncementModal
         visible={modal.modalVisible}

@@ -40,5 +40,5 @@ export function AnnouncementTable({ announcements, loading, onEdit, onDelete }: 
     },
   ];
 
-  return <Table columns={columns} dataSource={announcements} rowKey="announcementId" loading={loading} pagination={{ showSizeChanger: true, showTotal: (total) => `총 ${total}개` }} />;
+  return <Table columns={columns} dataSource={announcements} rowKey="announcementId" loading={loading} scroll={{ x: 900 }} pagination={{ showSizeChanger: true, showTotal: (total) => `총 ${total}개` }} />;
 }

@@ -54,5 +54,5 @@ export function FaqTable({ faqs, loading, onEdit, onDelete }: FaqTableProps) {
     },
   ];
 
-  return <Table dataSource={faqs} columns={columns} loading={loading} rowKey="faqId" pagination={{ showSizeChanger: true, showTotal: (total) => `총 ${total}개` }} />;
+  return <Table dataSource={faqs} columns={columns} loading={loading} rowKey="faqId" scroll={{ x: 1100 }} pagination={{ showSizeChanger: true, showTotal: (total) => `총 ${total}개` }} />;
 }

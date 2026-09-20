@@ -62,7 +62,7 @@ export function DistrictTable({ districts, loading, onEdit, onDelete }: District
   ];
 
   return (
-    <Table columns={columns} dataSource={districts} rowKey="id" loading={loading}
+    <Table columns={columns} dataSource={districts} rowKey="id" loading={loading} scroll={{ x: 800 }}
       pagination={{ pageSize: 10, showTotal: (total) => `총 ${total}개`, showSizeChanger: true }} />
   );
 }

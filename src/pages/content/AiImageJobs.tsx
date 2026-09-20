@@ -1,5 +1,5 @@
-import { Button, Card, Select, Space } from 'antd';
-import { LoadError } from '../../shared/components/admin/PageHeading';
+import { Button, Select } from 'antd';
+import { LoadError, PageHeading } from '../../shared/components/admin/PageHeading';
 import { ReloadOutlined } from '@ant-design/icons';
 
 import { useAiImageJobs } from '../../features/ai-image/hooks/useAiImageJobs';
@@ -24,25 +24,28 @@ const AiImageJobs = () => {
   const { jobs, loading, error, pagination, statusFilter, onPageChange, handleStatusChange, refetch } = useAiImageJobs();
 
   return (
-    <Card
-      title="AI 생성 작업 모니터링"
-      extra={
-        <Space>
-          <Select
-            placeholder="상태 필터"
-            allowClear
-            style={{ width: 140 }}
-            value={statusFilter}
-            onChange={handleStatusChange}
-            options={STATUS_OPTIONS}
-          />
+    <div>
+      <PageHeading
+        title="AI 생성 작업 모니터링"
+        description="사용자별 AI 이미지 생성 작업의 처리 상태, 원본·결과 이미지와 실패 사유를 확인합니다."
+        action={
           <Button icon={<ReloadOutlined />} loading={loading} onClick={refetch}>
             새로고침
           </Button>
-        </Space>
-      }
-    >
+        }
+      />
       <LoadError error={error} retry={refetch} />
+      <div className="filter-bar">
+        <span>처리 상태</span>
+        <Select
+          placeholder="전체 상태"
+          allowClear
+          className="filter-control"
+          value={statusFilter}
+          onChange={handleStatusChange}
+          options={STATUS_OPTIONS}
+        />
+      </div>
       <AiImageJobTable
         jobs={jobs}
         loading={loading}
@@ -51,7 +54,7 @@ const AiImageJobs = () => {
         totalItems={pagination.totalItems}
         onPageChange={onPageChange}
       />
-    </Card>
+    </div>
   );
 };
 

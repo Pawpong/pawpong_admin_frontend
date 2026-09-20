@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { LoadError } from '../../shared/components/admin/PageHeading';
-import { Card, Button, Space, Select } from 'antd';
+import { LoadError, PageHeading } from '../../shared/components/admin/PageHeading';
+import { Button, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 import { useNoticeCrud } from '../../features/notice/hooks/useNoticeCrud';
@@ -21,29 +21,32 @@ const Notices = () => {
   useEffect(() => { fetchNotices(); }, [fetchNotices]);
 
   return (
-    <Card
-      title="공지사항 관리"
-      extra={
-        <Space>
-          <Select
-            placeholder="상태 필터"
-            allowClear
-            style={{ width: 120 }}
-            value={statusFilter}
-            onChange={handleFilterChange}
-            options={[
-              { value: 'published', label: '게시' },
-              { value: 'draft', label: '임시저장' },
-              { value: 'archived', label: '보관' },
-            ]}
-          />
+    <div>
+      <PageHeading
+        title="공지사항 관리"
+        description="서비스 공지 게시글의 게시 상태, 상단 고정, 작성자와 조회수를 관리합니다."
+        action={
           <Button type="primary" icon={<PlusOutlined />} onClick={modal.openCreate}>
             공지사항 추가
           </Button>
-        </Space>
-      }
-    >
+        }
+      />
       <LoadError error={loadError} retry={fetchNotices} />
+      <div className="filter-bar">
+        <span>게시 상태</span>
+        <Select
+          placeholder="전체 상태"
+          allowClear
+          className="filter-control"
+          value={statusFilter}
+          onChange={handleFilterChange}
+          options={[
+            { value: 'published', label: '게시' },
+            { value: 'draft', label: '임시저장' },
+            { value: 'archived', label: '보관' },
+          ]}
+        />
+      </div>
       <NoticeTable
         notices={notices}
         loading={loading}
@@ -69,7 +72,7 @@ const Notices = () => {
         notice={detail.viewingNotice}
         onClose={detail.closeDetail}
       />
-    </Card>
+    </div>
   );
 };
 

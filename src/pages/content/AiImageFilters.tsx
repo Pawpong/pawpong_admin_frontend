@@ -1,5 +1,5 @@
-import { Button, Card, Space } from 'antd';
-import { LoadError } from '../../shared/components/admin/PageHeading';
+import { Button } from 'antd';
+import { LoadError, PageHeading } from '../../shared/components/admin/PageHeading';
 import { PlusOutlined } from '@ant-design/icons';
 
 import { useAiImageAgentHealth } from '../../features/ai-image/hooks/useAiImageAgentHealth';
@@ -20,26 +20,25 @@ const AiImageFilters = () => {
   const { health, loading: healthLoading, refetch: refetchHealth } = useAiImageAgentHealth();
 
   return (
-    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <AiImageAgentStatus health={health} loading={healthLoading} onRefresh={refetchHealth} />
-
-      <Card
-        title="AI 필터 관리"
-        extra={
+    <div>
+      <PageHeading
+        title="AI 이미지 필터 관리"
+        description="반려동물 사진 변환 필터의 프롬프트, 생성 모델, 레퍼런스 이미지와 노출 순서를 관리합니다."
+        action={
           <Button type="primary" icon={<PlusOutlined />} onClick={modal.openCreate}>
             필터 추가
           </Button>
         }
-      >
-        <LoadError error={error} retry={refetch} />
-        <AiImageFilterTable
-          filters={filters}
-          loading={loading}
-          onEdit={modal.openEdit}
-          onDelete={handleDelete}
-          onToggleActive={handleToggleActive}
-        />
-      </Card>
+      />
+      <LoadError error={error} retry={refetch} />
+      <AiImageAgentStatus health={health} loading={healthLoading} onRefresh={refetchHealth} />
+      <AiImageFilterTable
+        filters={filters}
+        loading={loading}
+        onEdit={modal.openEdit}
+        onDelete={handleDelete}
+        onToggleActive={handleToggleActive}
+      />
 
       <AiImageFilterModal
         visible={modal.modalVisible}
@@ -59,7 +58,7 @@ const AiImageFilters = () => {
         onPreviewSourceUpload={preview.handlePreviewSourceUpload}
         onPreview={preview.handlePreview}
       />
-    </Space>
+    </div>
   );
 };
 

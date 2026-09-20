@@ -130,6 +130,7 @@ export function StandardQuestionTable({ questions, loading, onEdit, onToggleStat
       dataSource={questions}
       rowKey="id"
       loading={loading}
+      scroll={{ x: 1100 }}
       pagination={{
         pageSize: 20,
         showTotal: (total) => `총 ${total}개`,
