@@ -65,7 +65,18 @@ Orca 관리 Vite 터미널(`127.0.0.1:5198`)과 내장 브라우저에서 실제
 
 관리자 UI에서 테스트 입양자 1명을 명시적으로 선택하고 관리한 딥링크 주소로 1회 요청했다. POST 200 응답은 `recipients=1`, `notificationsCreated=1`, `pushTokensTargeted=0`, `pushSuccess=0`, `pushFailed=0`, `invalidTokens=0`이었다. UI의 토큰 없음 및 FCM 접수/실제 수신 구분 안내를 확인했다. 이 요청은 실제 FCM 수신 검증이 아니다.
 
-실제 테스트 기기 토큰 한 개와 발송 예산 한 건으로 제한된 별도 QA API에서 최종 관리자 UI 발송을 준비 중이다. RN 담당자의 관찰 준비 확인을 받았으며, 최종 발송/기기 관찰 결과는 후속 기록으로 추가한다.
+### 실제 FCM 최종 발송
+
+RN 담당자의 Android 수신 관찰 준비 확인 후 QA API `127.0.0.1:8091`에 연결해 새 테스트 관리자 세션으로 로그인했다. 관리자 UI에서 새 fixture의 입양자 ID 일치를 확인하고 **개별 발송 버튼을 한 번만** 눌렀다. 서버는 허용된 Android 에뮬레이터 토큰 한 개와 발송 한 건으로 제한된 격리 DB 환경이다.
+
+- 시각: `2026-09-24 01:08:48 KST` (`2026-09-23T16:08:48.794Z`).
+- 제목: `관리자 실기기 최종 푸시 검증 20260924-0100`.
+- 목적지: `/l/mobile-integration-preview`.
+- 실제 UI POST 응답: HTTP 200, `recipients=1`, `notificationsCreated=1`, `pushTokensTargeted=1`, `pushSuccess=1`, `pushFailed=0`, `invalidTokens=0`.
+- 서버의 비밀 없는 결과 파일 `/tmp/pawpong-mobile-admin-fcm-result.json`도 `recipientCount=1`, `successCount=1`, `failures=[]`, `exactly one attempt`를 확인했다.
+- 관리자 결과 화면에 대상 1명, 알림 저장 1건, FCM 토큰 시도/접수 성공 각 1개, 실패/무효 토큰 0개가 표시되었다. [최종 관리자 발송 화면](admin-final-push.png)에 보존했다.
+
+이 절의 관리자/서버 증거는 FCM 접수까지 입증한다. 실제 기기 수신·알림 표시·탭 이동은 RN 담당자의 별도 관찰 결과로 구분한다.
 
 ## 교차 검토 및 제한
 
