@@ -43,6 +43,7 @@ const Districts = lazy(() => import('../pages/settings/Districts'));
 const PhoneWhitelist = lazy(() => import('../pages/settings/PhoneWhitelist'));
 const AlimtalkTemplates = lazy(() => import('../pages/settings/AlimtalkTemplates'));
 const AppVersion = lazy(() => import('../pages/settings/AppVersion'));
+const AppSplash = lazy(() => import('../pages/settings/AppSplash'));
 const PushSend = lazy(() => import('../pages/notifications/PushSend'));
 
 // Protected Route 컴포넌트
@@ -133,6 +134,7 @@ function App() {
                   <Route path="phone-whitelist" element={<PhoneWhitelist />} />
                   <Route path="alimtalk" element={<AlimtalkTemplates />} />
                   <Route path="app-version" element={<AppVersion />} />
+                  <Route path="app-splash" element={<AppSplash />} />
                 </Route>
 
                 {/* 알림 발송 */}

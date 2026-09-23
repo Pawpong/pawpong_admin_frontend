@@ -1,0 +1,4 @@
+.splash-editor { display: grid; grid-template-columns: minmax(280px, 1fr) minmax(240px, 320px); gap: 48px; max-width: 1000px; }
+.splash-phone { width: 260px; max-width: 100%; aspect-ratio: 390 / 844; border: 8px solid #252525; border-radius: 36px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.splash-phone img { display: block; object-fit: contain; }
+@media (max-width: 800px) { .splash-editor { grid-template-columns: 1fr; gap: 24px; } }
