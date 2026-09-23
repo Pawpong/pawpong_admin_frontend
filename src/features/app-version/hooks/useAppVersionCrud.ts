@@ -4,6 +4,7 @@ import { message } from 'antd';
 import { appVersionApi } from '../api/appVersionApi';
 import type { AppVersion, AppVersionCreateRequest, AppVersionUpdateRequest } from '../api/appVersionApi';
 import { usePaginatedData, useCrudModal, useDeleteConfirm } from '../../../shared/hooks';
+import { APP_STORE_URLS } from '../model/appVersionPolicy';
 
 /**
  * 앱 버전 CRUD 비즈니스 로직 훅
@@ -25,7 +26,13 @@ export function useAppVersionCrud() {
 
   const modal = useCrudModal<AppVersion>({
     entityName: '앱 버전',
-    createDefaults: { platform: 'ios', isActive: true, appIconKey: 'default' },
+    createDefaults: {
+      platform: 'ios',
+      isActive: true,
+      appIconKey: 'default',
+      iosStoreUrl: APP_STORE_URLS.ios,
+      androidStoreUrl: APP_STORE_URLS.android,
+    },
     createFn: (values) => {
       const createData: AppVersionCreateRequest = {
         platform: values.platform as 'ios' | 'android',

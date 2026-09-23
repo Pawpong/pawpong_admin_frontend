@@ -1,6 +1,11 @@
 /** 백엔드 앱 버전 정책과 같은 숫자.숫자.숫자[.숫자] 형식. */
 export const APP_VERSION_PATTERN = /^\d+\.\d+\.\d+(?:\.\d+)?$/;
 
+export const APP_STORE_URLS = {
+  ios: 'https://apps.apple.com/kr/app/id6814126823',
+  android: 'https://play.google.com/store/apps/details?id=kr.pawpong.app',
+} as const;
+
 export function compareAppVersions(a: string, b: string): number {
   const left = a.split('.').map(Number);
   const right = b.split('.').map(Number);
@@ -25,7 +30,7 @@ export function isStoreUrl(value: string, platform: 'ios' | 'android'): boolean 
     )
       return false;
     return platform === 'ios'
-      ? /\/id\d+(?:\/|$)/.test(url.pathname)
+      ? /\/id6814126823\/?$/.test(url.pathname)
       : url.pathname === '/store/apps/details' && url.searchParams.get('id') === 'kr.pawpong.app';
   } catch {
     return false;

@@ -2,7 +2,7 @@ import { Modal, Form, Input, Select, Switch, Space, Alert } from 'antd';
 import type { FormInstance } from 'antd';
 
 import type { AppVersion } from '../api/appVersionApi';
-import { APP_VERSION_PATTERN, compareAppVersions, isStoreUrl } from '../model/appVersionPolicy';
+import { APP_STORE_URLS, APP_VERSION_PATTERN, compareAppVersions, isStoreUrl } from '../model/appVersionPolicy';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -41,7 +41,8 @@ export function AppVersionModal({ visible, editingVersion, form, submitting, onO
             <span>
               최소 요구 버전 미만은 <strong>필수 업데이트</strong>로 앱 사용 전에 업데이트해야 합니다. 최소 요구 버전
               이상이고 최신 버전 미만이면 <strong>권장 업데이트</strong>로 나중에 할 수 있습니다. 권장 업데이트만
-              안내하려면 최소 요구 버전을 유지하고 최신 버전을 올리세요.
+              안내하려면 최소 요구 버전을 유지하고 최신 버전을 올리세요. 스토어에서 실제로 설치할 수 있는
+              앱 버전을 설정해주세요.
             </span>
           }
         />
@@ -127,11 +128,11 @@ export function AppVersionModal({ visible, editingVersion, form, submitting, onO
               validator: (_, value) =>
                 !value || isStoreUrl(value, 'ios')
                   ? Promise.resolve()
-                  : Promise.reject(new Error('앱 ID가 포함된 https://apps.apple.com/ 상세 주소를 입력해주세요.')),
+                  : Promise.reject(new Error('포퐁 앱(id6814126823)의 App Store 상세 주소를 입력해주세요.')),
             },
           ]}
         >
-          <Input placeholder="https://apps.apple.com/app/pawpong/id000000000" />
+          <Input placeholder={APP_STORE_URLS.ios} />
         </Form.Item>
 
         <Form.Item
@@ -148,7 +149,7 @@ export function AppVersionModal({ visible, editingVersion, form, submitting, onO
             },
           ]}
         >
-          <Input placeholder="https://play.google.com/store/apps/details?id=kr.pawpong.app" />
+          <Input placeholder={APP_STORE_URLS.android} />
         </Form.Item>
 
         <Form.Item

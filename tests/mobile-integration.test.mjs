@@ -149,7 +149,11 @@ test('version comparison treats numeric segments and optional fourth segment cor
   assert.equal(compareAppVersions('1.2.0', '1.2.0.1'), -1);
   for (const value of ['1', '1.2', '1.2.3-beta', '1.2.3.4.5', 'abc'])
     assert.equal(APP_VERSION_PATTERN.test(value), false, value);
-  assert.equal(isStoreUrl('https://apps.apple.com/kr/app/id123', 'ios'), true);
+  assert.equal(isStoreUrl('https://apps.apple.com/kr/app/id6814126823', 'ios'), true);
+  assert.equal(isStoreUrl('https://apps.apple.com/us/app/pawpong/id6814126823/?l=en', 'ios'), true);
+  assert.equal(isStoreUrl('https://apps.apple.com/kr/app/id123', 'ios'), false);
+  assert.equal(isStoreUrl('https://apps.apple.com/app/id68141268230', 'ios'), false);
+  assert.equal(isStoreUrl('https://apps.apple.com/app/id6814126823/another-app', 'ios'), false);
   assert.equal(isStoreUrl('https://play.google.com/store/apps/details?id=kr.pawpong.app', 'android'), true);
   assert.equal(isStoreUrl('https://play.google.com/store/apps/details?id=another.app', 'android'), false);
   assert.equal(isStoreUrl('https://apps.apple.com/', 'ios'), false);
