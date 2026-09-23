@@ -45,6 +45,7 @@ const AlimtalkTemplates = lazy(() => import('../pages/settings/AlimtalkTemplates
 const AppVersion = lazy(() => import('../pages/settings/AppVersion'));
 const AppSplash = lazy(() => import('../pages/settings/AppSplash'));
 const PushSend = lazy(() => import('../pages/notifications/PushSend'));
+const DeepLinks = lazy(() => import('../pages/content/DeepLinks'));
 
 // Protected Route 컴포넌트
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -115,6 +116,7 @@ function App() {
 
                 {/* 콘텐츠 관리 */}
                 <Route path="content">
+                  <Route path="deep-links" element={<DeepLinks />} />
                   <Route path="banners" element={<Banners />} />
                   <Route path="profile" element={<ProfileBanners />} />
                   <Route path="counsel" element={<CounselBanners />} />

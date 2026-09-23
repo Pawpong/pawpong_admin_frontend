@@ -7,6 +7,7 @@ import {
   BellOutlined,
   SettingOutlined,
   BarChartOutlined,
+  LinkOutlined,
 } from '@ant-design/icons';
 
 export const navigation = [
@@ -40,6 +41,7 @@ export const navigation = [
   {
     label: '콘텐츠',
     items: [
+      { path: '/content/deep-links', label: '딥링크 관리', icon: <LinkOutlined /> },
       { path: '/content/banners', label: '메인 배너', icon: <FileTextOutlined /> },
       { path: '/content/profile', label: '프로필 배너', icon: <FileTextOutlined /> },
       { path: '/content/counsel', label: '상담 배너', icon: <FileTextOutlined /> },

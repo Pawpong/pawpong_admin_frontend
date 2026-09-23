@@ -43,18 +43,34 @@ export function AppVersionTable({
       onFilter: (value, record) => record.platform === value,
     },
     {
-      title: '최신 버전',
+      title: '권장 업데이트',
       dataIndex: 'latestVersion',
       key: 'latestVersion',
-      width: 120,
-      render: (version: string) => <span style={{ fontWeight: 600 }}>{version}</span>,
+      width: 240,
+      render: (version: string, record) => (
+        <Space direction="vertical" size={4}>
+          <strong>{version} 미만</strong>
+          <span>{record.recommendUpdateMessage}</span>
+        </Space>
+      ),
     },
     {
-      title: '최소 요구 버전',
+      title: '필수 업데이트',
       dataIndex: 'minRequiredVersion',
       key: 'minRequiredVersion',
-      width: 130,
-      render: (version: string) => <Tag color="red">{version}</Tag>,
+      width: 240,
+      render: (version: string, record) => (
+        <Space direction="vertical" size={4}>
+          <Tag color="red">{version} 미만</Tag>
+          <span>{record.forceUpdateMessage}</span>
+        </Space>
+      ),
+    },
+    {
+      title: '추천 아이콘',
+      dataIndex: 'appIconKey',
+      width: 120,
+      render: (value?: string) => (value === 'pixel' ? '포퐁 픽셀' : value === 'default' ? '기본' : '추천 없음'),
     },
     {
       title: '활성 상태',

@@ -4,6 +4,7 @@ import apiClient from '../../../shared/api/axios';
  * 앱 버전 정보
  */
 export interface AppVersion {
+  appIconKey?: 'default' | 'pixel';
   appVersionId: string;
   platform: 'ios' | 'android';
   latestVersion: string;
@@ -21,6 +22,7 @@ export interface AppVersion {
  * 앱 버전 생성 요청
  */
 export interface AppVersionCreateRequest {
+  appIconKey?: 'default' | 'pixel';
   platform: 'ios' | 'android';
   latestVersion: string;
   minRequiredVersion: string;
@@ -35,6 +37,7 @@ export interface AppVersionCreateRequest {
  * 앱 버전 수정 요청
  */
 export interface AppVersionUpdateRequest {
+  appIconKey?: 'default' | 'pixel';
   latestVersion?: string;
   minRequiredVersion?: string;
   forceUpdateMessage?: string;

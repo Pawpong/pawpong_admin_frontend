@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { Button, Card, Divider, Form, Input, Radio, Space, Statistic, Tag, Typography } from 'antd';
 import { SearchOutlined, SendOutlined } from '@ant-design/icons';
+import { Link, useLocation } from 'react-router-dom';
 
 import { useAdminPushSend } from '../hooks/useAdminPushSend';
-import type {
-  AdminPushIndividualRole,
-  AdminPushTargetType,
-  SendAdminPushRequest,
-} from '../api/notificationAdminApi';
+import type { AdminPushIndividualRole, AdminPushTargetType, SendAdminPushRequest } from '../api/notificationAdminApi';
 import { UserPickerModal, type PickedUser } from './UserPickerModal';
+import { isAppDestination } from '../../deep-link/model/deepLinkPolicy';
 
 interface FormValues {
   targetType: AdminPushTargetType;
@@ -22,7 +20,7 @@ interface FormValues {
 /**
  * 어드민 푸시 발송 폼.
  *
- * 발송 대상 4가지:
+ * 발송 대상 3가지:
  *   - 입양자 전체 (all_adopters)
  *   - 브리더 전체 (all_breeders)
  *   - 개별 발송 (individual + role + userId)
@@ -30,6 +28,8 @@ interface FormValues {
  * 발송 후 결과 카운트(대상자/알림 doc/토큰 시도/성공/실패/invalid)를 카드로 노출한다.
  */
 export function AdminPushSendForm() {
+  const location = useLocation();
+  const incomingUrl: unknown = location.state?.deepLinkUrl;
   const [form] = Form.useForm<FormValues>();
   const targetType = Form.useWatch('targetType', form);
   const selectedRole = Form.useWatch('role', form);
@@ -68,7 +68,11 @@ export function AdminPushSendForm() {
           form={form}
           layout="vertical"
           requiredMark={false}
-          initialValues={{ targetType: 'all_adopters' }}
+          initialValues={{
+            targetType: 'individual',
+            targetUrl: typeof incomingUrl === 'string' && isAppDestination(incomingUrl) ? incomingUrl : undefined,
+          }}
+          disabled={submitting}
           onFinish={handleSubmit}
         >
           <Form.Item
@@ -77,9 +81,9 @@ export function AdminPushSendForm() {
             rules={[{ required: true, message: '발송 대상을 선택해주세요.' }]}
           >
             <Radio.Group buttonStyle="solid">
+              <Radio.Button value="individual">개별 발송</Radio.Button>
               <Radio.Button value="all_adopters">입양자 전체</Radio.Button>
               <Radio.Button value="all_breeders">브리더 전체</Radio.Button>
-              <Radio.Button value="individual">개별 발송</Radio.Button>
             </Radio.Group>
           </Form.Item>
 
@@ -123,7 +127,12 @@ export function AdminPushSendForm() {
                 </Button>
               )}
               {/* role / userId 는 hidden field 로 폼에 유지 */}
-              <Form.Item name="role" hidden noStyle>
+              <Form.Item
+                name="role"
+                hidden
+                noStyle
+                rules={[{ required: true, message: '대상 사용자를 선택해주세요.' }]}
+              >
                 <Input />
               </Form.Item>
               <Form.Item
@@ -141,7 +150,7 @@ export function AdminPushSendForm() {
             label="제목"
             name="title"
             rules={[
-              { required: true, message: '제목을 입력해주세요.' },
+              { required: true, whitespace: true, message: '제목을 입력해주세요.' },
               { max: 100, message: '제목은 100자 이내로 입력해주세요.' },
             ]}
           >
@@ -152,7 +161,7 @@ export function AdminPushSendForm() {
             label="본문"
             name="body"
             rules={[
-              { required: true, message: '본문을 입력해주세요.' },
+              { required: true, whitespace: true, message: '본문을 입력해주세요.' },
               { max: 500, message: '본문은 500자 이내로 입력해주세요.' },
             ]}
           >
@@ -167,14 +176,35 @@ export function AdminPushSendForm() {
           <Form.Item
             label="클릭 시 이동 URL (선택)"
             name="targetUrl"
-            rules={[{ max: 500, message: 'URL 은 500자 이내로 입력해주세요.' }]}
-            extra="deep link 또는 어드민 내부 경로. 비워두면 푸시 클릭 시 앱 기본 화면으로 이동합니다."
+            normalize={(value: string) => value.trim()}
+            rules={[
+              { max: 500, message: 'URL은 500자 이내로 입력해주세요.' },
+              {
+                validator: (_, value) =>
+                  !value || isAppDestination(value)
+                    ? Promise.resolve()
+                    : Promise.reject(new Error('포퐁 사용자 앱 경로 또는 pawpong.kr의 HTTPS 링크를 입력해주세요.')),
+              },
+            ]}
+            extra={
+              <span>
+                포퐁 사용자 앱 경로(예: /explore) 또는 공유 링크를 입력하세요. 비워두면 앱 홈으로 이동합니다.{' '}
+                <Link to="/content/deep-links">딥링크 관리에서 URL 복사</Link>
+              </span>
+            }
           >
-            <Input placeholder="/notifications 또는 https://..." allowClear />
+            <Input placeholder="https://pawpong.kr/l/autumn-news 또는 /explore" allowClear />
           </Form.Item>
 
           <Form.Item style={{ marginBottom: 0 }}>
-            <Button type="primary" htmlType="submit" icon={<SendOutlined />} loading={submitting} size="large">
+            <Button
+              type="primary"
+              htmlType="submit"
+              icon={<SendOutlined />}
+              loading={submitting}
+              disabled={targetType === 'individual' && !pickedUser}
+              size="large"
+            >
               발송
             </Button>
           </Form.Item>
@@ -191,22 +221,17 @@ export function AdminPushSendForm() {
           }
         >
           <Space size="large" wrap>
-            <Statistic title="알림 doc 저장" value={lastResult.notificationsCreated} suffix="건" />
+            <Statistic title="앱 알림 저장" value={lastResult.notificationsCreated} suffix="건" />
             <Statistic title="FCM 토큰 시도" value={lastResult.pushTokensTargeted} suffix="개" />
             <Statistic
-              title="성공"
+              title="FCM 접수 성공"
               value={lastResult.pushSuccess}
               suffix="개"
               valueStyle={{ color: '#3f8600' }}
             />
+            <Statistic title="실패" value={lastResult.pushFailed} suffix="개" valueStyle={{ color: '#cf1322' }} />
             <Statistic
-              title="실패"
-              value={lastResult.pushFailed}
-              suffix="개"
-              valueStyle={{ color: '#cf1322' }}
-            />
-            <Statistic
-              title="invalid 토큰"
+              title="무효 토큰"
               value={lastResult.invalidTokens}
               suffix="개"
               valueStyle={{ color: '#d4b106' }}
@@ -214,17 +239,20 @@ export function AdminPushSendForm() {
           </Space>
           <Divider style={{ margin: '16px 0' }} />
           <div style={{ color: 'rgba(0,0,0,0.55)', fontSize: 12 }}>
-            invalid 토큰은 본 발송에서 자동 정리되지 않습니다. 후속 cleanup 작업에서 처리됩니다.
+            FCM 접수 성공은 기기 수신·표시를 보장하지 않습니다. 기기 알림 권한과 네트워크 상태를 함께 확인하세요.
+            {lastResult.pushTokensTargeted === 0 ? ' 등록된 푸시 토큰이 없어 기기 푸시는 발송되지 않았습니다.' : ''}
           </div>
         </Card>
       )}
 
-      <UserPickerModal
-        open={pickerOpen}
-        initialRole={selectedRole ?? 'adopter'}
-        onCancel={() => setPickerOpen(false)}
-        onPick={handlePickUser}
-      />
+      {pickerOpen ? (
+        <UserPickerModal
+          open
+          initialRole={selectedRole ?? 'adopter'}
+          onCancel={() => setPickerOpen(false)}
+          onPick={handlePickUser}
+        />
+      ) : null}
     </Space>
   );
 }

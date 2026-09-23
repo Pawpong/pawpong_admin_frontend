@@ -14,29 +14,35 @@ export function useAppVersionCrud() {
     [],
   );
 
-  const { data: versions, loading, error, pagination, onPageChange, refetch } = usePaginatedData<AppVersion>(
-    fetchVersions,
-    '앱 버전',
-  );
+  const {
+    data: versions,
+    loading,
+    error,
+    pagination,
+    onPageChange,
+    refetch,
+  } = usePaginatedData<AppVersion>(fetchVersions, '앱 버전');
 
   const modal = useCrudModal<AppVersion>({
     entityName: '앱 버전',
-    createDefaults: { platform: 'ios', isActive: true },
+    createDefaults: { platform: 'ios', isActive: true, appIconKey: 'default' },
     createFn: (values) => {
       const createData: AppVersionCreateRequest = {
         platform: values.platform as 'ios' | 'android',
+        appIconKey: values.appIconKey as 'default' | 'pixel' | undefined,
         latestVersion: values.latestVersion as string,
         minRequiredVersion: values.minRequiredVersion as string,
         forceUpdateMessage: values.forceUpdateMessage as string,
         recommendUpdateMessage: values.recommendUpdateMessage as string,
         iosStoreUrl: values.iosStoreUrl as string,
         androidStoreUrl: values.androidStoreUrl as string,
-        isActive: values.isActive as boolean ?? true,
+        isActive: (values.isActive as boolean) ?? true,
       };
       return appVersionApi.createAppVersion(createData);
     },
     updateFn: (item, values) => {
       const updateData: AppVersionUpdateRequest = {
+        appIconKey: values.appIconKey as 'default' | 'pixel' | undefined,
         latestVersion: values.latestVersion as string,
         minRequiredVersion: values.minRequiredVersion as string,
         forceUpdateMessage: values.forceUpdateMessage as string,
@@ -50,6 +56,7 @@ export function useAppVersionCrud() {
     onSuccess: refetch,
     getFormValues: (item) => ({
       platform: item.platform,
+      appIconKey: item.appIconKey,
       latestVersion: item.latestVersion,
       minRequiredVersion: item.minRequiredVersion,
       forceUpdateMessage: item.forceUpdateMessage,

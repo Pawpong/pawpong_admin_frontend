@@ -54,7 +54,9 @@ export const notificationAdminApi = {
    * 엔드포인트: POST /api/notification-admin/push
    */
   async sendPush(payload: SendAdminPushRequest): Promise<AdminPushResult> {
-    const response = await apiClient.post<ApiResponse<AdminPushResult>>('/notification-admin/push', payload);
+    const response = await apiClient.post<ApiResponse<AdminPushResult>>('/notification-admin/push', payload, {
+      timeout: 120000,
+    });
     return response.data.data;
   },
 };
