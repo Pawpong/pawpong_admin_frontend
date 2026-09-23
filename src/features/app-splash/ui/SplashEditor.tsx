@@ -19,6 +19,7 @@ export function SplashEditor({ initial }: { initial: AppSplash }) {
   const background = Form.useWatch('backgroundColor', form) ?? initial.backgroundColor;
   const width = Form.useWatch('imageWidth', form) ?? initial.imageWidth;
   const validColor = /^#[0-9a-f]{6}$/i.test(background) ? background : '#FFFFFF';
+  const previewWidth = Math.min(Math.max(enabled ? width : 200, 80), 320);
 
   const upload = async (file: File) => {
     if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 3 * 1024 * 1024) {
@@ -84,9 +85,13 @@ export function SplashEditor({ initial }: { initial: AppSplash }) {
       <div>
         <Typography.Title level={5}>화면 미리보기</Typography.Title>
         <div className="splash-phone" style={{ backgroundColor: enabled ? validColor : '#FFFFFF' }}>
-          <div style={{ width: `${(Math.min(Math.max(enabled ? width : 200, 80), 320) / 390) * 100}%`, aspectRatio: '1' }}>
+          <div style={{ width: `${(previewWidth / 390) * 100}%`, aspectRatio: '1' }}>
             <img key={imageUrl} src={enabled && imageUrl ? imageUrl : '/images/pawpong-splash.png'} alt="포퐁 시작 화면 이미지" style={{ width: '100%', height: '100%' }} />
           </div>
+          {(!enabled || !imageUrl) && <>
+            <img className="splash-wordmark" src="/images/pawpong-wordmark.png" alt="" style={{ top: `${50 + ((previewWidth / 2 + 8) / 844) * 100}%` }} />
+            <span className="splash-tagline">반려동물과의 첫 만남, 포퐁</span>
+          </>}
         </div>
         <Typography.Paragraph type="secondary" style={{ marginTop: 12 }}>앱을 새로 실행할 때 적용됩니다. {enabled ? '이미지는 중앙에 표시됩니다.' : '기본 로고만 표시합니다.'}</Typography.Paragraph>
       </div>
