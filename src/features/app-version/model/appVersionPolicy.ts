@@ -17,6 +17,7 @@ export function compareAppVersions(a: string, b: string): number {
 }
 
 export function isStoreUrl(value: string, platform: 'ios' | 'android'): boolean {
+  if (typeof value !== 'string' || !value || /[\s<>"'`\\]/.test(value)) return false;
   try {
     const url = new URL(value);
     if (
@@ -30,8 +31,10 @@ export function isStoreUrl(value: string, platform: 'ios' | 'android'): boolean 
     )
       return false;
     return platform === 'ios'
-      ? /\/id6814126823\/?$/.test(url.pathname)
-      : url.pathname === '/store/apps/details' && url.searchParams.get('id') === 'kr.pawpong.app';
+      ? /^\/(?:[a-z]{2}\/)?app\/(?:[^/]+\/)?id6814126823\/?$/.test(url.pathname)
+      : url.pathname === '/store/apps/details' &&
+          url.searchParams.getAll('id').length === 1 &&
+          url.searchParams.get('id') === 'kr.pawpong.app';
   } catch {
     return false;
   }

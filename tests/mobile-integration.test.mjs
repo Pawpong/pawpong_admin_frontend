@@ -154,8 +154,11 @@ test('version comparison treats numeric segments and optional fourth segment cor
   assert.equal(isStoreUrl('https://apps.apple.com/kr/app/id123', 'ios'), false);
   assert.equal(isStoreUrl('https://apps.apple.com/app/id68141268230', 'ios'), false);
   assert.equal(isStoreUrl('https://apps.apple.com/app/id6814126823/another-app', 'ios'), false);
+  assert.equal(isStoreUrl('https://apps.apple.com/search/id6814126823', 'ios'), false);
+  assert.equal(isStoreUrl('https://apps.apple.com/kr/app/id6814\n126823', 'ios'), false);
   assert.equal(isStoreUrl('https://play.google.com/store/apps/details?id=kr.pawpong.app', 'android'), true);
   assert.equal(isStoreUrl('https://play.google.com/store/apps/details?id=another.app', 'android'), false);
+  assert.equal(isStoreUrl('https://play.google.com/store/apps/details?id=kr.pawpong.app&id=another.app', 'android'), false);
   assert.equal(isStoreUrl('https://apps.apple.com/', 'ios'), false);
   for (const value of [
     'http://apps.apple.com/app',
