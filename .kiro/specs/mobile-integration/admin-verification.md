@@ -76,7 +76,7 @@ RN 담당자의 Android 수신 관찰 준비 확인 후 QA API `127.0.0.1:8091`�
 - 서버의 비밀 없는 결과 파일 `/tmp/pawpong-mobile-admin-fcm-result.json`도 `recipientCount=1`, `successCount=1`, `failures=[]`, `exactly one attempt`를 확인했다.
 - 관리자 결과 화면에 대상 1명, 알림 저장 1건, FCM 토큰 시도/접수 성공 각 1개, 실패/무효 토큰 0개가 표시되었다. [최종 관리자 발송 화면](admin-final-push.png)에 보존했다.
 
-이 절의 관리자/서버 증거는 FCM 접수까지 입증한다. 실제 기기 수신·알림 표시·탭 이동은 RN 담당자의 별도 관찰 결과로 구분한다.
+이 절의 관리자/서버 증거는 FCM 접수까지 입증한다. RN 담당자는 같은 고유 제목이 Android OS 알림 트레이에 실제 도착한 것을 추가로 확인하고 RN 저장소의 `.kiro/specs/mobile-integration/evidence/android-admin-fcm-tray.png`에 보존했다. 알림 탭 이후 화면 이동은 RN 검증 보고서의 별도 관찰 결과로 구분한다.
 
 ## 교차 검토 및 제한
 
