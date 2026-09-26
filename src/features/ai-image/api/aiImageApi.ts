@@ -1,6 +1,10 @@
-import axios from 'axios';
-
 import apiClient from '../../../shared/api/axios';
+
+/** 생성 후처리 — pixelate 는 결과를 실제 도트 격자로 스냅시킨다 (포퐁 기본 콘셉트) */
+export type AiImagePostProcessType = 'none' | 'pixelate';
+
+/** 원본 보존 강도 — high 는 반려동물 얼굴·무늬를 더 강하게 살린다 */
+export type AiImageInputFidelity = 'low' | 'high';
 
 /** AI 필터 (관리자 응답 — 프롬프트 포함) */
 export interface AiImageFilter {
@@ -14,6 +18,12 @@ export interface AiImageFilter {
   model: string;
   outputSize: string;
   referenceImageObjectKeys: string[];
+  /** referenceImageObjectKeys 와 같은 순서 */
+  referenceImageUrls: string[];
+  postProcessType: AiImagePostProcessType;
+  pixelSize: number;
+  paletteSize: number;
+  inputFidelity: AiImageInputFidelity;
   isActive: boolean;
   sortOrder: number;
   createdAt: string;
@@ -30,6 +40,10 @@ export interface AiImageFilterRequest {
   model: string;
   outputSize?: string;
   referenceImageObjectKeys?: string[];
+  postProcessType?: AiImagePostProcessType;
+  pixelSize?: number;
+  paletteSize?: number;
+  inputFidelity?: AiImageInputFidelity;
   isActive?: boolean;
   sortOrder?: number;
 }
@@ -41,9 +55,11 @@ export interface AiImagePreviewRequest {
   inputObjectKey: string;
   model?: string;
   outputSize?: string;
-  postProcessType?: 'none' | 'pixelate';
+  postProcessType?: AiImagePostProcessType;
   pixelSize?: number;
   paletteSize?: number;
+  referenceImageObjectKeys?: string[];
+  inputFidelity?: AiImageInputFidelity;
 }
 
 /** 미리보기 결과 — 생성 실패도 200 으로 내려오므로 isSuccess 로 판단한다 */
@@ -118,10 +134,9 @@ interface PaginatedEnvelope<T> {
 /** 애셋 업로드 용도 — 백엔드 키 경로가 용도별로 갈린다 */
 export type AiImageAssetPurpose = 'thumbnail' | 'reference' | 'source';
 
-interface UploadUrlResult {
-  uploadUrl: string;
+interface AssetUploadResult {
   objectKey: string;
-  expiresInSeconds: number;
+  imageUrl: string | null;
 }
 
 export const aiImageApi = {
@@ -178,22 +193,20 @@ export const aiImageApi = {
   },
 
   /**
-   * 필터 애셋을 버킷에 직접 올리고 파일키를 돌려준다.
+   * POST /api/ai-image-admin/asset — 필터 애셋을 서버 경유로 올리고 파일키를 돌려준다.
    *
-   * 1) 백엔드에서 presigned PUT URL 을 받고 2) 버킷으로 직접 PUT 한다.
-   * 2단계는 공용 apiClient 를 쓰지 않는다 — Authorization 헤더가 섞이면
-   * 서명 검증이 깨지고, 401 인터셉터가 버킷 응답에 반응해버린다.
+   * 버킷에 CORS 가 없어 브라우저의 presigned PUT 은 preflight 에서 403 으로 막힌다.
+   * 그래서 upload-url 대신 multipart 업로드를 쓴다. 이미지 생성이 아니라 전송만이라 기본보다 넉넉히 기다린다.
    */
   uploadAsset: async (file: File, purpose: AiImageAssetPurpose): Promise<string> => {
-    const issued = await apiClient.post<{ data: UploadUrlResult }>('/ai-image-admin/upload-url', {
-      purpose,
-      contentType: file.type,
+    const formData = new FormData();
+    formData.append('purpose', purpose);
+    formData.append('file', file);
+    // 공용 클라이언트 기본값이 JSON 이라 명시하지 않으면 axios 가 FormData 를 JSON 으로 바꿔 보낸다
+    const response = await apiClient.post<{ data: AssetUploadResult }>('/ai-image-admin/asset', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 60_000,
     });
-    const { uploadUrl, objectKey } = issued.data.data;
-
-    // presigned URL 은 서명 시점의 Content-Type 과 정확히 일치해야 통과한다
-    await axios.put(uploadUrl, file, { headers: { 'Content-Type': file.type } });
-
-    return objectKey;
+    return response.data.data.objectKey;
   },
 };

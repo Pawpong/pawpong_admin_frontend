@@ -48,7 +48,7 @@ const AiImageFilters = () => {
         onCancel={modal.closeModal}
         uploadingPurpose={assets.uploadingPurpose}
         thumbnailPreview={assets.thumbnailPreview}
-        referenceKeys={assets.referenceKeys}
+        references={assets.references}
         onThumbnailUpload={assets.handleThumbnailUpload}
         onReferenceUpload={assets.handleReferenceUpload}
         onRemoveReference={assets.handleRemoveReference}

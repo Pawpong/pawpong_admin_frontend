@@ -15,11 +15,12 @@ import {
   Tag,
   Upload,
 } from 'antd';
-import { ExperimentOutlined, UploadOutlined } from '@ant-design/icons';
+import { CloseOutlined, ExperimentOutlined, UploadOutlined } from '@ant-design/icons';
 import type { CSSProperties } from 'react';
 import type { FormInstance } from 'antd';
 
 import type { AiImageAssetPurpose, AiImageFilter, AiImagePreviewResult } from '../api/aiImageApi';
+import { MAX_REFERENCE_IMAGES, type AiImageReferenceAsset } from '../hooks/useAiImageFilterCrud';
 
 interface AiImageFilterModalProps {
   visible: boolean;
@@ -29,7 +30,7 @@ interface AiImageFilterModalProps {
   onCancel: () => void;
   uploadingPurpose: AiImageAssetPurpose | null;
   thumbnailPreview: string;
-  referenceKeys: string[];
+  references: AiImageReferenceAsset[];
   onThumbnailUpload: (file: File) => false | Promise<false>;
   onReferenceUpload: (file: File) => false | Promise<false>;
   onRemoveReference: (objectKey: string) => void;
@@ -50,6 +51,13 @@ const EMPTY_BOX_STYLE: CSSProperties = {
 
 const ACCEPTED_IMAGE_TYPES = 'image/png,image/jpeg,image/webp';
 
+/** 자주 쓰는 도트 굵기 — 숫자를 직접 고르기 전에 감을 잡게 한다 */
+const PIXEL_PRESETS = [
+  { label: '굵은 도트', pixelSize: 64, paletteSize: 24 },
+  { label: '기본', pixelSize: 96, paletteSize: 48 },
+  { label: '섬세한 도트', pixelSize: 128, paletteSize: 64 },
+];
+
 /**
  * AI 필터 생성/수정 모달.
  *
@@ -64,7 +72,7 @@ export function AiImageFilterModal({
   onCancel,
   uploadingPurpose,
   thumbnailPreview,
-  referenceKeys,
+  references,
   onThumbnailUpload,
   onReferenceUpload,
   onRemoveReference,
@@ -74,6 +82,9 @@ export function AiImageFilterModal({
   onPreviewSourceUpload,
   onPreview,
 }: AiImageFilterModalProps) {
+  const postProcessType = Form.useWatch('postProcessType', form);
+  const isPixelate = postProcessType !== 'none';
+
   return (
     <Modal
       title={editingFilter ? 'AI 필터 수정' : 'AI 필터 추가'}
@@ -163,19 +174,103 @@ export function AiImageFilterModal({
               </Col>
             </Row>
 
-            <Form.Item label="스타일 레퍼런스">
+            <Divider orientation="left">도트 스타일</Divider>
+
+            <Row gutter={12}>
+              <Col span={12}>
+                <Form.Item
+                  name="postProcessType"
+                  label="후처리"
+                  extra="도트는 결과를 실제 픽셀 격자로 맞춰 포퐁 톤을 통일합니다"
+                >
+                  <Select
+                    options={[
+                      { value: 'pixelate', label: '도트 (기본)' },
+                      { value: 'none', label: '없음 — 모델 결과 그대로' },
+                    ]}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="inputFidelity"
+                  label="원본 보존"
+                  extra="높음은 우리 아이 얼굴·무늬를 더 살립니다 (생성 비용 증가)"
+                >
+                  <Select
+                    options={[
+                      { value: 'high', label: '높음 (기본)' },
+                      { value: 'low', label: '보통' },
+                    ]}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Space size={6} wrap style={{ marginBottom: 12 }}>
+              {PIXEL_PRESETS.map((preset) => (
+                <Button
+                  key={preset.label}
+                  size="small"
+                  disabled={!isPixelate}
+                  onClick={() => form.setFieldsValue({ pixelSize: preset.pixelSize, paletteSize: preset.paletteSize })}
+                >
+                  {preset.label} {preset.pixelSize}px · {preset.paletteSize}색
+                </Button>
+              ))}
+            </Space>
+
+            <Row gutter={12}>
+              <Col span={12}>
+                <Form.Item name="pixelSize" label="도트 해상도" extra="장축 도트 수. 낮을수록 굵어집니다">
+                  <InputNumber min={16} max={512} disabled={!isPixelate} style={{ width: '100%' }} addonAfter="px" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="paletteSize" label="팔레트 색 수" extra="낮을수록 레트로해집니다">
+                  <InputNumber min={2} max={256} disabled={!isPixelate} style={{ width: '100%' }} addonAfter="색" />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item
+              label={`스타일 레퍼런스 (${references.length}/${MAX_REFERENCE_IMAGES})`}
+              extra="원본 사진과 함께 모델에 전달되어 화풍·색감을 맞춥니다. 레퍼런스 속 대상은 그리지 않습니다."
+            >
               <Upload beforeUpload={onReferenceUpload} showUploadList={false} accept={ACCEPTED_IMAGE_TYPES}>
-                <Button icon={<UploadOutlined />} loading={uploadingPurpose === 'reference'}>
+                <Button
+                  icon={<UploadOutlined />}
+                  loading={uploadingPurpose === 'reference'}
+                  disabled={references.length >= MAX_REFERENCE_IMAGES}
+                >
                   레퍼런스 추가
                 </Button>
               </Upload>
               <div style={{ marginTop: 8 }}>
-                {referenceKeys.length > 0 ? (
-                  <Space size={[4, 8]} wrap>
-                    {referenceKeys.map((key) => (
-                      <Tag key={key} closable onClose={() => onRemoveReference(key)}>
-                        {key.split('/').pop()}
-                      </Tag>
+                {references.length > 0 ? (
+                  <Space size={8} wrap>
+                    {references.map((reference) => (
+                      <div key={reference.objectKey} style={{ position: 'relative' }}>
+                        {reference.previewUrl ? (
+                          <Image
+                            src={reference.previewUrl}
+                            alt="레퍼런스"
+                            width={72}
+                            height={72}
+                            style={{ objectFit: 'cover', borderRadius: 8 }}
+                          />
+                        ) : (
+                          <Tag>{reference.objectKey.split('/').pop()}</Tag>
+                        )}
+                        <Button
+                          size="small"
+                          shape="circle"
+                          icon={<CloseOutlined />}
+                          aria-label="레퍼런스 삭제"
+                          onClick={() => onRemoveReference(reference.objectKey)}
+                          style={{ position: 'absolute', top: -8, right: -8 }}
+                        />
+                      </div>
                     ))}
                   </Space>
                 ) : (
@@ -209,31 +304,8 @@ export function AiImageFilterModal({
               showIcon
               style={{ marginBottom: 12 }}
               message="저장하지 않고 결과만 확인합니다"
-              description="사용자 쿼터·생성 이력에 남지 않습니다. OpenAI 왕복 때문에 최대 2분이 걸릴 수 있습니다."
+              description="왼쪽의 프롬프트·도트 스타일·레퍼런스를 그대로 써서 사용자와 같은 조건으로 생성합니다. 사용자 쿼터·생성 이력에 남지 않고, 최대 2분이 걸릴 수 있습니다."
             />
-
-            <Row gutter={12}>
-              <Col span={8}>
-                <Form.Item name="postProcessType" label="후처리">
-                  <Select
-                    options={[
-                      { value: 'pixelate', label: '도트' },
-                      { value: 'none', label: '없음' },
-                    ]}
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item name="pixelSize" label="도트 해상도">
-                  <InputNumber min={16} max={512} style={{ width: '100%' }} />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item name="paletteSize" label="팔레트 색 수">
-                  <InputNumber min={2} max={256} style={{ width: '100%' }} />
-                </Form.Item>
-              </Col>
-            </Row>
 
             <Space direction="vertical" size={12} style={{ width: '100%' }}>
               <Upload beforeUpload={onPreviewSourceUpload} showUploadList={false} accept={ACCEPTED_IMAGE_TYPES}>

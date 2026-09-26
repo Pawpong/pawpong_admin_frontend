@@ -87,11 +87,24 @@ export function AiImageFilterTable({
       ),
     },
     {
-      title: '레퍼런스',
-      dataIndex: 'referenceImageObjectKeys',
-      key: 'referenceImageObjectKeys',
-      width: 90,
-      render: (keys: string[]) => `${keys?.length ?? 0}장`,
+      title: '스타일',
+      key: 'style',
+      width: 150,
+      render: (_, filter) => (
+        <Space direction="vertical" size={2}>
+          {filter.postProcessType === 'none' ? (
+            <Tag>후처리 없음</Tag>
+          ) : (
+            <Tag color="orange">
+              도트 {filter.pixelSize ?? 96}px · {filter.paletteSize ?? 48}색
+            </Tag>
+          )}
+          <span style={{ color: 'var(--color-grayscale-gray5)', fontSize: 12 }}>
+            원본 보존 {filter.inputFidelity === 'low' ? '보통' : '높음'} · 레퍼런스{' '}
+            {filter.referenceImageObjectKeys?.length ?? 0}장
+          </span>
+        </Space>
+      ),
     },
     {
       title: '노출',

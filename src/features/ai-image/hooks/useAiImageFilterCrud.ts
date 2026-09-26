@@ -15,6 +15,36 @@ const DEFAULT_MODEL = 'gpt-image-1';
 const DEFAULT_OUTPUT_SIZE = '1024x1024';
 
 /**
+ * 새 필터의 출발점. 포퐁 결과물은 도트 그림으로 톤을 맞추므로
+ * 도트 후처리와 원본 보존 high 를 기본으로 두고, 프롬프트도 도트 초상화 틀로 채워 둔다.
+ * 백엔드 기본 필터(seed-default-ai-image-filter)와 같은 값이다.
+ */
+const PAWPONG_PIXEL_DEFAULTS = {
+  prompt: [
+    'Turn this pet photo into a cozy 16-bit pixel art portrait in the Pawpong style.',
+    'Keep the exact same animal: its breed, face shape, eye color, ear shape and fur colors and markings must stay recognizable.',
+    'Centered bust portrait, the pet looking at the viewer with a gentle happy expression.',
+    'Clean pixel grid with crisp 1px dark outlines, limited warm pastel palette (cream, soft orange, warm brown, pale pink), simple flat shading.',
+    'Plain soft cream background with a few tiny pixel hearts and sparkles.',
+  ].join(' '),
+  negativePrompt:
+    'text, letters, watermark, signature, photorealistic, 3D render, blurry, gradients, extra limbs, extra animals, humans, changing the breed',
+  postProcessType: 'pixelate' as const,
+  pixelSize: 96,
+  paletteSize: 48,
+  inputFidelity: 'high' as const,
+};
+
+/** 레퍼런스 1장 — 저장에는 키를, 화면에는 URL 을 쓴다 */
+export interface AiImageReferenceAsset {
+  objectKey: string;
+  previewUrl: string;
+}
+
+/** OpenAI 요청당 이미지 수 제한과 비용을 고려한 상한 (백엔드 검증과 동일) */
+export const MAX_REFERENCE_IMAGES = 4;
+
+/**
  * AI 필터 CRUD + 프롬프트 미리보기 훅.
  *
  * 썸네일·레퍼런스·미리보기 원본은 모두 presigned URL 로 버킷에 직접 올리고
@@ -34,7 +64,7 @@ export function useAiImageFilterCrud() {
   const [uploadingPurpose, setUploadingPurpose] = useState<AiImageAssetPurpose | null>(null);
   const [thumbnailFileName, setThumbnailFileName] = useState<string>('');
   const [thumbnailPreview, setThumbnailPreview] = useState<string>('');
-  const [referenceKeys, setReferenceKeys] = useState<string[]>([]);
+  const [references, setReferences] = useState<AiImageReferenceAsset[]>([]);
 
   // 프롬프트 시험 상태
   const [previewSourceKey, setPreviewSourceKey] = useState<string>('');
@@ -45,7 +75,7 @@ export function useAiImageFilterCrud() {
   const resetAssetState = useCallback(() => {
     setThumbnailFileName('');
     setThumbnailPreview('');
-    setReferenceKeys([]);
+    setReferences([]);
     setPreviewSourceKey('');
     setPreviewSourcePreview('');
     setPreviewResult(null);
@@ -60,9 +90,7 @@ export function useAiImageFilterCrud() {
       outputSize: DEFAULT_OUTPUT_SIZE,
       isActive: true,
       sortOrder: filters.length,
-      postProcessType: 'pixelate',
-      pixelSize: 96,
-      paletteSize: 48,
+      ...PAWPONG_PIXEL_DEFAULTS,
     });
     setModalVisible(true);
   }, [form, filters.length, resetAssetState]);
@@ -73,7 +101,12 @@ export function useAiImageFilterCrud() {
       resetAssetState();
       setThumbnailFileName(filter.thumbnailFileName || '');
       setThumbnailPreview(filter.thumbnailUrl || '');
-      setReferenceKeys(filter.referenceImageObjectKeys || []);
+      setReferences(
+        (filter.referenceImageObjectKeys || []).map((objectKey, index) => ({
+          objectKey,
+          previewUrl: filter.referenceImageUrls?.[index] ?? '',
+        })),
+      );
       form.setFieldsValue({
         name: filter.name,
         description: filter.description,
@@ -83,9 +116,11 @@ export function useAiImageFilterCrud() {
         outputSize: filter.outputSize,
         isActive: filter.isActive,
         sortOrder: filter.sortOrder,
-        postProcessType: 'pixelate',
-        pixelSize: 96,
-        paletteSize: 48,
+        // 설정 도입 전 필터는 응답에 값이 없을 수 있어 백엔드와 같은 기본값으로 채운다
+        postProcessType: filter.postProcessType ?? PAWPONG_PIXEL_DEFAULTS.postProcessType,
+        pixelSize: filter.pixelSize ?? PAWPONG_PIXEL_DEFAULTS.pixelSize,
+        paletteSize: filter.paletteSize ?? PAWPONG_PIXEL_DEFAULTS.paletteSize,
+        inputFidelity: filter.inputFidelity ?? PAWPONG_PIXEL_DEFAULTS.inputFidelity,
       });
       setModalVisible(true);
     },
@@ -131,18 +166,22 @@ export function useAiImageFilterCrud() {
 
   const handleReferenceUpload = useCallback(
     async (file: File): Promise<false> => {
+      if (references.length >= MAX_REFERENCE_IMAGES) {
+        message.warning(`레퍼런스는 최대 ${MAX_REFERENCE_IMAGES}장까지 등록할 수 있습니다`);
+        return false;
+      }
       const objectKey = await uploadAsset(file, 'reference');
       if (objectKey) {
-        setReferenceKeys((prev) => [...prev, objectKey]);
+        setReferences((prev) => [...prev, { objectKey, previewUrl: URL.createObjectURL(file) }]);
         message.success('레퍼런스 이미지가 추가되었습니다');
       }
       return false;
     },
-    [uploadAsset],
+    [uploadAsset, references.length],
   );
 
   const handleRemoveReference = useCallback((objectKey: string) => {
-    setReferenceKeys((prev) => prev.filter((key) => key !== objectKey));
+    setReferences((prev) => prev.filter((reference) => reference.objectKey !== objectKey));
   }, []);
 
   const handlePreviewSourceUpload = useCallback(
@@ -182,9 +221,12 @@ export function useAiImageFilterCrud() {
         inputObjectKey: previewSourceKey,
         model: form.getFieldValue('model') || DEFAULT_MODEL,
         outputSize: form.getFieldValue('outputSize') || DEFAULT_OUTPUT_SIZE,
-        postProcessType: form.getFieldValue('postProcessType') || 'pixelate',
-        pixelSize: form.getFieldValue('pixelSize') || 96,
-        paletteSize: form.getFieldValue('paletteSize') || 48,
+        postProcessType: form.getFieldValue('postProcessType') || PAWPONG_PIXEL_DEFAULTS.postProcessType,
+        pixelSize: form.getFieldValue('pixelSize') || PAWPONG_PIXEL_DEFAULTS.pixelSize,
+        paletteSize: form.getFieldValue('paletteSize') || PAWPONG_PIXEL_DEFAULTS.paletteSize,
+        inputFidelity: form.getFieldValue('inputFidelity') || PAWPONG_PIXEL_DEFAULTS.inputFidelity,
+        // 저장될 필터와 같은 조건으로 시험해야 미리보기가 실제 사용자 결과를 대변한다
+        referenceImageObjectKeys: references.map((reference) => reference.objectKey),
       });
 
       setPreviewResult(result);
@@ -200,7 +242,7 @@ export function useAiImageFilterCrud() {
     } finally {
       setPreviewing(false);
     }
-  }, [form, previewSourceKey]);
+  }, [form, previewSourceKey, references]);
 
   const handleSubmit = useCallback(async () => {
     try {
@@ -214,7 +256,11 @@ export function useAiImageFilterCrud() {
         negativePrompt: values.negativePrompt || undefined,
         model: values.model || DEFAULT_MODEL,
         outputSize: values.outputSize || DEFAULT_OUTPUT_SIZE,
-        referenceImageObjectKeys: referenceKeys,
+        referenceImageObjectKeys: references.map((reference) => reference.objectKey),
+        postProcessType: values.postProcessType,
+        pixelSize: values.pixelSize,
+        paletteSize: values.paletteSize,
+        inputFidelity: values.inputFidelity,
         isActive: values.isActive,
         sortOrder: Number(values.sortOrder) || 0,
       };
@@ -235,7 +281,7 @@ export function useAiImageFilterCrud() {
       message.error('AI 필터 저장에 실패했습니다');
       console.error(error);
     }
-  }, [form, thumbnailFileName, referenceKeys, editingFilter, closeModal, refetch]);
+  }, [form, thumbnailFileName, references, editingFilter, closeModal, refetch]);
 
   const handleDelete = useCallback(
     async (filterId: string) => {
@@ -286,7 +332,7 @@ export function useAiImageFilterCrud() {
     assets: {
       uploadingPurpose,
       thumbnailPreview,
-      referenceKeys,
+      references,
       handleThumbnailUpload,
       handleReferenceUpload,
       handleRemoveReference,
