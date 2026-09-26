@@ -10,6 +10,7 @@ import { isAppDestination } from '../../deep-link/model/deepLinkPolicy';
 
 interface FormValues {
   targetType: AdminPushTargetType;
+  purpose: 'service' | 'marketing';
   role?: AdminPushIndividualRole;
   userId?: string;
   title: string;
@@ -56,6 +57,7 @@ export function AdminPushSendForm() {
           : { type: values.targetType },
       title: values.title.trim(),
       body: values.body.trim(),
+      purpose: values.purpose,
       targetUrl: values.targetUrl?.trim() || undefined,
     };
     await send(payload);
@@ -70,6 +72,7 @@ export function AdminPushSendForm() {
           requiredMark={false}
           initialValues={{
             targetType: 'individual',
+            purpose: 'service',
             targetUrl: typeof incomingUrl === 'string' && isAppDestination(incomingUrl) ? incomingUrl : undefined,
           }}
           disabled={submitting}
@@ -84,6 +87,18 @@ export function AdminPushSendForm() {
               <Radio.Button value="individual">개별 발송</Radio.Button>
               <Radio.Button value="all_adopters">입양자 전체</Radio.Button>
               <Radio.Button value="all_breeders">브리더 전체</Radio.Button>
+            </Radio.Group>
+          </Form.Item>
+
+          <Form.Item
+            label="발송 목적"
+            name="purpose"
+            rules={[{ required: true, message: '발송 목적을 선택해주세요.' }]}
+            extra="채팅·신청 상태 등 서비스 안내는 서비스 알림을, 앱 홍보·이벤트 안내는 마케팅 알림을 선택하세요. 마케팅 알림은 수신 동의자에게만 발송됩니다."
+          >
+            <Radio.Group>
+              <Radio value="service">서비스 알림</Radio>
+              <Radio value="marketing">마케팅 알림</Radio>
             </Radio.Group>
           </Form.Item>
 
