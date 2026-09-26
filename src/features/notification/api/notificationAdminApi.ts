@@ -18,6 +18,7 @@ export interface AdminPushTarget {
 
 export interface SendAdminPushRequest {
   target: AdminPushTarget;
+  purpose: 'service' | 'marketing';
   title: string;
   body: string;
   targetUrl?: string;
