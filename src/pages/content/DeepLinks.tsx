@@ -72,6 +72,15 @@ export default function DeepLinks() {
           </Button>
           <Button
             type="link"
+            href={deepLinkUrl(item.slug)}
+            target="_blank"
+            rel="noopener noreferrer"
+            disabled={!item.isActive}
+          >
+            미리보기
+          </Button>
+          <Button
+            type="link"
             disabled={!item.isActive}
             onClick={() => navigate('/notifications/push', { state: { deepLinkUrl: deepLinkUrl(item.slug) } })}
           >
@@ -97,7 +106,7 @@ export default function DeepLinks() {
     <div>
       <PageHeading
         title="딥링크 관리"
-        description="포퐁 앱으로 연결되는 공유 링크를 만들고 제목·이미지·이동 화면을 관리합니다."
+        description="공유 링크의 제목·이미지·이동 화면을 관리합니다. 다운로드 버튼은 앱 버전 관리에 등록한 스토어 주소를 사용합니다."
         action={
           <Button type="primary" icon={<PlusOutlined />} onClick={crud.openCreate}>
             딥링크 만들기

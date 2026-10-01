@@ -4,7 +4,7 @@ export const DEEP_LINK_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 // 백엔드 deep-link-policy의 허용 경로와 동일하게 유지한다.
 const APP_PATH_PATTERN =
-  /^(?:\/|\/(?:about|activity|adoption|bookmarks|chat|community|explore|faq|grade-policy|hall-of-fame|home|notices|notifications|profile|settings|terms-of-privacy|terms-of-service)(?:\/[A-Za-z0-9_-]+)*)$/;
+  /^(?:\/|\/(?:about|activity|adoption|ai-filter|bookmarks|chat|community|explore|faq|grade-policy|hall-of-fame|home|notices|notifications|profile|settings|terms-of-privacy|terms-of-service)(?:\/[A-Za-z0-9_-]+)*)$/;
 const hasControlCharacters = (value: string) =>
   [...value].some((character) => character.charCodeAt(0) < 32 || character.charCodeAt(0) === 127);
 

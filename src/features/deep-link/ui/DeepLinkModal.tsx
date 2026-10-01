@@ -1,4 +1,4 @@
-import { Alert, Form, Input, Modal, Switch, Typography, type FormInstance } from 'antd';
+import { Alert, Button, Form, Input, Modal, Switch, Typography, type FormInstance } from 'antd';
 import type { DeepLink, DeepLinkCreateRequest } from '../api/deepLinkApi';
 import {
   DEEP_LINK_SLUG_PATTERN,
@@ -42,6 +42,24 @@ export function DeepLinkModal({ open, editing, form, saving, onSave, onClose }: 
       width={640}
     >
       <Form form={form} layout="vertical" disabled={saving} style={{ marginTop: 20 }}>
+        {!editing && (
+          <Button
+            type="dashed"
+            style={{ width: '100%', marginBottom: 20 }}
+            onClick={() =>
+              form.setFieldsValue({
+                slug: 'ai-filter',
+                title: '우리 아이를 픽셀 아트로 만나보세요',
+                description: '사진 한 장으로 포퐁 AI 필터를 체험하고, 만든 사진을 저장하거나 커뮤니티에 공유해 보세요.',
+                targetPath: '/ai-filter',
+                imageUrl: '',
+                isActive: true,
+              })
+            }
+          >
+            AI 사진 필터 링크 내용 채우기
+          </Button>
+        )}
         <Form.Item
           name="slug"
           label="링크 주소"
@@ -92,7 +110,7 @@ export function DeepLinkModal({ open, editing, form, saving, onSave, onClose }: 
           name="targetPath"
           label="앱에서 열 화면"
           normalize={(value: string) => value.trim()}
-          extra="포퐁 사용자 앱의 경로를 입력하세요. 홈 /, 입양 탐색 /explore, 커뮤니티 /community"
+          extra="포퐁 사용자 앱의 경로를 입력하세요. AI 사진 필터 /ai-filter, 입양 탐색 /explore, 커뮤니티 /community"
           rules={[
             { required: true, message: '앱 경로를 입력해주세요.' },
             { max: 500 },
