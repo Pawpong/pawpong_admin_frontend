@@ -1,19 +1,10 @@
 import './register-typescript.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-const {
-  APP_VERSION_PATTERN,
-  compareAppVersions,
-  isStoreUrl,
-} = await import('../src/features/app-version/model/appVersionPolicy.ts');
-const {
-  deepLinkUrl,
-  isAppDestination,
-  isHttpsUrl,
-  isInternalAppPath,
-  isPlainLinkText,
-  resolvePublicWebOrigin,
-} = await import('../src/features/deep-link/model/deepLinkPolicy.ts');
+const { APP_VERSION_PATTERN, compareAppVersions, isStoreUrl } =
+  await import('../src/features/app-version/model/appVersionPolicy.ts');
+const { deepLinkUrl, isAppDestination, isHttpsUrl, isInternalAppPath, isPlainLinkText, resolvePublicWebOrigin } =
+  await import('../src/features/deep-link/model/deepLinkPolicy.ts');
 
 globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
 globalThis.window = { localStorage: globalThis.localStorage, location: { pathname: '/content/deep-links' } };
@@ -158,7 +149,10 @@ test('version comparison treats numeric segments and optional fourth segment cor
   assert.equal(isStoreUrl('https://apps.apple.com/kr/app/id6814\n126823', 'ios'), false);
   assert.equal(isStoreUrl('https://play.google.com/store/apps/details?id=kr.pawpong.app', 'android'), true);
   assert.equal(isStoreUrl('https://play.google.com/store/apps/details?id=another.app', 'android'), false);
-  assert.equal(isStoreUrl('https://play.google.com/store/apps/details?id=kr.pawpong.app&id=another.app', 'android'), false);
+  assert.equal(
+    isStoreUrl('https://play.google.com/store/apps/details?id=kr.pawpong.app&id=another.app', 'android'),
+    false,
+  );
   assert.equal(isStoreUrl('https://apps.apple.com/', 'ios'), false);
   for (const value of [
     'http://apps.apple.com/app',
@@ -170,7 +164,7 @@ test('version comparison treats numeric segments and optional fourth segment cor
 });
 
 test('managed app paths reject recursive links, admin/API paths and encoded external destinations', () => {
-  for (const value of ['/', '/explore/dog', '/explore/breeder/abc', '/chat?roomId=abc'])
+  for (const value of ['/', '/ai-filter', '/explore/dog', '/explore/breeder/abc', '/chat?roomId=abc'])
     assert.equal(isInternalAppPath(value), true, value);
   for (const value of [
     '//evil.test',
