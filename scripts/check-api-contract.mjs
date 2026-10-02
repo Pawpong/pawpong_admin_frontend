@@ -103,6 +103,11 @@ console.log(`${count} API calls checked against ${specPath}; ${errors.length} mi
 if (errors.length) process.exitCode = 1;
 
 const adminOperations = Object.entries(spec.paths).flatMap(([route, methods]) => route.includes('-admin/') || route.endsWith('-admin') ? Object.keys(methods).filter(method => ['get','post','put','patch','delete'].includes(method)).map(method => `${method.toUpperCase()} ${route}`) : []);
-const missing = adminOperations.filter(operation => !covered.has(operation));
-console.log(`${adminOperations.length - missing.length}/${adminOperations.length} admin operations covered`);
+// 이 업로드는 브라우저에서 S3로 직접 PUT하는 대체 경로다. 현재 UI는 S3 CORS에
+// 의존하지 않는 /upload-image multipart 경로를 사용한다 (aiImageApi.ts).
+const alternatives = new Set(['POST /api/ai-image-admin/upload-url']);
+const requiredOperations = adminOperations.filter(operation => !alternatives.has(operation));
+const missing = requiredOperations.filter(operation => !covered.has(operation));
+console.log(`${requiredOperations.length - missing.length}/${requiredOperations.length} required admin operations covered`);
+console.log(`${adminOperations.length - requiredOperations.length} alternative upload operation intentionally unused by the browser`);
 if (missing.length) { console.error('Missing admin operations:', missing.join('\n')); process.exitCode = 1; }
