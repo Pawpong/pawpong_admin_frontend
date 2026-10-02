@@ -44,6 +44,7 @@ const eventTitle: Record<string, string> = {
   admin_action: '관리자 조치',
   credit_spent: '이용권 차감',
   credit_restored: '이용권 복구',
+  credit_debt_settled: '환불 잔액 정산',
   store_acknowledged: '스토어 승인',
 };
 
