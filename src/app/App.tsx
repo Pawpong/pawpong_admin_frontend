@@ -47,6 +47,7 @@ const AppSplash = lazy(() => import('../pages/settings/AppSplash'));
 const PushSend = lazy(() => import('../pages/notifications/PushSend'));
 const DeepLinks = lazy(() => import('../pages/content/DeepLinks'));
 const Billing = lazy(() => import('../pages/Billing'));
+const Terms = lazy(() => import('../pages/content/Terms'));
 
 // Protected Route 컴포넌트
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -118,6 +119,7 @@ function App() {
 
                 {/* 콘텐츠 관리 */}
                 <Route path="content">
+                  <Route path="terms" element={<Terms />} />
                   <Route path="deep-links" element={<DeepLinks />} />
                   <Route path="banners" element={<Banners />} />
                   <Route path="profile" element={<ProfileBanners />} />
