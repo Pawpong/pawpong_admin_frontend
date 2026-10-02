@@ -178,7 +178,13 @@ export function ProductCatalog() {
           <Form.Item
             name="code"
             label="상품 코드"
-            rules={[...required, { pattern: /^[a-zA-Z0-9._-]+$/, message: '영문·숫자·점·밑줄·하이픈만 입력하세요.' }]}
+            rules={[
+              ...required,
+              {
+                pattern: /^[a-z][a-z0-9_-]{0,99}$/,
+                message: '소문자로 시작하는 영문·숫자·밑줄·하이픈 코드를 입력하세요.',
+              },
+            ]}
           >
             <Input disabled={Boolean(editing)} maxLength={100} />
           </Form.Item>
@@ -200,25 +206,35 @@ export function ProductCatalog() {
                 <Typography.Paragraph strong>지급 혜택</Typography.Paragraph>
                 {fields.map((field) => (
                   <Space key={field.key} align="start" wrap>
-                    <Form.Item name={[field.name, 'type']} label="혜택 유형" rules={required}>
-                      <Input placeholder="credits" />
+                    <Form.Item
+                      name={[field.name, 'type']}
+                      label="혜택 유형"
+                      rules={[
+                        ...required,
+                        { pattern: /^[a-z][a-z0-9_]{0,63}$/, message: '소문자·숫자·밑줄 64자 이내로 입력하세요.' },
+                      ]}
+                    >
+                      <Input placeholder="credits" maxLength={64} />
                     </Form.Item>
                     <Form.Item name={[field.name, 'creditKey']} label="이용권 코드 (credits 필수)">
-                      <Input placeholder="playground" />
+                      <Input placeholder="playground" maxLength={64} />
                     </Form.Item>
                     <Form.Item
                       name={[field.name, 'quantity']}
                       label="지급 수량"
-                      rules={[{ required: true, type: 'integer', min: 1 }]}
+                      rules={[{ required: true, type: 'integer', min: 1, max: 1000000 }]}
                     >
-                      <InputNumber min={1} precision={0} />
+                      <InputNumber min={1} max={1000000} precision={0} />
                     </Form.Item>
                     <Button danger onClick={() => remove(field.name)}>
                       혜택 제거
                     </Button>
                   </Space>
                 ))}
-                <Button onClick={() => add({ type: 'credits', creditKey: 'playground', quantity: 1 })}>
+                <Button
+                  disabled={fields.length >= 20}
+                  onClick={() => add({ type: 'credits', creditKey: 'playground', quantity: 1 })}
+                >
                   혜택 추가
                 </Button>
               </>

@@ -102,21 +102,39 @@ export function FeaturePolicies() {
             rules={[
               {
                 required: true,
-                pattern: /^[a-z][a-z0-9_]{0,99}$/,
+                pattern: /^[a-z][a-z0-9_]{0,63}$/,
                 message: '소문자로 시작하는 영문·숫자·밑줄 코드를 입력하세요.',
               },
             ]}
           >
-            <Input disabled={Boolean(editing)} />
+            <Input disabled={Boolean(editing)} maxLength={64} />
           </Form.Item>
-          <Form.Item name="creditKey" label="사용할 이용권 코드" rules={[{ required: true, whitespace: true }]}>
-            <Input />
+          <Form.Item
+            name="creditKey"
+            label="사용할 이용권 코드"
+            rules={[
+              {
+                required: true,
+                pattern: /^[a-z][a-z0-9_]{0,63}$/,
+                message: '소문자로 시작하는 영문·숫자·밑줄 코드를 입력하세요.',
+              },
+            ]}
+          >
+            <Input maxLength={64} />
           </Form.Item>
-          <Form.Item name="creditCost" label="1회 이용권 비용" rules={[{ required: true, type: 'integer', min: 1 }]}>
-            <InputNumber min={1} precision={0} />
+          <Form.Item
+            name="creditCost"
+            label="1회 이용권 비용"
+            rules={[{ required: true, type: 'integer', min: 1, max: 1000000 }]}
+          >
+            <InputNumber min={1} max={1000000} precision={0} />
           </Form.Item>
-          <Form.Item name="dailyFreeLimit" label="일일 무료 횟수" rules={[{ required: true, type: 'integer', min: 0 }]}>
-            <InputNumber min={0} precision={0} />
+          <Form.Item
+            name="dailyFreeLimit"
+            label="일일 무료 횟수"
+            rules={[{ required: true, type: 'integer', min: 0, max: 1000 }]}
+          >
+            <InputNumber min={0} max={1000} precision={0} />
           </Form.Item>
           <Form.Item
             name="enabled"

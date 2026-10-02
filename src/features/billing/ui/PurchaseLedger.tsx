@@ -161,8 +161,12 @@ function PurchaseDetail({ id, onChanged }: { id: string; onChanged: () => void }
                     {time(event.occurredAt)} · {event.source}
                   </p>
                   {event.reason && <p>{event.reason}</p>}
-                  {event.actorId && <p>처리 관리자: {event.actorId}</p>}
-                  {event.creditDelta !== undefined && (
+                  {event.actorId && (
+                    <p>
+                      {event.source === 'admin' ? '처리 관리자' : '요청자'}: {event.actorId}
+                    </p>
+                  )}
+                  {event.creditDelta !== undefined && event.creditDelta !== 0 && (
                     <p>
                       {event.creditKey} 이용권 {event.creditDelta > 0 ? '+' : ''}
                       {event.creditDelta}

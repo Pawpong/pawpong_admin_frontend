@@ -61,6 +61,7 @@ export function billingError(error: unknown): string {
     IAP_PRODUCT_ALREADY_EXISTS: '이미 등록된 상품 코드입니다.',
     IAP_STORE_REGISTRATION_REQUIRED: '연결된 스토어 상품의 등록을 먼저 확인해 주세요.',
     IAP_ACCOUNT_MISMATCH: '구매 계정이 일치하지 않습니다.',
+    IAP_BENEFIT_NOT_IMPLEMENTED: '아직 지급 기능이 없는 혜택입니다. 판매 허용을 끄고 저장해 주세요.',
   };
   return code
     ? (messages[code] ?? `변경을 저장하지 못했습니다 (${code}).`)
