@@ -46,6 +46,7 @@ const AppVersion = lazy(() => import('../pages/settings/AppVersion'));
 const AppSplash = lazy(() => import('../pages/settings/AppSplash'));
 const PushSend = lazy(() => import('../pages/notifications/PushSend'));
 const DeepLinks = lazy(() => import('../pages/content/DeepLinks'));
+const Billing = lazy(() => import('../pages/Billing'));
 
 // Protected Route 컴포넌트
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -83,6 +84,7 @@ function App() {
                 }
               >
                 <Route path="support" element={<Support />} />
+                <Route path="billing" element={<Billing />} />
                 <Route path="reports/community" element={<CommunityReports />} />
                 <Route path="settings/keywords" element={<PopularKeywords />} />
                 <Route path="settings/health" element={<SystemHealth />} />

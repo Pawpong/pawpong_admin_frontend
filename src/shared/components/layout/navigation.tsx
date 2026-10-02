@@ -12,6 +12,10 @@ import {
 
 export const navigation = [
   {
+    label: '놀이터 결제',
+    items: [{ path: '/billing', label: '상품·이용권·구매 관리', icon: <FileTextOutlined /> }],
+  },
+  {
     label: '워크스페이스',
     items: [
       { path: '/dashboard', label: '대시보드', icon: <DashboardOutlined /> },
