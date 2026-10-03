@@ -12,6 +12,10 @@ import {
 
 export const navigation = [
   {
+    label: '놀이터 결제',
+    items: [{ path: '/billing', label: '상품·이용권·구매 관리', icon: <FileTextOutlined /> }],
+  },
+  {
     label: '워크스페이스',
     items: [
       { path: '/dashboard', label: '대시보드', icon: <DashboardOutlined /> },
@@ -41,6 +45,7 @@ export const navigation = [
   {
     label: '콘텐츠',
     items: [
+      { path: '/content/terms', label: '약관 버전', icon: <FileTextOutlined /> },
       { path: '/content/deep-links', label: '딥링크 관리', icon: <LinkOutlined /> },
       { path: '/content/banners', label: '메인 배너', icon: <FileTextOutlined /> },
       { path: '/content/profile', label: '프로필 배너', icon: <FileTextOutlined /> },
