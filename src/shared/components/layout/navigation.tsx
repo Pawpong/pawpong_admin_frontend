@@ -48,6 +48,7 @@ export const navigation = [
       { path: '/content/terms', label: '약관 버전', icon: <FileTextOutlined /> },
       { path: '/content/deep-links', label: '딥링크 관리', icon: <LinkOutlined /> },
       { path: '/content/banners', label: '메인 배너', icon: <FileTextOutlined /> },
+      { path: '/content/feature-highlights', label: '신기능 소개', icon: <FileTextOutlined /> },
       { path: '/content/profile', label: '프로필 배너', icon: <FileTextOutlined /> },
       { path: '/content/counsel', label: '상담 배너', icon: <FileTextOutlined /> },
       { path: '/content/notices', label: '공지사항', icon: <FileTextOutlined /> },
