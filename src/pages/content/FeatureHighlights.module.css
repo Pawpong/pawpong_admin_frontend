@@ -1,0 +1,125 @@
+.page {
+  min-width: 0;
+}
+.fullWidth {
+  width: 100%;
+}
+.page :global(.ant-btn) {
+  min-width: 44px;
+  min-height: 44px;
+  height: auto;
+  white-space: normal;
+}
+.page :global(input.ant-input),
+.page :global(.ant-select) {
+  min-height: 44px;
+}
+.page :global(.ant-input-affix-wrapper) {
+  min-height: 44px;
+}
+.page :global(.ant-select-selector) {
+  align-items: center;
+}
+.page :global(.ant-checkbox-wrapper) {
+  min-height: 44px;
+  align-items: center;
+}
+.page :global(.ant-switch) {
+  min-width: 80px;
+  height: 44px;
+}
+.page :global(.ant-switch .ant-switch-handle) {
+  top: 13px;
+}
+.page :global(.ant-switch .ant-switch-inner) {
+  display: flex;
+  align-items: center;
+}
+.page :global(.ant-alert) {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.page :global(.ant-alert-content) {
+  min-width: min(100%, 180px);
+}
+.notice {
+  margin-bottom: 20px;
+}
+.editorCard :global(.ant-card-head-wrapper) {
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 0;
+}
+.editorCard :global(.ant-card-head-title) {
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  min-width: min(100%, 160px);
+}
+.editorCard :global(.ant-card-extra) {
+  margin-inline-start: 0;
+}
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 0 20px;
+}
+.actionFields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+.removeAction {
+  margin-top: 30px;
+}
+.preview {
+  margin-top: 24px;
+  background: #fffdf0;
+  border: 2px solid #ad651d;
+  box-shadow: 3px 3px #e9cfad;
+  padding: 24px;
+  overflow-wrap: anywhere;
+}
+.preview small {
+  color: #794611;
+}
+.preview h3 {
+  margin: 8px 0;
+  color: #312921;
+  font-size: 22px;
+}
+.preview p {
+  color: #686868;
+  line-height: 1.7;
+  white-space: pre-line;
+}
+.previewAction {
+  display: inline-block;
+  padding: 10px 16px;
+  color: #312921;
+  background: #fff;
+  border: 1px solid #ad651d;
+}
+.previewAction[data-primary='true'] {
+  background: #fffe72;
+}
+.remoteCard {
+  border-top: 1px solid #eee6db;
+  padding-top: 16px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .actionFields {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  .removeAction {
+    margin-top: 0;
+    margin-bottom: 24px;
+    justify-self: end;
+  }
+  .preview {
+    padding: 16px;
+  }
+}

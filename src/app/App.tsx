@@ -29,6 +29,7 @@ const ReviewReports = lazy(() => import('../pages/reports/ReviewReports'));
 const Users = lazy(() => import('../pages/users/Users'));
 const DeletedUsers = lazy(() => import('../pages/users/DeletedUsers'));
 const Banners = lazy(() => import('../pages/content/Banners'));
+const FeatureHighlights = lazy(() => import('../pages/content/FeatureHighlights'));
 const ProfileBanners = lazy(() => import('../pages/content/ProfileBanners'));
 const CounselBanners = lazy(() => import('../pages/content/CounselBanners'));
 const Faqs = lazy(() => import('../pages/content/Faqs'));
@@ -122,6 +123,7 @@ function App() {
                   <Route path="terms" element={<Terms />} />
                   <Route path="deep-links" element={<DeepLinks />} />
                   <Route path="banners" element={<Banners />} />
+                  <Route path="feature-highlights" element={<FeatureHighlights />} />
                   <Route path="profile" element={<ProfileBanners />} />
                   <Route path="counsel" element={<CounselBanners />} />
                   <Route path="faqs" element={<Faqs />} />
