@@ -72,3 +72,28 @@ test('admin HTTP methods preserve audit reasons and the backend envelope', async
   await billingApi.adjust('purchase', { action: 'revoke', reason: 'confirmed refund' });
   assert.deepEqual(JSON.parse(calls[2].data), { action: 'revoke', reason: 'confirmed refund' });
 });
+
+test('release hold rejects sales before HTTP even when bypassing the catalog form', async () => {
+  const { BILLING_SALES_ENABLED } = await import('../src/features/billing/model/release.ts');
+  assert.equal(BILLING_SALES_ENABLED, false);
+  const calls = [];
+  client.defaults.adapter = async (config) => {
+    calls.push(config);
+    return { config, status: 200, statusText: 'OK', headers: {}, data: { success: true, data: {} } };
+  };
+  const selling = { ...product(), active: true, saleEnabled: true, storeRegistered: { ios: true, android: false } };
+  for (const action of [
+    () => billingApi.createProduct(selling),
+    () => billingApi.updateProduct('pack', selling),
+    // A partial PATCH must not keep a previously enabled sale while reactivating a product.
+    () => billingApi.updateProduct('pack', { active: true, reason: 'reactivate' }),
+  ]) {
+    await assert.rejects(action(), /심사 승인과 출시 확인/);
+  }
+  assert.equal(calls.length, 0);
+
+  await billingApi.createProduct(product());
+  await billingApi.updateProduct('pack', { active: true, saleEnabled: false, reason: 'prepare only' });
+  assert.equal(calls.length, 2);
+  assert.ok(calls.every((call) => JSON.parse(call.data).saleEnabled === false));
+});

@@ -1,4 +1,5 @@
 import apiClient from '../../../shared/api/axios';
+import { assertProductSaleAllowed } from '../model/release';
 
 export type Platform = 'ios' | 'android';
 export type ProductType = 'consumable' | 'non_consumable' | 'subscription';
@@ -94,10 +95,15 @@ type Envelope<T> = { success: boolean; data: T };
 
 export const billingApi = {
   products: async () => (await apiClient.get<Envelope<Product[]>>('/iap-admin/products')).data.data,
-  createProduct: async (body: ProductInput) =>
-    (await apiClient.post<Envelope<Product>>('/iap-admin/products', body)).data.data,
-  updateProduct: async (code: string, body: Partial<Omit<ProductInput, 'code'>> & { reason: string }) =>
-    (await apiClient.patch<Envelope<Product>>(`/iap-admin/products/${encodeURIComponent(code)}`, body)).data.data,
+  createProduct: async (body: ProductInput) => {
+    assertProductSaleAllowed(body);
+    return (await apiClient.post<Envelope<Product>>('/iap-admin/products', body)).data.data;
+  },
+  updateProduct: async (code: string, body: Partial<Omit<ProductInput, 'code'>> & { reason: string }) => {
+    assertProductSaleAllowed(body);
+    return (await apiClient.patch<Envelope<Product>>(`/iap-admin/products/${encodeURIComponent(code)}`, body)).data
+      .data;
+  },
   archiveProduct: async (code: string, reason: string) =>
     (await apiClient.delete<Envelope<Product>>(`/iap-admin/products/${encodeURIComponent(code)}`, { data: { reason } }))
       .data.data,

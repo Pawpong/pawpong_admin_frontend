@@ -55,7 +55,7 @@ export function FeaturePolicies() {
         type="info"
         showIcon
         message="기능별 무료 횟수와 이용권 비용을 설정합니다."
-        description="같은 이용권 코드를 지정하면 여러 기능이 공통 잔액을 사용합니다. 무료분은 한국 시간 자정에 초기화되며 무료 → 구독 → 충전 순서로 차감합니다. 새 기능은 서버 소비 처리가 구현된 뒤 활성화할 수 있습니다."
+        description="이 정책의 활성화는 무료 이용을 포함한 기능 사용 설정이며 상품 판매를 시작하지 않습니다. 같은 이용권 코드는 공통 잔액을 사용하며, 무료분은 한국 시간 자정에 초기화됩니다. 새 기능은 서버 소비 처리가 구현된 뒤 활성화할 수 있습니다."
       />
       <Space>
         <Button type="primary" onClick={() => open(null)}>
