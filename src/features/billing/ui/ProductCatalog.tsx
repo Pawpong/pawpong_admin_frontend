@@ -16,6 +16,7 @@ import {
 } from 'antd';
 import { billingApi, type Product, type ProductInput } from '../api/billingApi';
 import { billingError, newProduct, productInput } from '../model/catalog';
+import { BILLING_SALES_ENABLED } from '../model/release';
 import { useRemoteData } from '../../../shared/hooks/useRemoteData';
 import { LoadError } from '../../../shared/components/admin/PageHeading';
 
@@ -35,6 +36,7 @@ export function ProductCatalog() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [form] = Form.useForm<ProductInput>();
+  const saleEnabled = Form.useWatch('saleEnabled', form);
   const open = (product: Product | null) => {
     form.resetFields();
     form.setFieldsValue(product ? { ...product, reason: '' } : structuredClone(newProduct));
@@ -85,7 +87,7 @@ export function ProductCatalog() {
         type="info"
         showIcon
         message="가격과 결제 주기는 Apple·Google 스토어에서 관리합니다."
-        description="여기서는 상품 종류, 스토어 ID, 지급 혜택과 판매 여부를 관리합니다. 새 상품은 판매 중지로 시작하며, 스토어 등록·심사가 끝난 상품만 등록 확인을 켜세요."
+        description="여기서는 상품 종류, 스토어 ID와 지급 혜택을 준비합니다. 새 상품은 판매 중지로 시작합니다. 스토어 등록 확인은 판매 허용과 별개이며, 결제 업데이트의 심사 승인과 출시 확인이 필요합니다."
       />
       <Space>
         <Button type="primary" onClick={() => open(null)}>
@@ -254,8 +256,13 @@ export function ProductCatalog() {
             <Form.Item name="active" label="상품 활성화" valuePropName="checked">
               <Switch />
             </Form.Item>
-            <Form.Item name="saleEnabled" label="판매 허용" valuePropName="checked">
-              <Switch />
+            <Form.Item
+              name="saleEnabled"
+              label="판매 허용"
+              valuePropName="checked"
+              extra={!BILLING_SALES_ENABLED ? '출시 보류 중에는 판매 중지로만 저장할 수 있습니다.' : undefined}
+            >
+              <Switch disabled={!BILLING_SALES_ENABLED && !saleEnabled} />
             </Form.Item>
           </Space>
           <Form.Item name="reason" label="변경 사유" rules={required}>
