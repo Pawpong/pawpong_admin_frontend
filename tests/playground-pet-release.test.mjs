@@ -21,6 +21,7 @@ const {
   parsePlaygroundPetRelease,
   PET_PREVIEW_URL,
   petReleaseStatus,
+  publicationTakesEffect,
   withPublished,
   withQualityApproval,
 } = await import('../src/features/playground/model/petRelease.ts');
@@ -98,7 +99,7 @@ test('publication without quality approval is rejected before any HTTP mutation'
   ]) {
     await assert.rejects(petReleaseApi.save(draft, 0));
   }
-  for (const revision of [undefined, null, -1, 1.5, '3', Number.NaN]) {
+  for (const revision of [undefined, null, -1, 1.5, '3', Number.NaN, Number.MAX_SAFE_INTEGER]) {
     await assert.rejects(petReleaseApi.save({ qualityApproved: true, published: true }, revision));
   }
   assert.equal(calls.length, 0);
@@ -201,8 +202,34 @@ test('developer preview access is never reported as public', () => {
   assert.equal(PET_PREVIEW_URL, 'https://dev.pawpong.kr/playground/pet');
 });
 
-test('the screen is routed, listed in navigation and limited to top-level administrators', () => {
-  assert.equal(requiredPermission('/playground/pet-release'), 'canManageAdmins');
+test('the backend contract examples parse, including an unknown environment that stays closed', () => {
+  // 백엔드 .kiro/specs/playground-pet/release-contract.md의 성공 data 예시와 서비스 view() 형태.
+  const documented = {
+    qualityApproved: false,
+    published: false,
+    revision: 0,
+    developmentPreviewEnabled: false,
+    effectiveEnabled: false,
+    environment: 'production',
+    updatedAt: null,
+  };
+  assert.deepEqual(parsePlaygroundPetRelease(documented), documented);
+  const saved = { ...documented, qualityApproved: true, revision: 1, updatedAt: '2026-10-05T06:47:19.000Z' };
+  assert.deepEqual(parsePlaygroundPetRelease(saved), saved);
+  // APP_ENV가 없거나 다른 값이면 저장된 승인·공개가 있어도 서버가 열지 않는다.
+  const unknown = { ...saved, published: true, environment: 'unknown' };
+  assert.equal(petReleaseStatus(parsePlaygroundPetRelease(unknown)), 'private');
+  const development = { ...saved, published: true, environment: 'development' };
+  assert.equal(petReleaseStatus(parsePlaygroundPetRelease(development)), 'private');
+  assert.equal(publicationTakesEffect('production'), true);
+  for (const environment of ['development', 'unknown', 'Production', '']) {
+    assert.equal(publicationTakesEffect(environment), false);
+  }
+});
+
+test('the screen is routed, listed in navigation and visible to every administrator like the server guard', () => {
+  // 서버는 home-admin의 JWT + admin 역할만 확인한다. 화면만 더 좁게 가리지 않는다.
+  assert.equal(requiredPermission('/playground/pet-release'), null);
   const app = readFileSync('src/app/App.tsx', 'utf8');
   const navigation = readFileSync('src/shared/components/layout/navigation.tsx', 'utf8');
   assert.match(app, /path="playground\/pet-release" element={<PetRelease \/>}/);

@@ -13,8 +13,6 @@ export type AdminPermission = keyof AuthResponse['permissions'];
  */
 const ROUTE_PERMISSION: Array<{ prefix: string; permission: AdminPermission }> = [
   { prefix: '/settings/backups', permission: 'canManageAdmins' },
-  // 사용자 공개를 여는 화면이라 최고 관리자에게만 보인다.
-  { prefix: '/playground/pet-release', permission: 'canManageAdmins' },
   { prefix: '/settings/health', permission: 'canViewStatistics' },
   { prefix: '/dashboard', permission: 'canViewStatistics' },
   { prefix: '/statistics', permission: 'canViewStatistics' },

@@ -11,6 +11,7 @@ import {
   PET_PREVIEW_URL,
   PET_RELEASE_QUALITY_REQUIRED,
   petReleaseStatus,
+  publicationTakesEffect,
   withPublished,
   withQualityApproval,
   type PetReleaseDraft,
@@ -22,9 +23,7 @@ import styles from './PetRelease.module.css';
 const ENVIRONMENT_LABELS: Record<string, string> = {
   production: '운영',
   development: '개발',
-  staging: '스테이징',
-  test: '테스트',
-  local: '로컬',
+  unknown: '확인 불가',
 };
 const STATUS = {
   public: { color: 'green', label: '공개 중' },
@@ -52,7 +51,11 @@ function formatUpdatedAt(value: string | null) {
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString('ko-KR');
 }
 function accessLabel(release: PlaygroundPetRelease) {
-  if (!release.effectiveEnabled) return '차단됨 · 메뉴, 직접 URL, 서버 API 모두 잠겨 있어요';
+  if (!release.effectiveEnabled) {
+    return release.qualityApproved && release.published
+      ? '차단됨 · 공개 설정은 저장돼 있지만 이 환경에서는 적용되지 않아요'
+      : '차단됨 · 메뉴, 직접 URL, 서버 API 모두 잠겨 있어요';
+  }
   return petReleaseStatus(release) === 'public'
     ? '열림 · 사용자에게 공개 중이에요'
     : '개발 미리보기로만 열림 · 운영 공개가 아니에요';
@@ -160,7 +163,9 @@ export default function PetRelease() {
     }
     modal.confirm({
       title: '반려동물 키우기를 사용자에게 공개할까요?',
-      content: `저장하면 ${environmentLabel(release.environment)} 환경에서 놀이터 메뉴, 직접 URL, 서버 API 잠금이 풀려요. 품질 검수가 끝났는지 다시 확인해 주세요.`,
+      content: publicationTakesEffect(release.environment)
+        ? `저장하면 ${environmentLabel(release.environment)} 환경에서 놀이터 메뉴, 직접 URL, 서버 API 잠금이 풀려요. 품질 검수가 끝났는지 다시 확인해 주세요.`
+        : `지금 연결된 서버는 ${environmentLabel(release.environment)} 환경이에요. 이 설정은 이 서버에만 저장되고, 운영 서비스는 공개되지 않아요. 이 환경의 잠금도 풀리지 않아요.`,
       okText: '공개로 저장',
       cancelText: '취소',
       onOk: submit,
@@ -219,7 +224,9 @@ export default function PetRelease() {
           closable
           onClose={() => setSaved(false)}
           message="공개 설정을 저장했어요"
-          description={`현재 상태: ${STATUS[status].label} · 버전 ${release.revision}`}
+          description={`현재 상태: ${STATUS[status].label} · 버전 ${release.revision}${
+            release.published && !release.effectiveEnabled ? ' · 이 환경에서는 공개 설정이 적용되지 않아요' : ''
+          }`}
         />
       )}
 
@@ -326,9 +333,11 @@ export default function PetRelease() {
                 <strong>2. 운영 공개</strong>
               </Space>
               <p className={styles.muted}>
-                {draft.qualityApproved === true
-                  ? '켜고 저장하면 메뉴, 직접 URL, 서버 API 잠금이 풀려요. 저장 전에 한 번 더 확인해요.'
-                  : '품질 승인을 먼저 체크해야 켤 수 있어요.'}
+                {draft.qualityApproved !== true
+                  ? '품질 승인을 먼저 체크해야 켤 수 있어요.'
+                  : release && !publicationTakesEffect(release.environment)
+                    ? '이 환경에서는 켜서 저장해도 잠금이 풀리지 않아요. 사용자 공개는 운영 환경의 설정에서만 적용돼요.'
+                    : '켜고 저장하면 메뉴, 직접 URL, 서버 API 잠금이 풀려요. 저장 전에 한 번 더 확인해요.'}
               </p>
             </div>
             {dirty && (

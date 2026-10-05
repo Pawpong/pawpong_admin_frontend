@@ -92,12 +92,22 @@ export function petReleaseStatus(release: PlaygroundPetRelease | null | undefine
     : 'private';
 }
 
+/**
+ * 서버는 운영 환경에서만 품질 승인과 공개 설정으로 잠금을 푼다.
+ * 개발 환경은 미리보기 설정으로만 열리고, 환경을 알 수 없으면 저장해도 열리지 않는다.
+ */
+export function publicationTakesEffect(environment: string): boolean {
+  return environment === 'production';
+}
+
 export function buildPetReleaseSave(draft: PetReleaseDraft, expectedRevision: number): PlaygroundPetReleaseSave {
   if (
     !isRecord(draft) ||
     typeof draft.qualityApproved !== 'boolean' ||
     typeof draft.published !== 'boolean' ||
-    !isRevision(expectedRevision)
+    !isRevision(expectedRevision) ||
+    // 서버가 저장 시 revision을 1 올리므로 마지막 안전 정수는 받지 않는다.
+    expectedRevision >= Number.MAX_SAFE_INTEGER
   ) {
     throw new Error(INVALID_SAVE);
   }
