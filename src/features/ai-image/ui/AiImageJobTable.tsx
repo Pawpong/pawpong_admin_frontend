@@ -2,6 +2,7 @@ import { Image, Space, Table, Tag, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
 import type { AiImageJob, AiImageJobStatus } from '../api/aiImageApi';
+import { AiImageJobUser } from './AiImageJobUser';
 
 const IMAGE_FALLBACK =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
@@ -119,15 +120,9 @@ export function AiImageJobTable({
     },
     {
       title: '사용자',
-      dataIndex: 'userId',
-      key: 'userId',
-      width: 200,
-      render: (userId: string, job) => (
-        <Space direction="vertical" size={0}>
-          <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{userId}</span>
-          <Tag>{job.userRole === 'adopter' ? '입양자' : '브리더'}</Tag>
-        </Space>
-      ),
+      key: 'user',
+      width: 260,
+      render: (_, job) => <AiImageJobUser job={job} />,
     },
     {
       title: '사용 프롬프트 (생성 시점)',
@@ -166,7 +161,7 @@ export function AiImageJobTable({
       columns={columns}
       dataSource={jobs}
       loading={loading}
-      scroll={{ x: 1200 }}
+      scroll={{ x: 1260 }}
       pagination={{
         current: currentPage,
         pageSize,

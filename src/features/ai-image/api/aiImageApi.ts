@@ -86,11 +86,21 @@ export interface AiImageAgentHealth {
 /** 생성 작업 상태 */
 export type AiImageJobStatus = 'pending' | 'queued' | 'processing' | 'succeeded' | 'failed';
 
+/** 관리자 목록용 최소 계정 요약. 탈퇴·누락 계정은 개인정보를 반환하지 않는다. */
+export interface AiImageJobUser {
+  displayName: string | null;
+  nickname: string | null;
+  emailAddress: string | null;
+  accountStatus: 'active' | 'suspended' | 'deleted' | 'unknown' | 'missing';
+}
+
 /** 생성 작업 1건 (관리자 응답 — 프롬프트 스냅샷 포함) */
 export interface AiImageJob {
   jobId: string;
   userId: string;
   userRole: 'adopter' | 'breeder';
+  /** 구형 API 응답에서도 목록을 볼 수 있도록 미제공/null을 허용한다. */
+  user?: AiImageJobUser | null;
   contestId: string | null;
   filterId: string;
   status: AiImageJobStatus;
