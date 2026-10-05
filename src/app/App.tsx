@@ -48,6 +48,7 @@ const AppSplash = lazy(() => import('../pages/settings/AppSplash'));
 const PushSend = lazy(() => import('../pages/notifications/PushSend'));
 const DeepLinks = lazy(() => import('../pages/content/DeepLinks'));
 const Billing = lazy(() => import('../pages/Billing'));
+const PetRelease = lazy(() => import('../pages/playground/PetRelease'));
 const Terms = lazy(() => import('../pages/content/Terms'));
 
 // Protected Route 컴포넌트
@@ -87,6 +88,7 @@ function App() {
               >
                 <Route path="support" element={<Support />} />
                 <Route path="billing" element={<Billing />} />
+                <Route path="playground/pet-release" element={<PetRelease />} />
                 <Route path="reports/community" element={<CommunityReports />} />
                 <Route path="settings/keywords" element={<PopularKeywords />} />
                 <Route path="settings/health" element={<SystemHealth />} />

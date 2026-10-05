@@ -1,0 +1,77 @@
+.page {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.fullWidth {
+  width: 100%;
+}
+.page :global(.ant-btn) {
+  min-width: 44px;
+  min-height: 44px;
+  height: auto;
+  white-space: normal;
+}
+.page :global(.ant-checkbox-wrapper) {
+  min-height: 44px;
+  align-items: center;
+}
+.page :global(.ant-switch) {
+  min-width: 96px;
+  height: 44px;
+}
+.page :global(.ant-switch .ant-switch-handle) {
+  top: 13px;
+}
+.page :global(.ant-switch .ant-switch-inner) {
+  display: flex;
+  align-items: center;
+}
+.page :global(.ant-alert) {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.page :global(.ant-alert-content) {
+  min-width: min(100%, 180px);
+}
+.page :global(.ant-card-head-wrapper) {
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 0;
+}
+.page :global(.ant-card-extra) {
+  margin-inline-start: 0;
+}
+.notice {
+  margin-bottom: 20px;
+}
+.statusTag {
+  margin: 0;
+  padding: 6px 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.summary :global(.ant-descriptions-item-label) {
+  min-width: 150px;
+}
+.lockList {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  line-height: 1.8;
+}
+.previewLink {
+  padding-inline: 0;
+  text-align: left;
+}
+.control {
+  margin-bottom: 24px;
+}
+.muted {
+  margin: 8px 0 0;
+  color: #686868;
+  line-height: 1.7;
+}
+@media (max-width: 600px) {
+  .summary :global(.ant-descriptions-item-container) {
+    flex-direction: column;
+  }
+}
