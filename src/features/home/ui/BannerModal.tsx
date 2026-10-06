@@ -4,6 +4,7 @@ import { Button } from 'antd';
 import type { FormInstance } from 'antd';
 
 import type { Banner } from '../api/homeApi';
+import { BannerTextPreview } from './BannerTextPreview';
 
 interface BannerModalProps {
   visible: boolean;
@@ -35,6 +36,8 @@ export function BannerModal({
   onUploadDesktop,
   onUploadMobile,
 }: BannerModalProps) {
+  const textOverlayEnabled = Form.useWatch('textOverlayEnabled', form);
+  const textOverlay = Form.useWatch('textOverlay', form);
   return (
     <Modal
       title={editingBanner ? '배너 수정' : '배너 추가'}
@@ -119,6 +122,48 @@ export function BannerModal({
           )}
         </Form.Item>
 
+        <Form.Item
+          name="textOverlayEnabled"
+          label="선명한 글자 표시"
+          valuePropName="checked"
+          extra="글자가 없는 배경 이미지를 올리고, 문구는 아래에서 입력하세요. 기존 글자가 들어간 이미지에는 끄고 사용하세요."
+        >
+          <Switch />
+        </Form.Item>
+        {textOverlayEnabled && (
+          <>
+            <Form.Item name={['textOverlay', 'layout']} label="문구 배치" rules={[{ required: true }]}>
+              <Select
+                options={[
+                  { value: 'welcome', label: '환영 · 제목과 포퐁 로고' },
+                  { value: 'launch', label: '앱 출시 · 로고와 하단 버튼' },
+                  { value: 'category', label: '동물 탐색 · 제목과 이동 문구' },
+                ]}
+              />
+            </Form.Item>
+            <Form.Item
+              name={['textOverlay', 'headline']}
+              label="화면에 표시할 제목"
+              rules={[{ required: true, whitespace: true, message: '표시할 제목을 입력해주세요' }, { max: 40 }]}
+            >
+              <Input maxLength={40} showCount placeholder="건강하고 사랑스러운 반려동물" />
+            </Form.Item>
+            <Form.Item name={['textOverlay', 'subtitle']} label="보조 문구" rules={[{ max: 60 }]}>
+              <Input maxLength={60} showCount placeholder="에서 찾으세요!" />
+            </Form.Item>
+            <Form.Item name={['textOverlay', 'ctaLabel']} label="이동 버튼 문구 (선택)" rules={[{ max: 24 }]}>
+              <Input maxLength={24} showCount placeholder="앱에서 만나기" />
+            </Form.Item>
+            {desktopPreviewImage && textOverlay?.headline && (
+              <BannerTextPreview
+                imageUrl={desktopPreviewImage}
+                mobileImageUrl={mobilePreviewImage}
+                copy={textOverlay}
+              />
+            )}
+          </>
+        )}
+
         <Form.Item name="title" label="제목 (선택)">
           <Input placeholder="배너 제목 (관리용)" />
         </Form.Item>
@@ -127,11 +172,7 @@ export function BannerModal({
           <Input.TextArea placeholder="배너 설명 (관리용)" rows={2} />
         </Form.Item>
 
-        <Form.Item
-          name="linkType"
-          label="링크 타입"
-          rules={[{ required: true, message: '링크 타입을 선택해주세요' }]}
-        >
+        <Form.Item name="linkType" label="링크 타입" rules={[{ required: true, message: '링크 타입을 선택해주세요' }]}>
           <Select>
             <Select.Option value="internal">내부 링크</Select.Option>
             <Select.Option value="external">외부 링크</Select.Option>

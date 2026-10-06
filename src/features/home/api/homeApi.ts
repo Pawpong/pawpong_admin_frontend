@@ -1,5 +1,12 @@
 import apiClient from '../../../shared/api/axios';
 
+export interface BannerTextOverlay {
+  layout: 'welcome' | 'launch' | 'category';
+  headline: string;
+  subtitle?: string;
+  ctaLabel?: string;
+}
+
 export interface Banner {
   bannerId: string;
   desktopImageUrl: string; // PC/Pad 버전 이미지 URL
@@ -10,6 +17,7 @@ export interface Banner {
   linkUrl: string;
   title?: string;
   description?: string;
+  textOverlay?: BannerTextOverlay | null;
   order: number;
   isActive?: boolean;
   targetAudience?: ('guest' | 'adopter' | 'breeder')[]; // 표시 대상 (비어있으면 전체)
@@ -22,6 +30,7 @@ export interface BannerCreateRequest {
   linkUrl: string;
   title?: string;
   description?: string;
+  textOverlay?: BannerTextOverlay | null;
   order?: number;
   isActive?: boolean;
   targetAudience?: ('guest' | 'adopter' | 'breeder')[]; // 표시 대상
@@ -34,6 +43,7 @@ export interface BannerUpdateRequest {
   linkUrl?: string;
   title?: string;
   description?: string;
+  textOverlay?: BannerTextOverlay | null;
   order?: number;
   isActive?: boolean;
   targetAudience?: ('guest' | 'adopter' | 'breeder')[]; // 표시 대상
