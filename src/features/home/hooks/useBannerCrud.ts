@@ -1,12 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Form, message } from 'antd';
 
-import {
-  homeApi,
-  type Banner,
-  type BannerCreateRequest,
-  type BannerUpdateRequest,
-} from '../api/homeApi';
+import { homeApi, type Banner, type BannerCreateRequest, type BannerUpdateRequest } from '../api/homeApi';
 import { uploadApi } from '../../upload/api/uploadApi';
 import { useListData } from '../../../shared/hooks';
 
@@ -46,6 +41,8 @@ export function useBannerCrud() {
     resetImageState();
     form.resetFields();
     form.setFieldsValue({
+      textOverlayEnabled: false,
+      textOverlay: { layout: 'welcome', headline: '' },
       linkType: 'internal',
       isActive: true,
       order: banners.length,
@@ -61,7 +58,10 @@ export function useBannerCrud() {
       setMobileImageFileName(banner.mobileImageFileName);
       setDesktopPreviewImage(banner.desktopImageUrl || '');
       setMobilePreviewImage(banner.mobileImageUrl || '');
+      form.resetFields();
       form.setFieldsValue({
+        textOverlayEnabled: Boolean(banner.textOverlay),
+        textOverlay: banner.textOverlay ?? { layout: 'welcome', headline: '', subtitle: '', ctaLabel: '' },
         title: banner.title,
         description: banner.description,
         linkType: banner.linkType,
@@ -115,7 +115,11 @@ export function useBannerCrud() {
 
   const handleSubmit = useCallback(async () => {
     try {
-      const values = await form.validateFields();
+      const { textOverlayEnabled, textOverlay, ...fields } = await form.validateFields();
+      const values = {
+        ...fields,
+        textOverlay: textOverlayEnabled ? textOverlay : null,
+      };
 
       if (!desktopImageFileName) {
         message.error('PC/Pad 배너 이미지를 업로드해주세요');
