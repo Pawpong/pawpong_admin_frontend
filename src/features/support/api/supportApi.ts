@@ -1,4 +1,5 @@
 import apiClient from '../../../shared/api/axios';
+import type { SupportConversation } from '../model/supportConversation';
 export type Status = 'open' | 'in_progress' | 'resolved';
 export type Ticket = {
   eventId: string;
@@ -11,6 +12,8 @@ export type Ticket = {
   deliveryStatus: string;
   createdAt: string;
   history: { actorId: string; status: Status; assigneeId: string; note: string; at: string }[];
+  // 1:1 문의 대화로 접수된 건만 있다. 응답 스키마가 열려 있어 없는 경우를 함께 다룬다.
+  conversation?: SupportConversation;
 };
 
 export const supportApi = {
