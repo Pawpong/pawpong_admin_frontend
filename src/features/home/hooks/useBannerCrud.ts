@@ -178,7 +178,6 @@ export function useBannerCrud() {
         if (!banner) return;
 
         await homeApi.updateBanner(bannerId, {
-          ...banner,
           isActive: !currentStatus,
         });
         message.success(`배너가 ${!currentStatus ? '활성화' : '비활성화'}되었습니다`);
