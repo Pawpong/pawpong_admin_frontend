@@ -1,11 +1,61 @@
 import { useCallback, useState } from 'react';
-import { Alert, App, Button, Card, Drawer, Input, Select, Space, Table, Tag, Timeline, Typography } from 'antd';
+import {
+  Alert,
+  App,
+  Button,
+  Card,
+  Descriptions,
+  Drawer,
+  Input,
+  Select,
+  Space,
+  Table,
+  Tag,
+  Timeline,
+  Typography,
+} from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { supportApi, type Status, type Ticket } from '../features/support/api/supportApi';
+import { supportConversationView, type SupportConversationView } from '../features/support/model/supportConversation';
 import { useRemoteData } from '../shared/hooks/useRemoteData';
 import { PageHeading } from '../shared/components/admin/PageHeading';
 const labels = { open: '접수', in_progress: '처리 중', resolved: '처리 완료' };
 const options = Object.entries(labels).map(([value, label]) => ({ value, label }));
+function SupportConversationSummary({ conversation }: { conversation: SupportConversationView }) {
+  return (
+    <Descriptions size="small" column={1} bordered style={{ marginBottom: 16 }} title="1:1 문의 요약">
+      <Descriptions.Item label="문의 유형">{conversation.categoryLabel}</Descriptions.Item>
+      <Descriptions.Item label="참조 코드">
+        {conversation.referenceCode ? <Typography.Text copyable>{conversation.referenceCode}</Typography.Text> : '없음'}
+      </Descriptions.Item>
+      {conversation.title && <Descriptions.Item label="제목">{conversation.title}</Descriptions.Item>}
+      {conversation.summary && (
+        <Descriptions.Item label="요약">
+          <span style={{ whiteSpace: 'pre-wrap' }}>{conversation.summary}</span>
+        </Descriptions.Item>
+      )}
+      {conversation.conditions.length > 0 && (
+        <Descriptions.Item label="상황">
+          <ul style={{ margin: 0, paddingLeft: 18 }}>
+            {conversation.conditions.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </Descriptions.Item>
+      )}
+      {conversation.additionalInfo.length > 0 && (
+        <Descriptions.Item label="추가 정보">
+          <ul style={{ margin: 0, paddingLeft: 18 }}>
+            {conversation.additionalInfo.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </Descriptions.Item>
+      )}
+    </Descriptions>
+  );
+}
+
 export default function Support() {
   const { message } = App.useApp();
   const [search, setSearch] = useSearchParams();
@@ -13,6 +63,7 @@ export default function Support() {
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState<Status>();
   const [selected, setSelected] = useState<Ticket>();
+  const selectedConversation = supportConversationView(selected?.conversation);
   const [status, setStatus] = useState<Status>('open');
   const [assignment, setAssignment] = useState<'me' | 'unassigned'>();
   const [note, setNote] = useState('');
@@ -103,8 +154,13 @@ export default function Support() {
             {
               title: '종류',
               dataIndex: 'kind',
-              render: (v) =>
-                ({ feedback: '사용자 피드백', ai_no_match: 'FAQ 없음', ai_error: 'AI 답변 오류' })[v as string] || v,
+              render: (v, row) => {
+                const conversation = supportConversationView(row.conversation);
+                if (conversation) return `1:1 문의 · ${conversation.categoryLabel}`;
+                return (
+                  { feedback: '사용자 피드백', ai_no_match: 'FAQ 없음', ai_error: 'AI 답변 오류' }[v as string] || v
+                );
+              },
             },
             { title: '환경', dataIndex: 'environment' },
             { title: '처리 상태', dataIndex: 'status', render: (v: Status) => <Tag>{labels[v] || '접수'}</Tag> },
@@ -135,6 +191,7 @@ export default function Support() {
         <Typography.Paragraph style={{ whiteSpace: 'pre-wrap' }}>
           {selected?.message || 'AI 질문 원문은 저장하지 않습니다.'}
         </Typography.Paragraph>
+        {selectedConversation && <SupportConversationSummary conversation={selectedConversation} />}
         <Space direction="vertical" style={{ width: '100%' }}>
           <Select
             aria-label="처리 상태"
