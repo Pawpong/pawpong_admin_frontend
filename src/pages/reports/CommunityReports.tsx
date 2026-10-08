@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { App, Button, Descriptions, Modal, Select, Space, Table, Tag } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
 import { operationsApi } from '../../features/operations/api/operationsApi';
@@ -6,6 +6,8 @@ import type { CommunityReportAdminItemResponse } from '../../features/operations
 import { useRemoteData } from '../../shared/hooks/useRemoteData';
 import { LoadError, PageHeading } from '../../shared/components/admin/PageHeading';
 import { getStatusTag } from '../../features/breeder/ui/breederReportHelpers';
+import { useAuthStore } from '../../features/auth/store/authStore';
+import { assertAdminRequestSession, captureAdminRequestSession, isCurrentAdminRequestSession } from '../../shared/api/adminRequestSession';
 
 const reasons: Record<string, string> = {
   spam: '스팸',
@@ -16,14 +18,22 @@ const reasons: Record<string, string> = {
 };
 export default function CommunityReports() {
   const { message, modal } = App.useApp();
+  const sessionRevision = useAuthStore((state) => state.sessionRevision);
+  const confirmations = useRef(new Set<{ destroy: () => void }>());
+  useEffect(() => {
+    const active = confirmations.current;
+    return () => { active.forEach(dialog => dialog.destroy()); active.clear(); };
+  }, [sessionRevision]);
   const [query, setQuery] = useState<{ page: number; limit: number; status?: 'pending' | 'resolved' | 'dismissed' }>({
     page: 1,
     limit: 20,
   });
-  const [selected, setSelected] = useState<CommunityReportAdminItemResponse>();
+  const [selection, setSelection] = useState<{ item: CommunityReportAdminItemResponse; sessionRevision: number }>();
+  const selected = selection?.sessionRevision === sessionRevision ? selection.item : undefined;
   const list = useRemoteData(useCallback(() => operationsApi.getCommunityReports(query), [query]));
-  const act = (item: CommunityReportAdminItemResponse, resolve: boolean) =>
-    modal.confirm({
+  const act = (item: CommunityReportAdminItemResponse, resolve: boolean) => {
+    const session = captureAdminRequestSession();
+    const dialog = modal.confirm({
       title: resolve ? '신고된 게시물을 숨길까요?' : '이 신고를 기각할까요?',
       content: resolve
         ? '신고가 처리되고 해당 게시물이 사용자에게 보이지 않게 됩니다.'
@@ -31,19 +41,26 @@ export default function CommunityReports() {
       okText: resolve ? '숨김 처리' : '기각',
       cancelText: '취소',
       okButtonProps: { danger: resolve },
+      afterClose: () => confirmations.current.delete(dialog),
       onOk: async () => {
         try {
+          assertAdminRequestSession(session);
           if (resolve) await operationsApi.resolveCommunityReport(item.reportId);
           else await operationsApi.dismissCommunityReport(item.reportId);
-          setSelected(undefined);
+          assertAdminRequestSession(session);
+          setSelection(undefined);
+          setQuery(current => ({ ...current, page: 1 }));
           list.reload();
           message.success('신고를 처리했습니다.');
         } catch (error) {
+          if (!isCurrentAdminRequestSession(session)) return;
           message.error('신고 처리에 실패했습니다.');
           throw error;
         }
       },
     });
+    confirmations.current.add(dialog);
+  };
   return (
     <div>
       <PageHeading
@@ -94,7 +111,7 @@ export default function CommunityReports() {
             title: '관리',
             render: (_, item) => (
               <Space>
-                <Button size="small" onClick={() => setSelected(item)}>
+                <Button size="small" onClick={() => setSelection({ item, sessionRevision })}>
                   상세
                 </Button>
                 {item.status === 'pending' && (
@@ -112,7 +129,7 @@ export default function CommunityReports() {
           },
         ]}
       />
-      <Modal open={!!selected} title="커뮤니티 신고 상세" footer={null} onCancel={() => setSelected(undefined)}>
+      <Modal key={sessionRevision} open={!!selected} title="커뮤니티 신고 상세" footer={null} onCancel={() => setSelection(undefined)}>
         {selected && (
           <Descriptions
             column={1}
