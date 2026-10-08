@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAuthStore } from '../../features/auth/store/authStore';
 
-/** Ignore late responses after changing filters or leaving a page. */
+/** 필터나 로그인 세션이 바뀌면 이전 결과를 즉시 가리고 늦은 응답을 버린다. */
 export function useRemoteData<T>(fetcher: () => Promise<T>) {
+  const sessionRevision = useAuthStore((state) => state.sessionRevision);
   const [revision, setRevision] = useState(0);
-  const key = useMemo(() => ({ fetcher, revision }), [fetcher, revision]);
+  const key = useMemo(() => ({ fetcher, revision, sessionRevision }), [fetcher, revision, sessionRevision]);
   const [result, setResult] = useState<{ key: typeof key; data?: T; error?: string }>();
   useEffect(() => {
     let active = true;

@@ -1,4 +1,5 @@
 import apiClient from '../../../shared/api/axios';
+import { captureAdminRequestSession, isCurrentAdminRequestSession } from '../../../shared/api/adminRequestSession';
 import { useAuthStore } from '../store/authStore';
 import type { ApiResponse, LoginRequest, AuthResponse } from '../../../shared/types/api.types';
 
@@ -18,10 +19,11 @@ export const authApi = {
    * 로그아웃
    */
   logout: async (): Promise<void> => {
+    const session = captureAdminRequestSession();
     try {
       await apiClient.post('/v2/auth/logout');
     } finally {
-      useAuthStore.getState().logout();
+      if (isCurrentAdminRequestSession(session)) useAuthStore.getState().logout();
     }
   },
 
