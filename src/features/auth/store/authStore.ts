@@ -5,6 +5,7 @@ import type { AuthResponse } from '../../../shared/types/api.types';
 interface AuthState {
   user: AuthResponse | null;
   isAuthenticated: boolean;
+  sessionRevision: number;
   login: (user: AuthResponse) => void;
   logout: () => void;
   updateTokens: (accessToken: string, refreshToken: string) => void;
@@ -15,17 +16,18 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       isAuthenticated: false,
+      sessionRevision: 0,
 
       login: (user: AuthResponse) => {
         localStorage.setItem('accessToken', user.accessToken);
         localStorage.setItem('refreshToken', user.refreshToken);
-        set({ user, isAuthenticated: true });
+        set((state) => ({ user, isAuthenticated: true, sessionRevision: state.sessionRevision + 1 }));
       },
 
       logout: () => {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        set({ user: null, isAuthenticated: false });
+        set((state) => ({ user: null, isAuthenticated: false, sessionRevision: state.sessionRevision + 1 }));
       },
 
       updateTokens: (accessToken: string, refreshToken: string) => {

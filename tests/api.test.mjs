@@ -149,14 +149,14 @@ test('backend resolved/dismissed report statuses render Korean labels', () => {
   assert.equal(getStatusTag('dismissed').props.children, '반려됨');
 });
 
-test('refresh completion cannot restore a logged-out session', async () => {
+test('토큰 갱신 완료가 로그아웃된 세션을 되살리지 않는다', async () => {
   login();
   axios.defaults.adapter = async (config) => {
     useAuthStore.getState().logout();
     return response(config, { data: { accessToken: 'new' } });
   };
   client.defaults.adapter = unauthorized;
-  await assert.rejects(client.get('/one'), /Session changed/);
+  await assert.rejects(client.get('/one'), /로그인 상태가 변경/);
   assert.equal(useAuthStore.getState().isAuthenticated, false);
   assert.equal(localStorage.getItem('accessToken'), null);
 });
