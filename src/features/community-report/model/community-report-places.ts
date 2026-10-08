@@ -30,3 +30,11 @@ export function communityReportPlaceRows(
     };
   });
 }
+
+/** 서버가 알려주는 AI 공개 심사 상태. 심사 없이 올라간 기존 글은 legacy로 온다. */
+export function communityReviewStateLabel(state: string | undefined): string {
+  if (state === 'approved') return 'AI 심사 공개 승인';
+  if (state === 'held') return 'AI 심사 공개 보류';
+  if (state === 'legacy') return 'AI 심사 전 글';
+  return 'AI 심사 상태 확인 불가';
+}

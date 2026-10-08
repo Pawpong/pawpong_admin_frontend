@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-const { communityReportPlaceRows } =
+const { communityReportPlaceRows, communityReviewStateLabel } =
   await import('../../src/features/community-report/model/community-report-places.ts');
 
 test('공개한 장소는 방문 순서와 좌표와 연결 사진을 그대로 보여주고 지도 링크를 만든다', () => {
@@ -40,4 +40,13 @@ test('검토 화면은 이전 서버 응답에는 장소 영역을 숨기고 연
     review,
     /<CommunityReportPlaces places=\{post\.places\} publicPlaceConfirmed=\{post\.publicPlaceConfirmed\} \/>/,
   );
+});
+
+test('신고 검토 화면은 AI 공개 심사 상태를 알려주고 모르는 값은 확인 불가로 보여준다', () => {
+  assert.equal(communityReviewStateLabel('approved'), 'AI 심사 공개 승인');
+  assert.equal(communityReviewStateLabel('held'), 'AI 심사 공개 보류');
+  assert.equal(communityReviewStateLabel('legacy'), 'AI 심사 전 글');
+  assert.equal(communityReviewStateLabel('새로운 상태'), 'AI 심사 상태 확인 불가');
+  const review = readFileSync('src/features/community-report/ui/CommunityReportReview.tsx', 'utf8');
+  assert.match(review, /communityReviewStateLabel\(post\.reviewState\)/);
 });

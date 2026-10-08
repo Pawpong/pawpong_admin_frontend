@@ -4,6 +4,7 @@ import { getCommunityReportReview } from '../api/communityReportApi';
 import { useRemoteData } from '../../../shared/hooks/useRemoteData';
 import { CommunityReportPhoto } from './CommunityReportPhoto';
 import { CommunityReportPlaces } from './CommunityReportPlaces';
+import { communityReviewStateLabel } from '../model/community-report-places';
 
 export function CommunityReportReview({ reportId }: { reportId: string }) {
   const detail = useRemoteData(useCallback(() => getCommunityReportReview(reportId), [reportId]));
@@ -38,6 +39,9 @@ export function CommunityReportReview({ reportId }: { reportId: string }) {
       <Space wrap style={{ marginBottom: 12 }}>
         <Tag>{post.isActive ? '게시 중' : '숨김 처리됨'}</Tag>
         <Tag>{post.visibility === 'followers' ? '팔로워 공개' : '전체 공개'}</Tag>
+        <Tag color={post.reviewState === 'held' ? 'orange' : undefined}>
+          {communityReviewStateLabel(post.reviewState)}
+        </Tag>
         <Typography.Text type="secondary">작성자 {post.authorNickname || '정보 없음'}</Typography.Text>
         <Button size="small" onClick={detail.reload}>
           최신 내용 확인
