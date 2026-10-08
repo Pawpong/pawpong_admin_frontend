@@ -3,6 +3,7 @@ import { Alert, Button, Space, Spin, Tag, Typography } from 'antd';
 import { getCommunityReportReview } from '../api/communityReportApi';
 import { useRemoteData } from '../../../shared/hooks/useRemoteData';
 import { CommunityReportPhoto } from './CommunityReportPhoto';
+import { CommunityReportPlaces } from './CommunityReportPlaces';
 
 export function CommunityReportReview({ reportId }: { reportId: string }) {
   const detail = useRemoteData(useCallback(() => getCommunityReportReview(reportId), [reportId]));
@@ -74,6 +75,7 @@ export function CommunityReportReview({ reportId }: { reportId: string }) {
           </div>
         </>
       )}
+      <CommunityReportPlaces places={post.places} publicPlaceConfirmed={post.publicPlaceConfirmed} />
     </section>
   );
 }
