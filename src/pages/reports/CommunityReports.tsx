@@ -7,7 +7,12 @@ import { useRemoteData } from '../../shared/hooks/useRemoteData';
 import { LoadError, PageHeading } from '../../shared/components/admin/PageHeading';
 import { getStatusTag } from '../../features/breeder/ui/breederReportHelpers';
 import { useAuthStore } from '../../features/auth/store/authStore';
-import { assertAdminRequestSession, captureAdminRequestSession, isCurrentAdminRequestSession } from '../../shared/api/adminRequestSession';
+import {
+  assertAdminRequestSession,
+  captureAdminRequestSession,
+  isCurrentAdminRequestSession,
+} from '../../shared/api/adminRequestSession';
+import { CommunityReportReview } from '../../features/community-report/ui/CommunityReportReview';
 
 const reasons: Record<string, string> = {
   spam: '스팸',
@@ -22,7 +27,10 @@ export default function CommunityReports() {
   const confirmations = useRef(new Set<{ destroy: () => void }>());
   useEffect(() => {
     const active = confirmations.current;
-    return () => { active.forEach(dialog => dialog.destroy()); active.clear(); };
+    return () => {
+      active.forEach((dialog) => dialog.destroy());
+      active.clear();
+    };
   }, [sessionRevision]);
   const [query, setQuery] = useState<{ page: number; limit: number; status?: 'pending' | 'resolved' | 'dismissed' }>({
     page: 1,
@@ -49,7 +57,7 @@ export default function CommunityReports() {
           else await operationsApi.dismissCommunityReport(item.reportId);
           assertAdminRequestSession(session);
           setSelection(undefined);
-          setQuery(current => ({ ...current, page: 1 }));
+          setQuery((current) => ({ ...current, page: 1 }));
           list.reload();
           message.success('신고를 처리했습니다.');
         } catch (error) {
@@ -129,18 +137,29 @@ export default function CommunityReports() {
           },
         ]}
       />
-      <Modal key={sessionRevision} open={!!selected} title="커뮤니티 신고 상세" footer={null} onCancel={() => setSelection(undefined)}>
+      <Modal
+        key={sessionRevision}
+        open={!!selected}
+        title="커뮤니티 신고 상세"
+        width={820}
+        footer={null}
+        destroyOnHidden
+        onCancel={() => setSelection(undefined)}
+      >
         {selected && (
-          <Descriptions
-            column={1}
-            bordered
-            items={[
-              { key: 'report', label: '신고 ID', children: selected.reportId },
-              { key: 'post', label: '게시물 ID', children: selected.postId },
-              { key: 'reporter', label: '신고자', children: selected.reporterNickname },
-              { key: 'description', label: '신고 내용', children: selected.description || '상세 내용 없음' },
-            ]}
-          />
+          <Space direction="vertical" size="large" style={{ width: '100%' }}>
+            <CommunityReportReview key={selected.reportId} reportId={selected.reportId} />
+            <Descriptions
+              column={1}
+              bordered
+              items={[
+                { key: 'report', label: '신고 ID', children: selected.reportId },
+                { key: 'post', label: '게시물 ID', children: selected.postId },
+                { key: 'reporter', label: '신고자', children: selected.reporterNickname },
+                { key: 'description', label: '신고 내용', children: selected.description || '상세 내용 없음' },
+              ]}
+            />
+          </Space>
         )}
       </Modal>
     </div>
