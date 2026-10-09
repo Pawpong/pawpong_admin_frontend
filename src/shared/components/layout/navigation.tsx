@@ -8,6 +8,7 @@ import {
   SettingOutlined,
   BarChartOutlined,
   LinkOutlined,
+  CloudServerOutlined,
 } from '@ant-design/icons';
 
 export const navigation = [
@@ -24,6 +25,7 @@ export const navigation = [
     items: [
       { path: '/dashboard', label: '대시보드', icon: <DashboardOutlined /> },
       { path: '/statistics', label: '서비스 통계', icon: <BarChartOutlined /> },
+      { path: '/monitoring', label: '서버 모니터링', icon: <CloudServerOutlined /> },
     ],
   },
   {
