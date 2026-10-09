@@ -15,6 +15,7 @@ export type AdminPermission = keyof AuthResponse['permissions'];
 const ROUTE_PERMISSION: Array<{ prefix: string; permission: AdminPermission }> = [
   { prefix: '/settings/backups', permission: 'canManageAdmins' },
   { prefix: '/settings/health', permission: 'canViewStatistics' },
+  { prefix: '/monitoring', permission: 'canViewStatistics' },
   { prefix: '/dashboard', permission: 'canViewStatistics' },
   { prefix: '/statistics', permission: 'canViewStatistics' },
   { prefix: '/users', permission: 'canManageUsers' },

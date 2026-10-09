@@ -13,6 +13,7 @@ const Support = lazy(() => import('../pages/Support'));
 const CommunityReports = lazy(() => import('../pages/reports/CommunityReports'));
 const PopularKeywords = lazy(() => import('../pages/settings/PopularKeywords'));
 const SystemHealth = lazy(() => import('../pages/settings/SystemHealth'));
+const ServerMonitoring = lazy(() => import('../pages/ServerMonitoring'));
 const ProductionBackups = lazy(() => import('../pages/settings/ProductionBackups'));
 const NotificationHistory = lazy(() => import('../pages/notifications/NotificationHistory'));
 const EmailTemplates = lazy(() => import('../pages/notifications/EmailTemplates'));
@@ -102,6 +103,9 @@ function App() {
 
                 {/* MVP 통계 */}
                 <Route path="statistics" element={<MvpStatsPage />} />
+
+                {/* 서버 모니터링 (그라파나·센트리 대체) */}
+                <Route path="monitoring" element={<ServerMonitoring />} />
 
                 {/* 사용자 관리 */}
                 <Route path="users" element={<Users />} />
