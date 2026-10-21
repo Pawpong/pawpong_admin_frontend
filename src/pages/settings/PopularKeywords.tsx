@@ -8,6 +8,7 @@ import type {
 } from '../../features/operations/api/operations.types';
 import { useRemoteData } from '../../shared/hooks/useRemoteData';
 import { LoadError, PageHeading } from '../../shared/components/admin/PageHeading';
+import { popularKeywordErrorMessage, popularKeywordPayload } from '../../features/operations/model/popularKeyword';
 
 export default function PopularKeywords() {
   const { message } = App.useApp();
@@ -29,14 +30,14 @@ export default function PopularKeywords() {
   const save = async (values: CreatePopularKeywordRequest) => {
     setSaving(true);
     try {
-      const data = { keyword: values.keyword.trim(), rank: values.rank, isActive: values.isActive };
+      const data = popularKeywordPayload(values);
       if (editing) await operationsApi.updateKeyword(editing.keywordId, data);
       else await operationsApi.createKeyword(data);
       setOpen(false);
       list.reload();
       message.success('검색어를 저장했습니다.');
-    } catch {
-      message.error('검색어 저장에 실패했습니다.');
+    } catch (error) {
+      message.error(popularKeywordErrorMessage(error, '검색어 저장에 실패했습니다.'));
     } finally {
       setSaving(false);
     }
@@ -99,6 +100,7 @@ export default function PopularKeywords() {
                     try {
                       await operationsApi.deleteKeyword(item.keywordId);
                       list.reload();
+                      message.success('검색어를 삭제했습니다.');
                     } catch {
                       message.error('검색어 삭제에 실패했습니다.');
                     }
