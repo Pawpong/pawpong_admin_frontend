@@ -1,6 +1,6 @@
 # 검증 방법
 
-Node 22.15 이상, pnpm 9.15.4.
+Node 22.15 이상, pnpm 10.34.9.
 
 ```sh
 pnpm test:contract:update
